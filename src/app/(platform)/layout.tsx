@@ -1,15 +1,8 @@
 import React from 'react';
 
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-
 import { QueryProvider } from '@/lib/query/provider';
-import { createClient } from '@/lib/supabase/server';
 
 import type { Metadata } from 'next';
-
-/** Default locale for redirect fallback */
-const DEFAULT_LOCALE = 'en';
 
 /**
  * Platform Layout Metadata
@@ -29,30 +22,20 @@ export const metadata: Metadata = {
  * Platform Layout
  *
  * This is the root layout for all authenticated platform pages.
- * It performs an auth check and redirects to login if not authenticated.
- * Also wraps children with the QueryProvider for TanStack Query support.
+ * Authentication is handled by middleware - this layout only provides
+ * the QueryProvider wrapper for TanStack Query support.
+ *
+ * NOTE: Auth checks were removed from this layout to prevent redirect loops
+ * caused by auth state inconsistency between middleware (uses request.cookies)
+ * and server components (uses next/headers cookies()). Middleware is now the
+ * single source of truth for route protection.
  *
  * @see https://nextjs.org/docs/app/building-your-application/routing/route-groups
  */
-export default async function PlatformLayout({
+export default function PlatformLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>): Promise<React.JSX.Element> {
-  // Check authentication on the server
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  // Redirect to login if not authenticated
-  // Use locale from cookie or default to 'en' to avoid redirect loops
-  if (error || !user) {
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || DEFAULT_LOCALE;
-    redirect(`/${locale}/login`);
-  }
-
+}>): React.JSX.Element {
   return <QueryProvider>{children}</QueryProvider>;
 }
