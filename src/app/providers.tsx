@@ -5,6 +5,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider, App as AntdApp, theme } from 'antd';
 
+import { QueryProvider } from '@/lib/query/provider';
 import { antdTheme, antdDarkTheme } from '@/styles/antd-theme';
 
 /**
@@ -63,7 +64,9 @@ export function Providers({ children }: ProvidersProps): React.JSX.Element {
     return (
       <AntdRegistry>
         <ConfigProvider theme={antdTheme}>
-          <AntdApp>{children}</AntdApp>
+          <AntdApp>
+            <QueryProvider>{children}</QueryProvider>
+          </AntdApp>
         </ConfigProvider>
       </AntdRegistry>
     );
@@ -72,7 +75,9 @@ export function Providers({ children }: ProvidersProps): React.JSX.Element {
   return (
     <AntdRegistry>
       <ConfigProvider theme={themeWithAlgorithm}>
-        <AntdApp>{children}</AntdApp>
+        <AntdApp>
+          <QueryProvider>{children}</QueryProvider>
+        </AntdApp>
       </ConfigProvider>
     </AntdRegistry>
   );

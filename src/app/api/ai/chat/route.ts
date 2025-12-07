@@ -76,7 +76,7 @@ export async function POST(request: Request) {
 
     // 3. Stream response from Gemini
     const result = await streamText({
-      model: google('gemini-2.5-flash-preview-09-2025'),
+      model: google('gemini-2.5-flash-lite-preview-06-2025'),
       messages,
       system: SYSTEM_PROMPT,
     });
