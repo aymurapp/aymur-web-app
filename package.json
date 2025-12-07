@@ -22,8 +22,7 @@
     "storybook:test": "test-storybook"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.44",
-    "@ai-sdk/react": "^2.0.109",
+    "@ai-sdk/google": "^1.2.0",
     "@ant-design/charts": "^2.6.6",
     "@ant-design/cssinjs": "^2.0.1",
     "@ant-design/icons": "^6.1.0",
@@ -41,7 +40,7 @@
     "@supabase/supabase-js": "^2.86.0",
     "@tanstack/react-query": "^5.90.11",
     "@tanstack/react-query-devtools": "^5.91.1",
-    "ai": "^5.0.108",
+    "ai": "^3.4.33",
     "antd": "^5.29.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
