@@ -1,11 +1,15 @@
 import React from 'react';
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { QueryProvider } from '@/lib/query/provider';
 import { createClient } from '@/lib/supabase/server';
 
 import type { Metadata } from 'next';
+
+/** Default locale for redirect fallback */
+const DEFAULT_LOCALE = 'en';
 
 /**
  * Platform Layout Metadata
@@ -43,8 +47,11 @@ export default async function PlatformLayout({
   } = await supabase.auth.getUser();
 
   // Redirect to login if not authenticated
+  // Use locale from cookie or default to 'en' to avoid redirect loops
   if (error || !user) {
-    redirect('/login');
+    const cookieStore = await cookies();
+    const locale = cookieStore.get('NEXT_LOCALE')?.value || DEFAULT_LOCALE;
+    redirect(`/${locale}/login`);
   }
 
   return <QueryProvider>{children}</QueryProvider>;
