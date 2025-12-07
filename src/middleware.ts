@@ -2,28 +2,24 @@
  * Next.js Middleware
  *
  * This middleware runs on every request and handles:
- * 1. Domain-based routing (aymur.com vs platform.aymur.com)
+ * 1. i18n locale routing (via next-intl createMiddleware)
  * 2. Supabase session refresh (keeps auth tokens valid)
  * 3. Route protection (redirects unauthenticated users)
- * 4. i18n locale detection and routing
+ * 4. Domain-based routing (aymur.com vs platform.aymur.com)
  *
- * Domain Routing:
- * - aymur.com → (marketing) pages
- * - platform.aymur.com → (platform) app pages
+ * IMPORTANT: Uses next-intl's createMiddleware for locale handling.
+ * Custom locale handling was removed to prevent conflicts with next-intl plugin.
  *
- * Route Groups:
- * - (marketing) - Public marketing pages (no auth required)
- * - (auth) - Authentication pages (login, signup, etc.)
- * - (platform) - Protected app routes (requires authentication)
- *
+ * @see https://next-intl-docs.vercel.app/docs/routing/middleware
  * @module middleware
  */
 
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 import { createServerClient } from '@supabase/ssr';
+import createIntlMiddleware from 'next-intl/middleware';
 
-import { routing, type Locale } from '@/lib/i18n/routing';
+import { routing } from '@/lib/i18n/routing';
 import type { Database } from '@/lib/types/database';
 
 /**
@@ -31,13 +27,6 @@ import type { Database } from '@/lib/types/database';
  */
 const MARKETING_DOMAINS = ['aymur.com', 'www.aymur.com'];
 const PLATFORM_DOMAINS = ['platform.aymur.com'];
-// Localhost and preview deployments work for both
-
-/**
- * Locales from routing configuration - single source of truth
- */
-const locales = routing.locales;
-const defaultLocale = routing.defaultLocale;
 
 /**
  * Routes that don't require authentication.
@@ -64,70 +53,26 @@ const publicRoutes = [
 ];
 
 /**
- * Route patterns that should completely bypass middleware.
- * These are static assets, API routes, etc.
+ * Marketing-only paths that should redirect to aymur.com on platform domain
  */
-const bypassPatterns = [
-  '/_next',
-  '/api',
-  '/favicon.ico',
-  '/robots.txt',
-  '/sitemap.xml',
-  '/manifest.json',
-];
+const marketingOnlyPaths = ['/about', '/pricing', '/contact', '/terms', '/privacy', '/features'];
 
 /**
- * Detects the preferred locale from the request.
- * Checks URL path first, then Accept-Language header, then defaults.
- *
- * @param request - The incoming request
- * @returns The detected locale
+ * Platform paths that should redirect to platform.aymur.com on marketing domain
  */
-function getLocale(request: NextRequest): Locale {
-  // Check if locale is in the URL path
-  const pathname = request.nextUrl.pathname;
-  const pathnameLocale = locales.find(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  );
+const platformPaths = ['/shops', '/profile', '/subscription'];
 
-  if (pathnameLocale) {
-    return pathnameLocale;
-  }
-
-  // Check Accept-Language header
-  const acceptLanguage = request.headers.get('Accept-Language');
-  if (acceptLanguage) {
-    const preferredLocale = acceptLanguage
-      .split(',')
-      .map((lang) => {
-        const langPart = lang.split(';')[0];
-        return langPart ? langPart.trim().substring(0, 2).toLowerCase() : '';
-      })
-      .filter((lang) => lang.length > 0)
-      .find((lang) => locales.includes(lang as Locale));
-
-    if (preferredLocale) {
-      return preferredLocale as Locale;
-    }
-  }
-
-  // Check cookie for previously set locale
-  const localeCookie = request.cookies.get('NEXT_LOCALE')?.value;
-  if (localeCookie && locales.includes(localeCookie as Locale)) {
-    return localeCookie as Locale;
-  }
-
-  return defaultLocale;
-}
+/**
+ * Create the next-intl middleware for i18n handling
+ * This handles ALL locale detection, redirects, and cookie management
+ */
+const handleI18nRouting = createIntlMiddleware(routing);
 
 /**
  * Removes the locale prefix from a pathname.
- *
- * @param pathname - The pathname to process
- * @returns The pathname without locale prefix
  */
 function removeLocalePrefix(pathname: string): string {
-  for (const locale of locales) {
+  for (const locale of routing.locales) {
     if (pathname.startsWith(`/${locale}/`)) {
       return pathname.substring(locale.length + 1);
     }
@@ -140,20 +85,14 @@ function removeLocalePrefix(pathname: string): string {
 
 /**
  * Checks if a pathname matches a public route.
- *
- * @param pathname - The pathname to check (without locale)
- * @returns Whether the route is public
  */
 function isPublicRoute(pathname: string): boolean {
-  // Normalize pathname
   const normalizedPath = pathname === '' ? '/' : pathname;
 
   return publicRoutes.some((route) => {
-    // Exact match
     if (normalizedPath === route) {
       return true;
     }
-    // Prefix match for nested routes under public paths
     if (route !== '/' && normalizedPath.startsWith(`${route}/`)) {
       return true;
     }
@@ -162,20 +101,7 @@ function isPublicRoute(pathname: string): boolean {
 }
 
 /**
- * Checks if a pathname should bypass middleware entirely.
- *
- * @param pathname - The pathname to check
- * @returns Whether to bypass middleware
- */
-function shouldBypass(pathname: string): boolean {
-  return bypassPatterns.some((pattern) => pathname.startsWith(pattern));
-}
-
-/**
  * Determines the domain type from the request hostname.
- *
- * @param hostname - The request hostname
- * @returns 'marketing' | 'platform' | 'development'
  */
 function getDomainType(hostname: string): 'marketing' | 'platform' | 'development' {
   const host = hostname.toLowerCase();
@@ -188,160 +114,108 @@ function getDomainType(hostname: string): 'marketing' | 'platform' | 'developmen
     return 'platform';
   }
 
-  // Localhost, Vercel preview deployments, etc.
   return 'development';
 }
 
 /**
  * Checks if a path is trying to access platform routes.
- * Platform routes start with /[locale]/[shopId] pattern (UUID after locale).
  */
 function isPlatformPath(pathname: string): boolean {
-  // Remove locale prefix first
   const withoutLocale = removeLocalePrefix(pathname);
 
-  // Check if it's a platform-specific route (shops, dashboard with shopId, etc.)
-  const platformPaths = ['/shops', '/profile', '/subscription'];
   if (platformPaths.some((p) => withoutLocale.startsWith(p))) {
     return true;
   }
 
-  // Check for UUID pattern (shopId) - platform routes have shopId in path
+  // Check for UUID pattern (shopId)
   const uuidPattern = /^\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i;
-  if (uuidPattern.test(withoutLocale)) {
-    return true;
-  }
+  return uuidPattern.test(withoutLocale);
+}
 
-  return false;
+/**
+ * Gets the locale from the pathname or defaults
+ */
+function getLocaleFromPath(pathname: string): string {
+  for (const locale of routing.locales) {
+    if (pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`) {
+      return locale;
+    }
+  }
+  return routing.defaultLocale;
 }
 
 /**
  * Main middleware function.
- * Handles domain routing, session refresh, authentication, and i18n routing.
+ * Composes next-intl i18n routing with Supabase auth and domain routing.
  */
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname;
   const hostname = request.headers.get('host') || '';
-
-  // Skip middleware for static assets and API routes
-  if (shouldBypass(pathname)) {
-    return NextResponse.next();
-  }
-
-  // Skip middleware for static file extensions
-  if (/\.(svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$/.test(pathname)) {
-    return NextResponse.next();
-  }
-
-  // Domain-based routing
   const domainType = getDomainType(hostname);
 
-  // Marketing domain (aymur.com) - redirect platform routes to platform.aymur.com
+  // === STEP 1: Cross-domain redirects (before i18n) ===
+
+  // Marketing domain → redirect platform routes to platform.aymur.com
   if (domainType === 'marketing' && isPlatformPath(pathname)) {
     const url = new URL(request.url);
     url.hostname = 'platform.aymur.com';
     return NextResponse.redirect(url);
   }
 
-  // Platform domain marketing route handling is done AFTER auth check
-  // to properly redirect authenticated users to /shops instead of aymur.com
+  // === STEP 2: Let next-intl handle i18n routing ===
+  // This handles locale detection, redirects, rewrites, and cookies
+  const response = handleI18nRouting(request);
 
-  // Create response that we can modify
-  let response = NextResponse.next({
-    request,
-  });
-
-  // Validate environment variables
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('[Middleware] Missing Supabase environment variables');
+  // If next-intl returned a redirect, return it immediately
+  if (
+    response.headers.get('x-middleware-rewrite') === null &&
+    response.status >= 300 &&
+    response.status < 400
+  ) {
     return response;
   }
 
-  // Create Supabase client for session management
-  const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
+  // === STEP 3: Supabase session refresh ===
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  let user = null;
+
+  if (supabaseUrl && supabaseAnonKey) {
+    const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
       },
-      setAll(cookiesToSet) {
-        // Set cookies on the request for downstream middleware/pages
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-
-        // Create new response with updated cookies
-        response = NextResponse.next({
-          request,
-        });
-
-        // Set cookies on the response for the browser
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options)
-        );
-      },
-    },
-  });
-
-  // Refresh session - IMPORTANT: Always call getUser() to refresh tokens
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Detect locale
-  const locale = getLocale(request);
-
-  // Get pathname without locale for route matching
-  const pathnameWithoutLocale = removeLocalePrefix(pathname);
-
-  // Check if the current path has a locale prefix
-  const hasLocalePrefix = locales.some(
-    (loc) => pathname.startsWith(`/${loc}/`) || pathname === `/${loc}`
-  );
-
-  // Handle locale routing for non-API routes
-  // If path doesn't have locale prefix and isn't a bypass route, redirect to locale-prefixed path
-  if (!hasLocalePrefix && !shouldBypass(pathname)) {
-    const url = request.nextUrl.clone();
-    url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
-
-    // Set locale cookie for future requests
-    const redirectResponse = NextResponse.redirect(url);
-    redirectResponse.cookies.set('NEXT_LOCALE', locale, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-      sameSite: 'lax',
     });
 
-    return redirectResponse;
+    // Refresh session - IMPORTANT: Always call getUser() to refresh tokens
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
   }
 
-  // Check authentication for protected routes
+  // === STEP 4: Auth protection ===
+  const pathnameWithoutLocale = removeLocalePrefix(pathname);
   const isPublic = isPublicRoute(pathnameWithoutLocale);
+  const locale = getLocaleFromPath(pathname);
 
   if (!user && !isPublic) {
     // User is not authenticated and trying to access protected route
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}/login`;
     url.searchParams.set('redirect', pathname);
-
     return NextResponse.redirect(url);
   }
 
-  // NOTE: Auth page redirects for authenticated users are NOT handled in middleware.
-  // The login page itself handles redirecting to /shops after successful authentication.
-  // This avoids redirect loops caused by auth state inconsistency between middleware and layouts.
-
-  // Platform domain (platform.aymur.com) - redirect marketing routes to aymur.com
+  // === STEP 5: Platform domain specific routing ===
   if (domainType === 'platform') {
-    const marketingOnlyPaths = [
-      '/about',
-      '/pricing',
-      '/contact',
-      '/terms',
-      '/privacy',
-      '/features',
-    ];
     const isMarketingOnlyPath = marketingOnlyPaths.includes(pathnameWithoutLocale);
 
     // Redirect marketing-only paths to aymur.com
@@ -367,31 +241,20 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  // Set locale cookie on the response
-  response.cookies.set('NEXT_LOCALE', locale, {
-    path: '/',
-    maxAge: 60 * 60 * 24 * 365, // 1 year
-    sameSite: 'lax',
-  });
-
   return response;
 }
 
 /**
  * Middleware configuration.
- * Defines which routes the middleware should run on.
+ * Uses the recommended next-intl matcher pattern.
  */
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - Static file extensions
-     *
-     * This pattern ensures middleware runs on pages but not on static assets.
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$).*)',
+    // Match all pathnames except:
+    // - API routes (/api)
+    // - Next.js internals (/_next)
+    // - Vercel internals (/_vercel)
+    // - Static files (files with extensions like .svg, .png, etc.)
+    '/((?!api|trpc|_next|_vercel|.*\\..*).*)',
   ],
 };
