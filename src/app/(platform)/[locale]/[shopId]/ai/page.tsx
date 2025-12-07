@@ -15,8 +15,8 @@
 
 import { useRef, useEffect } from 'react';
 
+import { useChat } from '@ai-sdk/react';
 import { RobotOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
-import { useChat } from 'ai/react';
 import { Avatar, Button, Card, Empty, Input, Spin, Typography } from 'antd';
 import { useTranslations } from 'next-intl';
 

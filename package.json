@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.44",
+    "@ai-sdk/react": "^2.0.109",
     "@ant-design/charts": "^2.6.6",
     "@ant-design/cssinjs": "^2.0.1",
     "@ant-design/icons": "^6.1.0",
