@@ -248,21 +248,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(url);
   }
 
-  // Platform domain (platform.aymur.com) - redirect marketing routes to aymur.com
-  if (domainType === 'platform') {
-    const pathnameWithoutLocale = removeLocalePrefix(pathname);
-    const isMarketingPath =
-      pathnameWithoutLocale === '/' ||
-      ['/about', '/pricing', '/contact', '/terms', '/privacy', '/features'].includes(
-        pathnameWithoutLocale
-      );
-
-    if (isMarketingPath) {
-      const url = new URL(request.url);
-      url.hostname = 'aymur.com';
-      return NextResponse.redirect(url);
-    }
-  }
+  // Platform domain marketing route handling is done AFTER auth check
+  // to properly redirect authenticated users to /shops instead of aymur.com
 
   // Create response that we can modify
   let response = NextResponse.next({
@@ -346,14 +333,49 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(url);
   }
 
-  // If authenticated user tries to access auth pages, redirect to dashboard
+  // If authenticated user tries to access auth pages, redirect to shops
   if (user && ['/login', '/signup', '/register'].includes(pathnameWithoutLocale)) {
     const url = request.nextUrl.clone();
-    // Get the first shop ID if available, otherwise go to a default route
-    // The shop selection will happen in the (platform) layout
-    url.pathname = `/${locale}/dashboard`;
+    url.pathname = `/${locale}/shops`;
 
     return NextResponse.redirect(url);
+  }
+
+  // If authenticated user accesses root locale path, redirect to shops
+  if (user && (pathnameWithoutLocale === '/' || pathnameWithoutLocale === '')) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${locale}/shops`;
+
+    return NextResponse.redirect(url);
+  }
+
+  // Platform domain (platform.aymur.com) - redirect marketing routes to aymur.com
+  // This happens AFTER auth check so authenticated users get redirected to /shops first
+  if (domainType === 'platform') {
+    const marketingOnlyPaths = [
+      '/about',
+      '/pricing',
+      '/contact',
+      '/terms',
+      '/privacy',
+      '/features',
+    ];
+    const isMarketingOnlyPath = marketingOnlyPaths.includes(pathnameWithoutLocale);
+
+    // Redirect marketing-only paths to aymur.com
+    if (isMarketingOnlyPath) {
+      const url = new URL(request.url);
+      url.hostname = 'aymur.com';
+      return NextResponse.redirect(url);
+    }
+
+    // For unauthenticated users on root path, redirect to aymur.com
+    // (authenticated users already redirected to /shops above)
+    if (!user && (pathnameWithoutLocale === '/' || pathnameWithoutLocale === '')) {
+      const url = new URL(request.url);
+      url.hostname = 'aymur.com';
+      return NextResponse.redirect(url);
+    }
   }
 
   // Set locale cookie on the response

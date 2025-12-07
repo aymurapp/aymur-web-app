@@ -2668,5 +2668,24 @@
       "enableAllTooltip": "Enable all permissions in this group",
       "disableAllTooltip": "Disable all permissions in this group"
     }
+  },
+  "marketing": {
+    "login": "Login",
+    "getStarted": "Get Started",
+    "heroTitle": "Manage Your Jewelry Business with Ease",
+    "heroSubtitle": "The all-in-one platform for inventory management, sales tracking, customer relationships, and business analytics designed specifically for jewelry businesses.",
+    "startFreeTrial": "Start Free Trial",
+    "learnMore": "Learn More",
+    "featuresTitle": "Everything You Need to Succeed",
+    "feature1Title": "Smart Inventory",
+    "feature1Desc": "Track every piece with detailed attributes including metal type, weight, stones, and more. Real-time stock updates and low inventory alerts.",
+    "feature2Title": "Sales & POS",
+    "feature2Desc": "Process sales quickly with our intuitive point of sale system. Generate professional invoices and manage payments effortlessly.",
+    "feature3Title": "Analytics & Insights",
+    "feature3Desc": "Make data-driven decisions with comprehensive reports on sales, inventory turnover, customer behavior, and business performance.",
+    "ctaTitle": "Ready to Transform Your Business?",
+    "ctaSubtitle": "Join thousands of jewelry businesses already using Aymur to streamline their operations.",
+    "getStartedFree": "Get Started for Free",
+    "allRightsReserved": "All rights reserved."
   }
 }
