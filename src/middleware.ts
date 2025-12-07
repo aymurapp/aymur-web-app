@@ -2,9 +2,14 @@
  * Next.js Middleware
  *
  * This middleware runs on every request and handles:
- * 1. Supabase session refresh (keeps auth tokens valid)
- * 2. Route protection (redirects unauthenticated users)
- * 3. i18n locale detection and routing
+ * 1. Domain-based routing (aymur.com vs platform.aymur.com)
+ * 2. Supabase session refresh (keeps auth tokens valid)
+ * 3. Route protection (redirects unauthenticated users)
+ * 4. i18n locale detection and routing
+ *
+ * Domain Routing:
+ * - aymur.com → (marketing) pages
+ * - platform.aymur.com → (platform) app pages
  *
  * Route Groups:
  * - (marketing) - Public marketing pages (no auth required)
@@ -19,6 +24,13 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 import type { Database } from '@/lib/types/database';
+
+/**
+ * Domain configuration
+ */
+const MARKETING_DOMAINS = ['aymur.com', 'www.aymur.com'];
+const PLATFORM_DOMAINS = ['platform.aymur.com'];
+// Localhost and preview deployments work for both
 
 /**
  * Supported locales for the application.
@@ -165,11 +177,56 @@ function shouldBypass(pathname: string): boolean {
 }
 
 /**
+ * Determines the domain type from the request hostname.
+ *
+ * @param hostname - The request hostname
+ * @returns 'marketing' | 'platform' | 'development'
+ */
+function getDomainType(hostname: string): 'marketing' | 'platform' | 'development' {
+  const host = hostname.toLowerCase();
+
+  if (MARKETING_DOMAINS.some((d) => host === d || host.endsWith(`.${d}`))) {
+    return 'marketing';
+  }
+
+  if (PLATFORM_DOMAINS.some((d) => host === d || host.endsWith(`.${d}`))) {
+    return 'platform';
+  }
+
+  // Localhost, Vercel preview deployments, etc.
+  return 'development';
+}
+
+/**
+ * Checks if a path is trying to access platform routes.
+ * Platform routes start with /[locale]/[shopId] pattern (UUID after locale).
+ */
+function isPlatformPath(pathname: string): boolean {
+  // Remove locale prefix first
+  const withoutLocale = removeLocalePrefix(pathname);
+
+  // Check if it's a platform-specific route (shops, dashboard with shopId, etc.)
+  const platformPaths = ['/shops', '/profile', '/subscription'];
+  if (platformPaths.some((p) => withoutLocale.startsWith(p))) {
+    return true;
+  }
+
+  // Check for UUID pattern (shopId) - platform routes have shopId in path
+  const uuidPattern = /^\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i;
+  if (uuidPattern.test(withoutLocale)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Main middleware function.
- * Handles session refresh, authentication, and i18n routing.
+ * Handles domain routing, session refresh, authentication, and i18n routing.
  */
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname;
+  const hostname = request.headers.get('host') || '';
 
   // Skip middleware for static assets and API routes
   if (shouldBypass(pathname)) {
@@ -179,6 +236,32 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // Skip middleware for static file extensions
   if (/\.(svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$/.test(pathname)) {
     return NextResponse.next();
+  }
+
+  // Domain-based routing
+  const domainType = getDomainType(hostname);
+
+  // Marketing domain (aymur.com) - redirect platform routes to platform.aymur.com
+  if (domainType === 'marketing' && isPlatformPath(pathname)) {
+    const url = new URL(request.url);
+    url.hostname = 'platform.aymur.com';
+    return NextResponse.redirect(url);
+  }
+
+  // Platform domain (platform.aymur.com) - redirect marketing routes to aymur.com
+  if (domainType === 'platform') {
+    const pathnameWithoutLocale = removeLocalePrefix(pathname);
+    const isMarketingPath =
+      pathnameWithoutLocale === '/' ||
+      ['/about', '/pricing', '/contact', '/terms', '/privacy', '/features'].includes(
+        pathnameWithoutLocale
+      );
+
+    if (isMarketingPath) {
+      const url = new URL(request.url);
+      url.hostname = 'aymur.com';
+      return NextResponse.redirect(url);
+    }
   }
 
   // Create response that we can modify
