@@ -333,9 +333,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(url);
   }
 
-  // NOTE: We intentionally do NOT redirect authenticated users away from auth pages
-  // in middleware. The auth pages themselves should handle this to avoid redirect
-  // loops caused by potential auth state inconsistency between middleware and layouts.
+  // NOTE: General auth page redirects are handled per-domain below.
+  // On platform domain (platform.aymur.com), we redirect authenticated users to /shops.
+  // This avoids redirect loops because the platform layout only checks auth, not middleware.
 
   // Platform domain (platform.aymur.com) - redirect marketing routes to aymur.com
   if (domainType === 'platform') {
@@ -356,11 +356,26 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       return NextResponse.redirect(url);
     }
 
-    // For unauthenticated users on root path, redirect to aymur.com
-    // Authenticated users will pass through to platform layout which handles their routing
-    if (!user && (pathnameWithoutLocale === '/' || pathnameWithoutLocale === '')) {
-      const url = new URL(request.url);
-      url.hostname = 'aymur.com';
+    // Handle root path on platform domain
+    if (pathnameWithoutLocale === '/' || pathnameWithoutLocale === '') {
+      if (user) {
+        // Authenticated users on platform root go to shops
+        const url = request.nextUrl.clone();
+        url.pathname = `/${locale}/shops`;
+        return NextResponse.redirect(url);
+      } else {
+        // Unauthenticated users on platform root go to marketing site
+        const url = new URL(request.url);
+        url.hostname = 'aymur.com';
+        return NextResponse.redirect(url);
+      }
+    }
+
+    // Redirect authenticated users from auth pages to shops (on platform domain only)
+    // This is safe because we're only doing it on platform domain, not in general middleware
+    if (user && ['/login', '/signup', '/register'].includes(pathnameWithoutLocale)) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${locale}/shops`;
       return NextResponse.redirect(url);
     }
   }

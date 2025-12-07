@@ -30,7 +30,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Get the code and type from the URL
   const code = requestUrl.searchParams.get('code');
   const type = requestUrl.searchParams.get('type');
-  const next = requestUrl.searchParams.get('next') ?? '/';
+  // Default to /shops for authenticated users
+  const next = requestUrl.searchParams.get('next') ?? '/shops';
 
   // Error handling for OAuth errors
   const error = requestUrl.searchParams.get('error');
@@ -110,8 +111,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         return NextResponse.redirect(resetUrl);
 
       case 'invite':
-        // Team invite - redirect to complete profile or dashboard
-        return NextResponse.redirect(new URL('/', requestUrl.origin));
+        // Team invite - redirect to shops page
+        return NextResponse.redirect(new URL('/shops', requestUrl.origin));
 
       case 'magiclink':
         // Magic link sign-in
@@ -123,6 +124,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  // No code provided - redirect to home
-  return NextResponse.redirect(new URL('/', requestUrl.origin));
+  // No code provided - redirect to shops (middleware will handle unauthenticated users)
+  return NextResponse.redirect(new URL('/shops', requestUrl.origin));
 }

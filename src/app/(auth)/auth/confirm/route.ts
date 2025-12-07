@@ -32,7 +32,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Get token_hash and type from the URL
   const tokenHash = requestUrl.searchParams.get('token_hash');
   const type = requestUrl.searchParams.get('type') as EmailOtpType | null;
-  const next = requestUrl.searchParams.get('next') ?? '/';
+  // Default to /shops for authenticated users
+  const next = requestUrl.searchParams.get('next') ?? '/shops';
 
   // Check for error parameters
   const error = requestUrl.searchParams.get('error');
@@ -115,8 +116,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         return NextResponse.redirect(resetUrl);
 
       case 'invite':
-        // Team invitation
-        return NextResponse.redirect(new URL('/', requestUrl.origin));
+        // Team invitation - redirect to shops
+        return NextResponse.redirect(new URL('/shops', requestUrl.origin));
 
       case 'email_change':
         // Email change confirmation

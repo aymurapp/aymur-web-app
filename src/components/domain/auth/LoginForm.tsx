@@ -52,16 +52,24 @@ export function LoginForm({ redirectUrl }: LoginFormProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const [showError, setShowError] = useState(false);
 
-  // Get redirect URL from props, search params, or default to home
+  // Get redirect URL from props, search params, or default to /shops
+  // Checks both 'callbackUrl' (OAuth flows) and 'redirect' (middleware redirect param)
   const getRedirectUrl = useCallback(() => {
     if (redirectUrl) {
       return redirectUrl;
     }
+    // OAuth flows use 'callbackUrl'
     const callbackUrl = searchParams.get('callbackUrl');
     if (callbackUrl) {
       return callbackUrl;
     }
-    return '/';
+    // Middleware sets 'redirect' when redirecting unauthenticated users to login
+    const redirectParam = searchParams.get('redirect');
+    if (redirectParam) {
+      return redirectParam;
+    }
+    // Default to /shops for authenticated platform users
+    return '/shops';
   }, [redirectUrl, searchParams]);
 
   /**
