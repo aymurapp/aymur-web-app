@@ -1,0 +1,873 @@
+/**
+ * RTL (Right-to-Left) Support Stylesheet
+ * Aymur Platform - Comprehensive RTL fixes for Arabic locale
+ *
+ * This file provides RTL-specific overrides and fixes for:
+ * - Ant Design components
+ * - Custom components
+ * - Layout and positioning
+ * - Icons and directional elements
+ * - Animations and transitions
+ *
+ * Import this file in your global styles or layout component.
+ * These styles only apply when [dir="rtl"] is set on html/body.
+ */
+
+/* =============================================================================
+   GLOBAL RTL OVERRIDES
+   ============================================================================= */
+
+/**
+ * Base RTL direction settings
+ */
+[dir='rtl'] {
+  /* Ensure text alignment follows direction */
+  text-align: right;
+}
+
+[dir='rtl'] body {
+  /* Use RTL-friendly font stack with Arabic font support */
+  font-family:
+    'Inter',
+    'Plus Jakarta Sans',
+    'Noto Sans Arabic',
+    'Segoe UI',
+    'Tahoma',
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+/* =============================================================================
+   LOGICAL PROPERTIES UTILITIES
+   ============================================================================= */
+
+/**
+ * These utilities use CSS logical properties which automatically
+ * adapt to the document direction (LTR/RTL).
+ *
+ * margin-inline-start = margin-left in LTR, margin-right in RTL
+ * margin-inline-end = margin-right in LTR, margin-left in RTL
+ * padding-inline-start = padding-left in LTR, padding-right in RTL
+ * padding-inline-end = padding-right in LTR, padding-left in RTL
+ * inset-inline-start = left in LTR, right in RTL
+ * inset-inline-end = right in LTR, left in RTL
+ */
+
+/* Additional logical margin utilities */
+.ms-auto {
+  margin-inline-start: auto;
+}
+
+.me-auto {
+  margin-inline-end: auto;
+}
+
+/* Logical padding utilities for common values */
+.ps-0 {
+  padding-inline-start: 0;
+}
+
+.pe-0 {
+  padding-inline-end: 0;
+}
+
+/* Logical inset utilities */
+.start-0 {
+  inset-inline-start: 0;
+}
+
+.end-0 {
+  inset-inline-end: 0;
+}
+
+.start-auto {
+  inset-inline-start: auto;
+}
+
+.end-auto {
+  inset-inline-end: auto;
+}
+
+/* =============================================================================
+   DIRECTIONAL ICON FLIPPING
+   ============================================================================= */
+
+/**
+ * Icons that indicate direction should be flipped in RTL
+ * Use the .rtl-flip class on directional icons like:
+ * - Arrows (left/right)
+ * - Navigation indicators
+ * - Progress indicators
+ * - List markers
+ */
+.rtl-flip {
+  transform: scaleX(1);
+  transition: transform 0.2s ease;
+}
+
+[dir='rtl'] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/**
+ * Icons that should NOT flip in RTL
+ * Some icons like check marks, x marks, up/down arrows
+ * should maintain their orientation
+ */
+.rtl-no-flip {
+  transform: scaleX(1) !important;
+}
+
+/**
+ * Auto-flip common directional Ant Design icons in RTL
+ */
+[dir='rtl'] .anticon-arrow-left,
+[dir='rtl'] .anticon-arrow-right,
+[dir='rtl'] .anticon-double-left,
+[dir='rtl'] .anticon-double-right,
+[dir='rtl'] .anticon-left,
+[dir='rtl'] .anticon-right,
+[dir='rtl'] .anticon-caret-left,
+[dir='rtl'] .anticon-caret-right,
+[dir='rtl'] .anticon-left-circle,
+[dir='rtl'] .anticon-right-circle,
+[dir='rtl'] .anticon-left-square,
+[dir='rtl'] .anticon-right-square,
+[dir='rtl'] .anticon-step-backward,
+[dir='rtl'] .anticon-step-forward,
+[dir='rtl'] .anticon-fast-backward,
+[dir='rtl'] .anticon-fast-forward,
+[dir='rtl'] .anticon-forward,
+[dir='rtl'] .anticon-backward,
+[dir='rtl'] .anticon-logout,
+[dir='rtl'] .anticon-login,
+[dir='rtl'] .anticon-import,
+[dir='rtl'] .anticon-export,
+[dir='rtl'] .anticon-enter,
+[dir='rtl'] .anticon-rollback,
+[dir='rtl'] .anticon-undo,
+[dir='rtl'] .anticon-redo,
+[dir='rtl'] .anticon-swap,
+[dir='rtl'] .anticon-swap-left,
+[dir='rtl'] .anticon-swap-right,
+[dir='rtl'] .anticon-menu-fold,
+[dir='rtl'] .anticon-menu-unfold {
+  transform: scaleX(-1);
+}
+
+/* =============================================================================
+   ANT DESIGN COMPONENT RTL FIXES
+   ============================================================================= */
+
+/**
+ * Button RTL fixes
+ */
+[dir='rtl'] .ant-btn > .anticon + span,
+[dir='rtl'] .ant-btn > span + .anticon {
+  margin-inline-start: 8px;
+  margin-inline-end: 0;
+}
+
+/**
+ * Input RTL fixes
+ */
+[dir='rtl'] .ant-input-prefix {
+  margin-inline-end: 4px;
+  margin-inline-start: 0;
+}
+
+[dir='rtl'] .ant-input-suffix {
+  margin-inline-start: 4px;
+  margin-inline-end: 0;
+}
+
+[dir='rtl'] .ant-input-affix-wrapper {
+  padding-inline-start: 11px;
+  padding-inline-end: 11px;
+}
+
+[dir='rtl'] .ant-input-search > .ant-input-group > .ant-input-group-addon:last-child {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+/**
+ * Select RTL fixes
+ */
+[dir='rtl'] .ant-select-arrow {
+  inset-inline-end: auto;
+  inset-inline-start: 11px;
+}
+
+[dir='rtl'] .ant-select-clear {
+  inset-inline-end: auto;
+  inset-inline-start: 11px;
+}
+
+[dir='rtl'] .ant-select-selection-item {
+  padding-inline-end: 4px;
+  padding-inline-start: 18px;
+}
+
+/**
+ * Dropdown/Menu RTL fixes
+ */
+[dir='rtl'] .ant-dropdown-menu-submenu-arrow {
+  transform: scaleX(-1);
+}
+
+[dir='rtl'] .ant-menu-submenu-arrow {
+  transform: scaleX(-1);
+}
+
+[dir='rtl'] .ant-menu-item .anticon,
+[dir='rtl'] .ant-menu-submenu-title .anticon {
+  margin-inline-end: 10px;
+  margin-inline-start: 0;
+}
+
+/**
+ * Table RTL fixes
+ */
+[dir='rtl'] .ant-table-thead > tr > th,
+[dir='rtl'] .ant-table-tbody > tr > td {
+  text-align: right;
+}
+
+[dir='rtl'] .ant-table-thead > tr > th[align='left'],
+[dir='rtl'] .ant-table-tbody > tr > td[align='left'] {
+  text-align: left;
+}
+
+[dir='rtl'] .ant-table-thead > tr > th[align='center'],
+[dir='rtl'] .ant-table-tbody > tr > td[align='center'] {
+  text-align: center;
+}
+
+/* Table sorting icon position */
+[dir='rtl'] .ant-table-column-sorter {
+  margin-inline-start: 8px;
+  margin-inline-end: 0;
+}
+
+/* Table filter icon position */
+[dir='rtl'] .ant-table-filter-trigger {
+  margin-inline-start: 4px;
+  margin-inline-end: -4px;
+}
+
+/* Table selection column */
+[dir='rtl'] .ant-table-selection-column {
+  text-align: center;
+}
+
+/* Table expand icon */
+[dir='rtl'] .ant-table-row-expand-icon {
+  transform: scaleX(-1);
+}
+
+/**
+ * Pagination RTL fixes
+ */
+[dir='rtl'] .ant-pagination-prev,
+[dir='rtl'] .ant-pagination-next {
+  transform: scaleX(-1);
+}
+
+[dir='rtl'] .ant-pagination-prev .anticon,
+[dir='rtl'] .ant-pagination-next .anticon {
+  transform: scaleX(-1); /* Double flip to correct the icon */
+}
+
+/**
+ * Steps RTL fixes
+ */
+[dir='rtl'] .ant-steps-item-icon {
+  margin-inline-end: 8px;
+  margin-inline-start: 0;
+}
+
+[dir='rtl'] .ant-steps-item-tail {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+/**
+ * Breadcrumb RTL fixes
+ */
+[dir='rtl'] .ant-breadcrumb-separator {
+  margin-inline: 8px;
+  transform: scaleX(-1);
+}
+
+[dir='rtl'] .ant-breadcrumb li:last-child {
+  margin-inline-end: 0;
+}
+
+/**
+ * Drawer RTL fixes
+ */
+[dir='rtl'] .ant-drawer-left {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+}
+
+[dir='rtl'] .ant-drawer-right {
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+}
+
+[dir='rtl'] .ant-drawer-close {
+  inset-inline-end: auto;
+  inset-inline-start: 0;
+}
+
+/**
+ * Modal RTL fixes
+ */
+[dir='rtl'] .ant-modal-close {
+  inset-inline-end: auto;
+  inset-inline-start: 0;
+}
+
+[dir='rtl'] .ant-modal-footer {
+  text-align: left;
+}
+
+[dir='rtl'] .ant-modal-footer .ant-btn + .ant-btn {
+  margin-inline-start: 8px;
+  margin-inline-end: 0;
+}
+
+/**
+ * Form RTL fixes
+ */
+[dir='rtl'] .ant-form-item-label {
+  text-align: right;
+}
+
+[dir='rtl'] .ant-form-item-label > label::after {
+  margin-inline: 8px 2px;
+}
+
+[dir='rtl'] .ant-form-item-required::before {
+  margin-inline-end: 4px;
+  margin-inline-start: 0;
+}
+
+/**
+ * Badge RTL fixes
+ */
+[dir='rtl'] .ant-badge-count,
+[dir='rtl'] .ant-badge-dot {
+  inset-inline-end: auto;
+  inset-inline-start: 0;
+  transform: translate(-50%, -50%);
+}
+
+/**
+ * Tag RTL fixes
+ */
+[dir='rtl'] .ant-tag .anticon + span,
+[dir='rtl'] .ant-tag span + .anticon {
+  margin-inline-start: 4px;
+  margin-inline-end: 0;
+}
+
+[dir='rtl'] .ant-tag .anticon-close {
+  margin-inline-start: 4px;
+  margin-inline-end: 0;
+}
+
+/**
+ * Alert RTL fixes
+ */
+[dir='rtl'] .ant-alert-icon {
+  margin-inline-end: 8px;
+  margin-inline-start: 0;
+}
+
+[dir='rtl'] .ant-alert-close-icon {
+  margin-inline-start: 8px;
+  margin-inline-end: 0;
+}
+
+/**
+ * Card RTL fixes
+ */
+[dir='rtl'] .ant-card-actions > li {
+  text-align: center;
+}
+
+[dir='rtl'] .ant-card-extra {
+  margin-inline-start: auto;
+  margin-inline-end: 0;
+}
+
+/**
+ * List RTL fixes
+ */
+[dir='rtl'] .ant-list-item-action {
+  margin-inline-start: 48px;
+  margin-inline-end: 0;
+}
+
+[dir='rtl'] .ant-list-item-action > li {
+  padding-inline: 0 16px;
+}
+
+/**
+ * Tabs RTL fixes
+ */
+[dir='rtl'] .ant-tabs-nav-list {
+  flex-direction: row;
+}
+
+[dir='rtl'] .ant-tabs-tab + .ant-tabs-tab {
+  margin-inline-start: 32px;
+  margin-inline-end: 0;
+}
+
+/**
+ * Tree RTL fixes
+ */
+[dir='rtl'] .ant-tree-switcher {
+  margin-inline-end: 0;
+  margin-inline-start: 4px;
+}
+
+[dir='rtl'] .ant-tree-switcher .anticon {
+  transform: scaleX(-1);
+}
+
+[dir='rtl'] .ant-tree-indent-unit {
+  margin-inline-start: 0;
+  margin-inline-end: 24px;
+}
+
+/**
+ * Timeline RTL fixes
+ */
+[dir='rtl'] .ant-timeline-item-head {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+[dir='rtl'] .ant-timeline-item-tail {
+  inset-inline-start: auto;
+  inset-inline-end: 4px;
+}
+
+/**
+ * Upload RTL fixes
+ */
+[dir='rtl'] .ant-upload-list-item-name {
+  padding-inline-start: 22px;
+  padding-inline-end: 0;
+}
+
+[dir='rtl'] .ant-upload-list-item-actions {
+  inset-inline-end: auto;
+  inset-inline-start: 0;
+}
+
+/**
+ * DatePicker/TimePicker RTL fixes
+ */
+[dir='rtl'] .ant-picker-suffix {
+  margin-inline-start: 4px;
+  margin-inline-end: 0;
+}
+
+[dir='rtl'] .ant-picker-clear {
+  inset-inline-end: auto;
+  inset-inline-start: 0;
+}
+
+[dir='rtl'] .ant-picker-header-prev-btn,
+[dir='rtl'] .ant-picker-header-super-prev-btn {
+  order: 2;
+}
+
+[dir='rtl'] .ant-picker-header-next-btn,
+[dir='rtl'] .ant-picker-header-super-next-btn {
+  order: 0;
+}
+
+/**
+ * Tooltip/Popover RTL fixes
+ */
+[dir='rtl'] .ant-tooltip-placement-left .ant-tooltip-arrow,
+[dir='rtl'] .ant-popover-placement-left .ant-popover-arrow {
+  inset-inline-end: auto;
+  inset-inline-start: -6px;
+  transform: translateY(-50%) rotate(180deg);
+}
+
+[dir='rtl'] .ant-tooltip-placement-right .ant-tooltip-arrow,
+[dir='rtl'] .ant-popover-placement-right .ant-popover-arrow {
+  inset-inline-start: auto;
+  inset-inline-end: -6px;
+  transform: translateY(-50%) rotate(0deg);
+}
+
+/**
+ * Message/Notification RTL fixes
+ */
+[dir='rtl'] .ant-message-notice-content .anticon {
+  margin-inline-end: 8px;
+  margin-inline-start: 0;
+}
+
+[dir='rtl'] .ant-notification-notice-close {
+  inset-inline-end: auto;
+  inset-inline-start: 22px;
+}
+
+/**
+ * Checkbox/Radio RTL fixes
+ */
+[dir='rtl'] .ant-checkbox-wrapper,
+[dir='rtl'] .ant-radio-wrapper {
+  margin-inline-end: 0;
+  margin-inline-start: 8px;
+}
+
+[dir='rtl'] .ant-checkbox-wrapper:first-child,
+[dir='rtl'] .ant-radio-wrapper:first-child {
+  margin-inline-start: 0;
+}
+
+[dir='rtl'] .ant-checkbox + span,
+[dir='rtl'] .ant-radio + span {
+  padding-inline-start: 8px;
+  padding-inline-end: 0;
+}
+
+/* =============================================================================
+   LAYOUT COMPONENT RTL FIXES
+   ============================================================================= */
+
+/**
+ * Sidebar RTL positioning
+ */
+[dir='rtl'] .ant-layout-sider {
+  border-inline-end: none;
+  border-inline-start: 1px solid var(--border);
+}
+
+[dir='rtl'] .ant-layout-sider-zero-width-trigger {
+  inset-inline-end: auto;
+  inset-inline-start: -36px;
+}
+
+/**
+ * Fixed sidebar for RTL
+ */
+[dir='rtl'] aside.fixed {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+/**
+ * Main content margin adjustment for RTL sidebar
+ */
+[dir='rtl'] .main-content-with-sidebar {
+  margin-inline-start: 0;
+  margin-inline-end: var(--sidebar-width, 280px);
+}
+
+[dir='rtl'] .main-content-with-collapsed-sidebar {
+  margin-inline-start: 0;
+  margin-inline-end: var(--sidebar-collapsed-width, 80px);
+}
+
+/* =============================================================================
+   ANIMATION DIRECTION FIXES
+   ============================================================================= */
+
+/**
+ * Slide animations should reverse direction in RTL
+ */
+[dir='rtl'] .slide-in-left {
+  animation-name: slideInRight;
+}
+
+[dir='rtl'] .slide-in-right {
+  animation-name: slideInLeft;
+}
+
+[dir='rtl'] .slide-out-left {
+  animation-name: slideOutRight;
+}
+
+[dir='rtl'] .slide-out-right {
+  animation-name: slideOutLeft;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* =============================================================================
+   SCROLL DIRECTION FIXES
+   ============================================================================= */
+
+/**
+ * Horizontal scroll containers should scroll opposite in RTL
+ */
+[dir='rtl'] .horizontal-scroll {
+  direction: rtl;
+}
+
+[dir='rtl'] .horizontal-scroll > * {
+  direction: ltr;
+}
+
+/* =============================================================================
+   NUMBER AND DATE DISPLAY
+   ============================================================================= */
+
+/**
+ * Numbers and dates should remain LTR in RTL layouts
+ * This ensures proper reading order for numeric content
+ */
+.ltr-numbers {
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+.ltr-numbers::before {
+  content: '\200e'; /* Left-to-right mark */
+}
+
+[dir='rtl'] .preserve-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Phone numbers, prices, dates, times */
+[dir='rtl'] .phone-number,
+[dir='rtl'] .price,
+[dir='rtl'] .date,
+[dir='rtl'] .time,
+[dir='rtl'] .currency {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* =============================================================================
+   FLEX AND GRID RTL UTILITIES
+   ============================================================================= */
+
+/**
+ * Reverse flex direction in RTL when needed
+ */
+.flex-row-reverse-rtl {
+  flex-direction: row;
+}
+
+[dir='rtl'] .flex-row-reverse-rtl {
+  flex-direction: row-reverse;
+}
+
+/**
+ * Don't reverse flex in RTL when explicit
+ */
+[dir='rtl'] .flex-row-force {
+  flex-direction: row;
+}
+
+/* =============================================================================
+   BORDER RADIUS RTL FIXES
+   ============================================================================= */
+
+/**
+ * Logical border radius utilities
+ */
+.rounded-s-none {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.rounded-e-none {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+.rounded-s-sm {
+  border-start-start-radius: 0.125rem;
+  border-end-start-radius: 0.125rem;
+}
+
+.rounded-e-sm {
+  border-start-end-radius: 0.125rem;
+  border-end-end-radius: 0.125rem;
+}
+
+.rounded-s {
+  border-start-start-radius: 0.25rem;
+  border-end-start-radius: 0.25rem;
+}
+
+.rounded-e {
+  border-start-end-radius: 0.25rem;
+  border-end-end-radius: 0.25rem;
+}
+
+.rounded-s-md {
+  border-start-start-radius: 0.375rem;
+  border-end-start-radius: 0.375rem;
+}
+
+.rounded-e-md {
+  border-start-end-radius: 0.375rem;
+  border-end-end-radius: 0.375rem;
+}
+
+.rounded-s-lg {
+  border-start-start-radius: 0.5rem;
+  border-end-start-radius: 0.5rem;
+}
+
+.rounded-e-lg {
+  border-start-end-radius: 0.5rem;
+  border-end-end-radius: 0.5rem;
+}
+
+.rounded-s-xl {
+  border-start-start-radius: 0.75rem;
+  border-end-start-radius: 0.75rem;
+}
+
+.rounded-e-xl {
+  border-start-end-radius: 0.75rem;
+  border-end-end-radius: 0.75rem;
+}
+
+.rounded-s-full {
+  border-start-start-radius: 9999px;
+  border-end-start-radius: 9999px;
+}
+
+.rounded-e-full {
+  border-start-end-radius: 9999px;
+  border-end-end-radius: 9999px;
+}
+
+/* =============================================================================
+   BORDER RTL FIXES
+   ============================================================================= */
+
+/**
+ * Logical border utilities
+ */
+.border-s {
+  border-inline-start-width: 1px;
+}
+
+.border-e {
+  border-inline-end-width: 1px;
+}
+
+.border-s-0 {
+  border-inline-start-width: 0;
+}
+
+.border-e-0 {
+  border-inline-end-width: 0;
+}
+
+.border-s-2 {
+  border-inline-start-width: 2px;
+}
+
+.border-e-2 {
+  border-inline-end-width: 2px;
+}
+
+.border-s-4 {
+  border-inline-start-width: 4px;
+}
+
+.border-e-4 {
+  border-inline-end-width: 4px;
+}
+
+/* =============================================================================
+   TOUCH AND INTERACTION RTL FIXES
+   ============================================================================= */
+
+/**
+ * Touch manipulation for better mobile experience
+ */
+[dir='rtl'] .touch-manipulation {
+  touch-action: manipulation;
+}
+
+/**
+ * Swipe gesture areas
+ */
+[dir='rtl'] .swipe-left-action {
+  /* In RTL, left swipe should trigger opposite action */
+}
+
+[dir='rtl'] .swipe-right-action {
+  /* In RTL, right swipe should trigger opposite action */
+}
+
+/* =============================================================================
+   PRINT RTL SUPPORT
+   ============================================================================= */
+
+@media print {
+  [dir='rtl'] {
+    direction: rtl;
+    text-align: right;
+  }
+
+  [dir='rtl'] .print\\:ltr {
+    direction: ltr;
+  }
+}

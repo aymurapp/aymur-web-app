@@ -1,0 +1,836 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RTL Support Styles */
+@import '../styles/rtl.css';
+
+/* ============================================
+   AYMUR PLATFORM - Design System CSS Variables
+   ============================================ */
+
+@layer base {
+  :root {
+    /* ----------------------------------------
+       Primary - Gold Palette (Jewelry Brand)
+       ---------------------------------------- */
+    --primary-50: #fffbeb;
+    --primary-100: #fef3c7;
+    --primary-200: #fde68a;
+    --primary-300: #fcd34d;
+    --primary-400: #fbbf24;
+    --primary-500: #f59e0b; /* Main gold */
+    --primary-600: #d97706;
+    --primary-700: #b45309;
+    --primary-800: #92400e;
+    --primary-900: #78350f;
+
+    /* ----------------------------------------
+       Neutral - Warm Grays
+       ---------------------------------------- */
+    --neutral-50: #fafaf9;
+    --neutral-100: #f5f5f4;
+    --neutral-200: #e7e5e4;
+    --neutral-300: #d6d3d1;
+    --neutral-400: #a8a29e;
+    --neutral-500: #78716c;
+    --neutral-600: #57534e;
+    --neutral-700: #44403c;
+    --neutral-800: #292524;
+    --neutral-900: #1c1917;
+    --neutral-950: #0c0a09;
+
+    /* ----------------------------------------
+       Accent - Deep Burgundy/Wine
+       ---------------------------------------- */
+    --accent-50: #fff1f2;
+    --accent-100: #ffe4e6;
+    --accent-200: #fecdd3;
+    --accent-300: #fda4af;
+    --accent-400: #fb7185;
+    --accent-500: #881337; /* Main burgundy */
+    --accent-600: #9f1239;
+    --accent-700: #be123c;
+    --accent-800: #9f1239;
+    --accent-900: #881337;
+
+    /* ----------------------------------------
+       Semantic Colors
+       ---------------------------------------- */
+    /* Success - Emerald */
+    --success-50: #ecfdf5;
+    --success-100: #d1fae5;
+    --success-500: #059669;
+    --success-600: #047857;
+    --success-700: #047857;
+
+    /* Warning - Amber (matches primary for consistency) */
+    --warning-50: #fffbeb;
+    --warning-100: #fef3c7;
+    --warning-500: #d97706;
+    --warning-600: #b45309;
+    --warning-700: #92400e;
+
+    /* Error - Red */
+    --error-50: #fef2f2;
+    --error-100: #fee2e2;
+    --error-500: #dc2626;
+    --error-600: #b91c1c;
+    --error-700: #991b1b;
+
+    /* ----------------------------------------
+       Light Mode Semantic Variables
+       ---------------------------------------- */
+    --background: #ffffff;
+    --foreground: #1c1917;
+
+    /* Surface colors */
+    --surface: #ffffff;
+    --surface-elevated: #ffffff;
+    --surface-muted: #fafaf9;
+
+    /* Border colors */
+    --border: #e7e5e4;
+    --border-muted: #f5f5f4;
+
+    /* Input colors */
+    --input: #ffffff;
+    --input-focus: #fef3c7;
+
+    /* Focus ring */
+    --ring: #f59e0b;
+
+    /* ----------------------------------------
+       Typography
+       ---------------------------------------- */
+    --font-sans:
+      'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  }
+
+  /* ----------------------------------------
+     Dark Mode
+     ---------------------------------------- */
+  .dark {
+    --background: #0c0a09;
+    --foreground: #fafaf9;
+
+    /* Surface colors - dark */
+    --surface: #1c1917;
+    --surface-elevated: #292524;
+    --surface-muted: #1c1917;
+
+    /* Border colors - dark */
+    --border: #44403c;
+    --border-muted: #292524;
+
+    /* Input colors - dark */
+    --input: #292524;
+    --input-focus: #44403c;
+
+    /* Focus ring - brighter gold for dark mode */
+    --ring: #fbbf24;
+
+    /* Adjusted primary for better dark mode contrast */
+    --primary-50: #78350f;
+    --primary-100: #92400e;
+    --primary-200: #b45309;
+    --primary-300: #d97706;
+    --primary-400: #f59e0b;
+    --primary-500: #fbbf24;
+    --primary-600: #fcd34d;
+    --primary-700: #fde68a;
+    --primary-800: #fef3c7;
+    --primary-900: #fffbeb;
+  }
+
+  /* ----------------------------------------
+     Base Styles
+     ---------------------------------------- */
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Selection colors */
+  ::selection {
+    @apply bg-primary-200 text-primary-900;
+  }
+
+  .dark ::selection {
+    @apply bg-primary-700 text-primary-100;
+  }
+
+  /* ----------------------------------------
+     Focus Visible Styles (WCAG 2.1 Compliant)
+     ---------------------------------------- */
+  /* Default focus-visible for all interactive elements */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Enhanced focus for buttons and interactive controls */
+  button:focus-visible,
+  [role='button']:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply outline-none ring-2 ring-amber-500 ring-offset-2 ring-offset-background;
+  }
+
+  .dark button:focus-visible,
+  .dark [role='button']:focus-visible,
+  .dark a:focus-visible,
+  .dark input:focus-visible,
+  .dark select:focus-visible,
+  .dark textarea:focus-visible {
+    @apply ring-amber-400 ring-offset-stone-900;
+  }
+
+  /* Skip link for keyboard navigation */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4;
+    @apply focus:z-50 focus:px-4 focus:py-2 focus:bg-amber-500 focus:text-white;
+    @apply focus:rounded-md focus:font-medium focus:shadow-lg;
+  }
+
+  /* High contrast mode support */
+  @media (forced-colors: active) {
+    :focus-visible {
+      outline: 2px solid CanvasText;
+      outline-offset: 2px;
+    }
+  }
+}
+
+/* ============================================
+   RTL (Right-to-Left) Support
+   ============================================ */
+
+@layer utilities {
+  /* Direction utilities */
+  .dir-ltr {
+    direction: ltr;
+  }
+
+  .dir-rtl {
+    direction: rtl;
+  }
+
+  /* Text alignment for RTL */
+  .text-start {
+    text-align: start;
+  }
+
+  .text-end {
+    text-align: end;
+  }
+
+  /* Logical margin utilities (start/end) */
+  .ms-auto {
+    margin-inline-start: auto;
+  }
+
+  .me-auto {
+    margin-inline-end: auto;
+  }
+
+  .ms-0 {
+    margin-inline-start: 0;
+  }
+
+  .me-0 {
+    margin-inline-end: 0;
+  }
+
+  .ms-1 {
+    margin-inline-start: 0.25rem;
+  }
+
+  .me-1 {
+    margin-inline-end: 0.25rem;
+  }
+
+  .ms-2 {
+    margin-inline-start: 0.5rem;
+  }
+
+  .me-2 {
+    margin-inline-end: 0.5rem;
+  }
+
+  .ms-3 {
+    margin-inline-start: 0.75rem;
+  }
+
+  .me-3 {
+    margin-inline-end: 0.75rem;
+  }
+
+  .ms-4 {
+    margin-inline-start: 1rem;
+  }
+
+  .me-4 {
+    margin-inline-end: 1rem;
+  }
+
+  .ms-5 {
+    margin-inline-start: 1.25rem;
+  }
+
+  .me-5 {
+    margin-inline-end: 1.25rem;
+  }
+
+  .ms-6 {
+    margin-inline-start: 1.5rem;
+  }
+
+  .me-6 {
+    margin-inline-end: 1.5rem;
+  }
+
+  .ms-8 {
+    margin-inline-start: 2rem;
+  }
+
+  .me-8 {
+    margin-inline-end: 2rem;
+  }
+
+  /* Logical padding utilities (start/end) */
+  .ps-0 {
+    padding-inline-start: 0;
+  }
+
+  .pe-0 {
+    padding-inline-end: 0;
+  }
+
+  .ps-1 {
+    padding-inline-start: 0.25rem;
+  }
+
+  .pe-1 {
+    padding-inline-end: 0.25rem;
+  }
+
+  .ps-2 {
+    padding-inline-start: 0.5rem;
+  }
+
+  .pe-2 {
+    padding-inline-end: 0.5rem;
+  }
+
+  .ps-3 {
+    padding-inline-start: 0.75rem;
+  }
+
+  .pe-3 {
+    padding-inline-end: 0.75rem;
+  }
+
+  .ps-4 {
+    padding-inline-start: 1rem;
+  }
+
+  .pe-4 {
+    padding-inline-end: 1rem;
+  }
+
+  .ps-5 {
+    padding-inline-start: 1.25rem;
+  }
+
+  .pe-5 {
+    padding-inline-end: 1.25rem;
+  }
+
+  .ps-6 {
+    padding-inline-start: 1.5rem;
+  }
+
+  .pe-6 {
+    padding-inline-end: 1.5rem;
+  }
+
+  .ps-8 {
+    padding-inline-start: 2rem;
+  }
+
+  .pe-8 {
+    padding-inline-end: 2rem;
+  }
+
+  /* Logical inset utilities */
+  .start-0 {
+    inset-inline-start: 0;
+  }
+
+  .end-0 {
+    inset-inline-end: 0;
+  }
+
+  .start-1 {
+    inset-inline-start: 0.25rem;
+  }
+
+  .end-1 {
+    inset-inline-end: 0.25rem;
+  }
+
+  .start-2 {
+    inset-inline-start: 0.5rem;
+  }
+
+  .end-2 {
+    inset-inline-end: 0.5rem;
+  }
+
+  .start-3 {
+    inset-inline-start: 0.75rem;
+  }
+
+  .end-3 {
+    inset-inline-end: 0.75rem;
+  }
+
+  .start-4 {
+    inset-inline-start: 1rem;
+  }
+
+  .end-4 {
+    inset-inline-end: 1rem;
+  }
+
+  .start-auto {
+    inset-inline-start: auto;
+  }
+
+  .end-auto {
+    inset-inline-end: auto;
+  }
+
+  /* Logical border radius */
+  .rounded-s {
+    border-start-start-radius: 0.25rem;
+    border-end-start-radius: 0.25rem;
+  }
+
+  .rounded-e {
+    border-start-end-radius: 0.25rem;
+    border-end-end-radius: 0.25rem;
+  }
+
+  .rounded-s-md {
+    border-start-start-radius: 0.375rem;
+    border-end-start-radius: 0.375rem;
+  }
+
+  .rounded-e-md {
+    border-start-end-radius: 0.375rem;
+    border-end-end-radius: 0.375rem;
+  }
+
+  .rounded-s-lg {
+    border-start-start-radius: 0.5rem;
+    border-end-start-radius: 0.5rem;
+  }
+
+  .rounded-e-lg {
+    border-start-end-radius: 0.5rem;
+    border-end-end-radius: 0.5rem;
+  }
+
+  /* Logical border utilities */
+  .border-s {
+    border-inline-start-width: 1px;
+  }
+
+  .border-e {
+    border-inline-end-width: 1px;
+  }
+
+  .border-s-2 {
+    border-inline-start-width: 2px;
+  }
+
+  .border-e-2 {
+    border-inline-end-width: 2px;
+  }
+
+  /* RTL-aware flex utilities */
+  .flex-row-reverse-rtl {
+    @apply flex-row;
+  }
+
+  [dir='rtl'] .flex-row-reverse-rtl {
+    @apply flex-row-reverse;
+  }
+
+  /* RTL-aware icon flip */
+  .rtl-flip {
+    transform: scaleX(1);
+  }
+
+  [dir='rtl'] .rtl-flip {
+    transform: scaleX(-1);
+  }
+
+  /* ----------------------------------------
+     Additional Utility Classes
+     ---------------------------------------- */
+
+  /* Text balance for better typography */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Text pretty for better line breaks */
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Gold gradient text */
+  .text-gold-gradient {
+    @apply bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 bg-clip-text text-transparent;
+  }
+
+  /* Gold gradient background */
+  .bg-gold-gradient {
+    @apply bg-gradient-to-r from-primary-500 via-primary-400 to-primary-500;
+  }
+
+  /* Shimmer effect for loading states */
+  .shimmer {
+    @apply animate-shimmer bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%];
+  }
+
+  .dark .shimmer {
+    @apply from-neutral-800 via-neutral-700 to-neutral-800;
+  }
+
+  /* Glass effect */
+  .glass {
+    background-color: rgba(255, 255, 255, 0.8);
+    @apply backdrop-blur-md;
+  }
+
+  .dark .glass {
+    background-color: rgba(28, 25, 23, 0.8); /* neutral-900 with 80% opacity */
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--neutral-300) transparent;
+  }
+
+  .dark .scrollbar-thin {
+    scrollbar-color: var(--neutral-600) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-neutral-300;
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-neutral-600;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area insets for mobile */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* ============================================
+   Component Layer - Reusable Patterns
+   ============================================ */
+
+@layer components {
+  /* Focus ring component */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Card base */
+  .card {
+    @apply rounded-lg border border-border bg-surface p-6 shadow-sm;
+  }
+
+  .card-elevated {
+    @apply rounded-lg border border-border bg-surface-elevated p-6 shadow-elevated;
+  }
+
+  /* Input base */
+  .input-base {
+    @apply flex h-10 w-full rounded-md border border-border bg-input px-3 py-2 text-sm transition-colors;
+    @apply placeholder:text-neutral-400;
+    @apply focus-visible:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Button base styles */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700;
+  }
+
+  .btn-secondary {
+    @apply btn bg-neutral-100 text-neutral-900 hover:bg-neutral-200 active:bg-neutral-300;
+    @apply dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700;
+  }
+
+  .btn-outline {
+    @apply btn border border-border bg-transparent hover:bg-neutral-100;
+    @apply dark:hover:bg-neutral-800;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent hover:bg-neutral-100;
+    @apply dark:hover:bg-neutral-800;
+  }
+
+  /* Badge base */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary-100 text-primary-800;
+    @apply dark:bg-primary-900 dark:text-primary-200;
+  }
+
+  .badge-success {
+    @apply badge bg-success-100 text-success-700;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning-100 text-warning-700;
+  }
+
+  .badge-error {
+    @apply badge bg-error-100 text-error-700;
+  }
+}
+
+/* ============================================
+   Accessibility Utilities
+   ============================================ */
+
+@layer utilities {
+  /* Screen reader only - visually hidden but accessible */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Remove sr-only when focused (for skip links) */
+  .not-sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Focus ring utilities with gold accent */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500;
+    @apply focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+    @apply dark:focus-visible:ring-amber-400 dark:focus-visible:ring-offset-stone-900;
+  }
+
+  /* Focus ring for interactive cards */
+  .focus-ring-card {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500;
+    @apply focus-visible:ring-offset-4 focus-visible:ring-offset-white;
+    @apply dark:focus-visible:ring-amber-400 dark:focus-visible:ring-offset-stone-900;
+  }
+
+  /* Focus ring inset (for elements within containers) */
+  .focus-ring-inset {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500;
+    @apply focus-visible:ring-inset;
+    @apply dark:focus-visible:ring-amber-400;
+  }
+
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-safe {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  /* Only animate when motion is preferred */
+  .motion-reduce {
+    @media (prefers-reduced-motion: reduce) {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Keyboard shortcut badge styling */
+  .kbd {
+    @apply inline-flex items-center justify-center;
+    @apply px-1.5 py-0.5 text-xs font-medium;
+    @apply bg-stone-100 dark:bg-stone-800;
+    @apply text-stone-500 dark:text-stone-400;
+    @apply border border-stone-200 dark:border-stone-700;
+    @apply rounded;
+    min-width: 1.5em;
+  }
+
+  /* Live region for dynamic content announcements */
+  .live-region {
+    @apply sr-only;
+  }
+
+  /* Touch target minimum size (44x44px per WCAG) */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    @apply flex items-center justify-center;
+  }
+
+  /* Touch-friendly spacing for mobile */
+  .touch-spacing {
+    @apply p-3 -m-3;
+  }
+}
+
+/* ============================================
+   Ant Design Accessibility Overrides
+   ============================================ */
+
+@layer components {
+  /* Ensure Ant Design buttons have visible focus */
+  .ant-btn:focus-visible {
+    @apply outline-none ring-2 ring-amber-500 ring-offset-2;
+  }
+
+  .dark .ant-btn:focus-visible {
+    @apply ring-amber-400 ring-offset-stone-900;
+  }
+
+  /* Ensure Ant Design inputs have visible focus */
+  .ant-input:focus-visible,
+  .ant-input-affix-wrapper:focus-visible,
+  .ant-select-selector:focus-visible,
+  .ant-picker:focus-visible {
+    @apply outline-none ring-2 ring-amber-500 ring-offset-2;
+  }
+
+  .dark .ant-input:focus-visible,
+  .dark .ant-input-affix-wrapper:focus-visible,
+  .dark .ant-select-selector:focus-visible,
+  .dark .ant-picker:focus-visible {
+    @apply ring-amber-400 ring-offset-stone-900;
+  }
+
+  /* Ensure Ant Design menu items have visible focus */
+  .ant-menu-item:focus-visible,
+  .ant-menu-submenu-title:focus-visible {
+    @apply outline-none ring-2 ring-amber-500 ring-inset;
+  }
+
+  .dark .ant-menu-item:focus-visible,
+  .dark .ant-menu-submenu-title:focus-visible {
+    @apply ring-amber-400;
+  }
+
+  /* Modal focus trap indicator */
+  .ant-modal-content:focus {
+    @apply outline-none;
+  }
+
+  /* Drawer focus management */
+  .ant-drawer-content:focus {
+    @apply outline-none;
+  }
+
+  /* Table row focus for keyboard navigation */
+  .ant-table-row:focus-visible {
+    @apply outline-none ring-2 ring-amber-500 ring-inset;
+  }
+
+  .dark .ant-table-row:focus-visible {
+    @apply ring-amber-400;
+  }
+
+  /* Dropdown focus indicators */
+  .ant-dropdown-menu-item:focus-visible {
+    @apply outline-none ring-2 ring-amber-500 ring-inset;
+  }
+
+  .dark .ant-dropdown-menu-item:focus-visible {
+    @apply ring-amber-400;
+  }
+}

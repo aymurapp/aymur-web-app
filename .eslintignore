@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Cache
+.cache/
+.vercel/
+
+# Coverage
+coverage/
+
+# Generated files
+*.min.js
+
+# Public assets
+public/
+
+# Config files that may have different formatting
+*.config.js
+*.config.mjs
+
+# Scripts (Node.js CommonJS)
+scripts/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Environment files
+.env*

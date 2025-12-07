@@ -1,0 +1,2364 @@
+{
+  "project": {
+    "name": "Aymur Platform",
+    "version": "0.1.0",
+    "description": "B2B SaaS Multi-tenant Jewelry Business Management System",
+    "startDate": "2024-12-03",
+    "lastUpdated": "2025-12-06T12:00:00.000Z",
+    "supabaseProjectId": "cudcrgjshblmxtgpstwr"
+  },
+  "config": {
+    "parallelAgents": 2,
+    "autoAssign": false,
+    "logLevel": "detailed"
+  },
+  "agents": {
+    "ui": {
+      "name": "UI Agent",
+      "description": "Components, layouts, pages, styling",
+      "status": "idle",
+      "currentTasks": [],
+      "completedCount": 0
+    },
+    "logic": {
+      "name": "Logic Agent",
+      "description": "Hooks, stores, utilities, business logic",
+      "status": "idle",
+      "currentTasks": [],
+      "completedCount": 0
+    },
+    "api": {
+      "name": "API Agent",
+      "description": "Supabase, API routes, server actions",
+      "status": "idle",
+      "currentTasks": [],
+      "completedCount": 0
+    },
+    "test": {
+      "name": "Test Agent",
+      "description": "Unit, integration, E2E tests",
+      "status": "idle",
+      "currentTasks": [],
+      "completedCount": 0
+    }
+  },
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Foundation",
+      "description": "Project setup, core infrastructure, reusable building blocks",
+      "status": "completed",
+      "startDate": "2024-12-03",
+      "endDate": "2024-12-03",
+      "progress": {
+        "completed": 45,
+        "total": 45
+      },
+      "epics": [
+        {
+          "id": "epic-1-1",
+          "name": "Project Setup",
+          "description": "Initialize Next.js project with all configurations",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-001",
+              "title": "Initialize Next.js 14 project",
+              "description": "Create Next.js 14.2.x project with TypeScript, App Router, src directory",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["package.json", "next.config.ts", "tsconfig.json"]
+            },
+            {
+              "id": "task-002",
+              "title": "Configure Tailwind CSS",
+              "description": "Setup Tailwind with custom gold theme colors and design tokens",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-001"],
+              "files": ["tailwind.config.ts", "app/globals.css"]
+            },
+            {
+              "id": "task-003",
+              "title": "Setup ESLint and Prettier",
+              "description": "Configure linting and formatting with strict rules",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": ["task-001"],
+              "files": [".eslintrc.json", ".prettierrc", ".eslintignore"]
+            },
+            {
+              "id": "task-004",
+              "title": "Create folder structure",
+              "description": "Setup complete project folder structure per Teckstack.md",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-001"],
+              "files": ["Multiple directories"]
+            },
+            {
+              "id": "task-005",
+              "title": "Install core dependencies",
+              "description": "Install all required npm packages from Teckstack.md",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-001"],
+              "files": ["package.json"]
+            }
+          ]
+        },
+        {
+          "id": "epic-1-2",
+          "name": "Supabase Integration",
+          "description": "Setup Supabase clients and type generation",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-006",
+              "title": "Create browser Supabase client",
+              "status": "completed",
+              "agent": "api",
+              "priority": "P0",
+              "dependencies": ["task-005"],
+              "files": ["lib/supabase/client.ts"]
+            },
+            {
+              "id": "task-007",
+              "title": "Create server Supabase client",
+              "status": "completed",
+              "agent": "api",
+              "priority": "P0",
+              "dependencies": ["task-005"],
+              "files": ["lib/supabase/server.ts"]
+            },
+            {
+              "id": "task-008",
+              "title": "Create admin Supabase client",
+              "status": "completed",
+              "agent": "api",
+              "priority": "P1",
+              "dependencies": ["task-005"],
+              "files": ["lib/supabase/admin.ts"]
+            },
+            {
+              "id": "task-009",
+              "title": "Generate TypeScript types from Supabase",
+              "status": "completed",
+              "agent": "api",
+              "priority": "P0",
+              "dependencies": ["task-004"],
+              "files": ["lib/types/database.ts"]
+            },
+            {
+              "id": "task-010",
+              "title": "Create realtime subscription helpers",
+              "status": "completed",
+              "agent": "api",
+              "priority": "P2",
+              "dependencies": ["task-006"],
+              "files": ["lib/supabase/realtime.ts"]
+            },
+            {
+              "id": "task-011",
+              "title": "Create Supabase middleware",
+              "status": "completed",
+              "agent": "api",
+              "priority": "P0",
+              "dependencies": ["task-007"],
+              "files": ["lib/supabase/middleware.ts", "middleware.ts"]
+            }
+          ]
+        },
+        {
+          "id": "epic-1-3",
+          "name": "State Management",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-012", "title": "Create shopStore", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-013", "title": "Create uiStore", "status": "completed", "agent": "logic", "priority": "P1" },
+            { "id": "task-014", "title": "Create notificationStore", "status": "completed", "agent": "logic", "priority": "P2" },
+            { "id": "task-015", "title": "Create aiStore", "status": "completed", "agent": "logic", "priority": "P3" }
+          ]
+        },
+        {
+          "id": "epic-1-4",
+          "name": "Core Hooks",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-016", "title": "Create useSupabaseQuery hook", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-017", "title": "Create useSupabaseMutation hook", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-018", "title": "Create useRealtime hook", "status": "completed", "agent": "logic", "priority": "P2" },
+            { "id": "task-019", "title": "Create TanStack Query client config", "status": "completed", "agent": "logic", "priority": "P0" }
+          ]
+        },
+        {
+          "id": "epic-1-5",
+          "name": "Auth Hooks",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-020", "title": "Create useUser hook", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-021", "title": "Create useSession hook", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-022", "title": "Create useAuth hook", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-023", "title": "Create usePermissions hook", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-024", "title": "Create useRole hook", "status": "completed", "agent": "logic", "priority": "P1" }
+          ]
+        },
+        {
+          "id": "epic-1-6",
+          "name": "Shop Hooks",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-025", "title": "Create useShop hook", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-026", "title": "Create useShops hook", "status": "completed", "agent": "logic", "priority": "P1" },
+            { "id": "task-027", "title": "Create useShopAccess hook", "status": "completed", "agent": "logic", "priority": "P1" }
+          ]
+        },
+        {
+          "id": "epic-1-7",
+          "name": "Utilities",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-028", "title": "Create formatting utilities", "status": "completed", "agent": "logic", "priority": "P1" },
+            { "id": "task-029", "title": "Create cn utility", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-030", "title": "Create validation schemas", "status": "completed", "agent": "logic", "priority": "P1" },
+            { "id": "task-031", "title": "Create constants files", "status": "completed", "agent": "logic", "priority": "P1" }
+          ]
+        },
+        {
+          "id": "epic-1-8",
+          "name": "UI Components",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-032", "title": "Configure Ant Design theme", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-033", "title": "Create Button component", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-034", "title": "Create Card component", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-035", "title": "Create Form component", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-036", "title": "Create Table component", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-037", "title": "Create Modal component", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-038", "title": "Create Select component", "status": "completed", "agent": "ui", "priority": "P1" }
+          ]
+        },
+        {
+          "id": "epic-1-9",
+          "name": "Common Components",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-039", "title": "Create DataTable component", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-040", "title": "Create StatCard component", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-041", "title": "Create EmptyState component", "status": "completed", "agent": "ui", "priority": "P2" },
+            { "id": "task-042", "title": "Create LoadingSkeleton component", "status": "completed", "agent": "ui", "priority": "P1" }
+          ]
+        },
+        {
+          "id": "epic-1-10",
+          "name": "i18n Setup",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-043", "title": "Configure next-intl", "status": "completed", "agent": "logic", "priority": "P1" },
+            { "id": "task-044", "title": "Create English messages file", "status": "completed", "agent": "logic", "priority": "P1" },
+            { "id": "task-045", "title": "Create other language files", "status": "completed", "agent": "logic", "priority": "P3" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Authentication & Core Shell",
+      "description": "Complete auth flow, app shell, navigation",
+      "status": "completed",
+      "startDate": "2024-12-03",
+      "endDate": "2024-12-03",
+      "progress": {
+        "completed": 35,
+        "total": 35
+      },
+      "epics": [
+        {
+          "id": "epic-2-1",
+          "name": "Auth Layout & Pages",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-046", "title": "Create auth layout", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-047", "title": "Create login page", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-048", "title": "Create register page", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-049", "title": "Create forgot password page", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-050", "title": "Create reset password page", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-051", "title": "Create verify email page", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-052", "title": "Create auth callback handler", "status": "completed", "agent": "api", "priority": "P0" }
+          ]
+        },
+        {
+          "id": "epic-2-2",
+          "name": "Auth Server Actions",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-053", "title": "Create login server action", "status": "completed", "agent": "api", "priority": "P0" },
+            { "id": "task-054", "title": "Create register server action", "status": "completed", "agent": "api", "priority": "P0" },
+            { "id": "task-055", "title": "Create password reset actions", "status": "completed", "agent": "api", "priority": "P1" },
+            { "id": "task-056", "title": "Create logout server action", "status": "completed", "agent": "api", "priority": "P0" }
+          ]
+        },
+        {
+          "id": "epic-2-3",
+          "name": "Platform Shell Layout",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-057", "title": "Create platform layout", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-058", "title": "Create shop layout", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-059", "title": "Create Sidebar component", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-060", "title": "Create Header component", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-061", "title": "Create PageHeader component", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-062", "title": "Create FAB component", "status": "completed", "agent": "ui", "priority": "P2" },
+            { "id": "task-063", "title": "Create LockedFeature component", "status": "completed", "agent": "ui", "priority": "P1" }
+          ]
+        },
+        {
+          "id": "epic-2-4",
+          "name": "Navigation System",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-064", "title": "Create navigation config", "status": "completed", "agent": "logic", "priority": "P0" },
+            { "id": "task-065", "title": "Create breadcrumb system", "status": "completed", "agent": "logic", "priority": "P1" },
+            { "id": "task-066", "title": "Create useNavigation hook", "status": "completed", "agent": "logic", "priority": "P1" }
+          ]
+        },
+        {
+          "id": "epic-2-5",
+          "name": "Shop Management",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-067", "title": "Create shop selection page", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-068", "title": "Create ShopSwitcher modal", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-069", "title": "Create shop creation flow", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-070", "title": "Create shop server actions", "status": "completed", "agent": "api", "priority": "P0" }
+          ]
+        },
+        {
+          "id": "epic-2-6",
+          "name": "User Profile",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-071", "title": "Create profile page", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-072", "title": "Create user settings page", "status": "completed", "agent": "ui", "priority": "P2" },
+            { "id": "task-073", "title": "Create profile server actions", "status": "completed", "agent": "api", "priority": "P1" }
+          ]
+        },
+        {
+          "id": "epic-2-7",
+          "name": "Dashboard Shell",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-074", "title": "Create dashboard page", "status": "completed", "agent": "ui", "priority": "P0" },
+            { "id": "task-075", "title": "Create dashboard widgets", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-076", "title": "Create NotificationCenter component", "status": "completed", "agent": "ui", "priority": "P2" },
+            { "id": "task-077", "title": "Create UserMenu component", "status": "completed", "agent": "ui", "priority": "P1" },
+            { "id": "task-078", "title": "Create ThemeToggle component", "status": "completed", "agent": "ui", "priority": "P2" },
+            { "id": "task-079", "title": "Create LocaleSwitcher component", "status": "completed", "agent": "ui", "priority": "P2" },
+            { "id": "task-080", "title": "Create GlobalSearch component", "status": "completed", "agent": "ui", "priority": "P2" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Core Domains",
+      "description": "Inventory + Sales implementation",
+      "status": "completed",
+      "startDate": "2025-12-04",
+      "endDate": "2025-12-05",
+      "progress": {
+        "completed": 41,
+        "total": 41
+      },
+      "epics": [
+        {
+          "id": "epic-3-1",
+          "name": "Product Catalog Setup",
+          "description": "Master data management for categories, metals, stones, and sizes",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-081",
+              "title": "Create product categories page",
+              "status": "completed",
+              "agent": "ui",
+              "priority": "P0",
+              "files": ["app/(platform)/[locale]/[shopId]/settings/catalog/categories/page.tsx"]
+            },
+            {
+              "id": "task-082",
+              "title": "Create metal types management",
+              "status": "completed",
+              "agent": "ui",
+              "priority": "P0",
+              "files": ["app/(platform)/[locale]/[shopId]/settings/catalog/metals/page.tsx"]
+            },
+            {
+              "id": "task-083",
+              "title": "Create stone types management",
+              "status": "completed",
+              "agent": "ui",
+              "priority": "P1",
+              "files": ["app/(platform)/[locale]/[shopId]/settings/catalog/stones/page.tsx"]
+            },
+            {
+              "id": "task-084",
+              "title": "Create product sizes management",
+              "status": "completed",
+              "agent": "ui",
+              "priority": "P1",
+              "files": ["app/(platform)/[locale]/[shopId]/settings/catalog/sizes/page.tsx"]
+            },
+            {
+              "id": "task-085",
+              "title": "Create metal prices tracking",
+              "status": "completed",
+              "agent": "ui",
+              "priority": "P1",
+              "files": ["app/(platform)/[locale]/[shopId]/settings/catalog/purities/page.tsx"]
+            },
+            { "id": "task-086", "title": "Create catalog server actions", "status": "completed", "agent": "api", "priority": "P0", "files": ["lib/actions/catalog.ts"] },
+            {
+              "id": "task-087",
+              "title": "Create catalog hooks",
+              "status": "completed",
+              "agent": "logic",
+              "priority": "P0",
+              "files": ["lib/hooks/data/useCategories.ts", "lib/hooks/data/useMetals.ts"]
+            }
+          ]
+        },
+        {
+          "id": "epic-3-2",
+          "name": "Inventory Data Layer",
+          "description": "Hooks and server actions for inventory management",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-088", "title": "Create inventory hooks", "status": "completed", "agent": "logic", "priority": "P0", "files": ["lib/hooks/data/useInventoryItems.ts"] },
+            { "id": "task-089", "title": "Create inventory server actions", "status": "completed", "agent": "api", "priority": "P0", "files": ["lib/actions/inventory.ts"] },
+            { "id": "task-090", "title": "Create inventory Zod schemas", "status": "completed", "agent": "logic", "priority": "P1", "files": ["lib/utils/schemas/inventory.ts"] },
+            { "id": "task-091", "title": "Create inventory real-time subscription", "status": "completed", "agent": "logic", "priority": "P2", "files": ["lib/hooks/data/useInventoryRealtime.ts"] }
+          ]
+        },
+        {
+          "id": "epic-3-3",
+          "name": "Inventory UI",
+          "description": "Inventory list page with card grid and item management",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-092", "title": "Create inventory list page", "status": "completed", "agent": "ui", "priority": "P0", "files": ["app/(platform)/[locale]/[shopId]/inventory/page.tsx"] },
+            { "id": "task-093", "title": "Create ItemCard component", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/inventory/ItemCard.tsx"] },
+            { "id": "task-094", "title": "Create inventory filter panel", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/inventory/InventoryFilters.tsx"] },
+            { "id": "task-095", "title": "Create item detail drawer", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/inventory/ItemDetailDrawer.tsx"] },
+            { "id": "task-096", "title": "Create item form", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/inventory/ItemForm.tsx"] },
+            { "id": "task-097", "title": "Create item stones manager", "status": "completed", "agent": "ui", "priority": "P1", "files": ["components/domain/inventory/ItemStonesManager.tsx"] },
+            { "id": "task-098", "title": "Create barcode label component", "status": "completed", "agent": "ui", "priority": "P2", "files": ["components/domain/inventory/BarcodeLabel.tsx"] }
+          ]
+        },
+        {
+          "id": "epic-3-4",
+          "name": "Customer Management",
+          "description": "Customer CRUD, balance tracking, and transaction history",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-099", "title": "Create customer hooks", "status": "completed", "agent": "logic", "priority": "P0", "files": ["lib/hooks/data/useCustomers.ts"] },
+            { "id": "task-100", "title": "Create customer server actions", "status": "completed", "agent": "api", "priority": "P0", "files": ["lib/actions/customer.ts"] },
+            { "id": "task-101", "title": "Create customer Zod schemas", "status": "completed", "agent": "logic", "priority": "P1", "files": ["lib/utils/schemas/customer.ts"] },
+            { "id": "task-102", "title": "Create customers list page", "status": "completed", "agent": "ui", "priority": "P0", "files": ["app/(platform)/[locale]/[shopId]/customers/page.tsx"] },
+            { "id": "task-103", "title": "Create CustomerCard component", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/customers/CustomerCard.tsx"] },
+            { "id": "task-104", "title": "Create customer detail modal", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/customers/CustomerDetailModal.tsx"] },
+            { "id": "task-105", "title": "Create customer form", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/customers/CustomerForm.tsx"] }
+          ]
+        },
+        {
+          "id": "epic-3-5",
+          "name": "POS System",
+          "description": "Point of Sale interface for quick checkout",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-106", "title": "Create sales hooks", "status": "completed", "agent": "logic", "priority": "P0", "files": ["lib/hooks/data/useSales.ts"] },
+            { "id": "task-107", "title": "Create sales server actions", "status": "completed", "agent": "api", "priority": "P0", "files": ["lib/actions/sales.ts"] },
+            { "id": "task-108", "title": "Create sales Zod schemas", "status": "completed", "agent": "logic", "priority": "P1", "files": ["lib/utils/schemas/sales.ts"] },
+            { "id": "task-109", "title": "Create POS page layout", "status": "completed", "agent": "ui", "priority": "P0", "files": ["app/(platform)/[locale]/[shopId]/sales/pos/page.tsx"] },
+            { "id": "task-110", "title": "Create product search grid", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/sales/ProductSearch.tsx"] },
+            {
+              "id": "task-111",
+              "title": "Create cart/invoice builder",
+              "status": "completed",
+              "agent": "ui",
+              "priority": "P0",
+              "files": ["components/domain/sales/CartBuilder.tsx", "stores/cartStore.ts"]
+            },
+            { "id": "task-112", "title": "Create customer selector", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/sales/CustomerSelector.tsx"] },
+            { "id": "task-113", "title": "Create payment form", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/sales/PaymentForm.tsx"] },
+            { "id": "task-114", "title": "Create checkout flow", "status": "completed", "agent": "ui", "priority": "P0", "files": ["components/domain/sales/CheckoutFlow.tsx"] },
+            { "id": "task-115", "title": "Create receipt component", "status": "completed", "agent": "ui", "priority": "P1", "files": ["components/domain/sales/Receipt.tsx"] }
+          ]
+        },
+        {
+          "id": "epic-3-6",
+          "name": "Sales List & History",
+          "description": "Sales history, detail view, and returns",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-116", "title": "Create sales list page", "status": "completed", "agent": "ui", "priority": "P1", "files": ["app/(platform)/[locale]/[shopId]/sales/page.tsx"] },
+            { "id": "task-117", "title": "Create sale detail page", "status": "completed", "agent": "ui", "priority": "P1", "files": ["app/(platform)/[locale]/[shopId]/sales/[saleId]/page.tsx"] },
+            { "id": "task-118", "title": "Create sale payment modal", "status": "completed", "agent": "ui", "priority": "P1", "files": ["components/domain/sales/PaymentSummary.tsx"] }
+          ]
+        },
+        {
+          "id": "epic-3-7",
+          "name": "Barcode System",
+          "description": "Barcode scanning and item lookup",
+          "status": "completed",
+          "tasks": [
+            { "id": "task-119", "title": "Create barcode scanner hook", "status": "completed", "agent": "logic", "priority": "P1", "files": ["lib/hooks/utils/useBarcodeScanner.ts"] },
+            { "id": "task-120", "title": "Create barcode scanner component", "status": "completed", "agent": "ui", "priority": "P1", "files": ["components/domain/inventory/BarcodeScanner.tsx"] },
+            { "id": "task-121", "title": "Create barcode scan modal", "status": "completed", "agent": "ui", "priority": "P1", "files": ["components/domain/inventory/BarcodeScannerModal.tsx"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Supporting Domains",
+      "description": "Purchases, Workshops, Deliveries, Expenses",
+      "status": "completed",
+      "startDate": "2025-12-05",
+      "endDate": "2025-12-06",
+      "progress": {
+        "completed": 52,
+        "total": 52
+      },
+      "epics": [
+        {
+          "id": "epic-4-1",
+          "name": "Suppliers Management",
+          "description": "Supplier CRUD, categories, and contact management",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-122",
+              "title": "Create supplier hooks",
+              "description": "TanStack Query hooks for suppliers with categories",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useSuppliers.ts", "lib/hooks/data/useSupplier.ts", "lib/hooks/data/useSupplierCategories.ts"],
+              "acceptanceCriteria": ["useSuppliers with pagination/search", "useSupplier for single supplier", "useSupplierCategories for categories", "useSupplierTransactions for ledger"]
+            },
+            {
+              "id": "task-123",
+              "title": "Create supplier server actions",
+              "description": "Server actions for supplier CRUD operations",
+              "agent": "api",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/actions/supplier.ts"],
+              "acceptanceCriteria": ["createSupplier action", "updateSupplier action", "getSupplierBalance action", "Immutable ledger handling for supplier_transactions"]
+            },
+            {
+              "id": "task-124",
+              "title": "Create supplier Zod schemas",
+              "description": "Validation schemas for supplier forms",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/utils/schemas/supplier.ts"],
+              "acceptanceCriteria": ["supplierSchema", "supplierCategorySchema", "Phone and email validation", "Credit terms validation"]
+            },
+            {
+              "id": "task-125",
+              "title": "Create suppliers list page",
+              "description": "Supplier listing with search and filters",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-122"],
+              "files": ["app/(platform)/[locale]/[shopId]/suppliers/page.tsx"],
+              "acceptanceCriteria": ["DataTable with suppliers", "Category filter", "Status filter", "Quick add button", "Balance indicators"]
+            },
+            {
+              "id": "task-126",
+              "title": "Create SupplierCard component",
+              "description": "Supplier contact card with balance indicator",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["components/domain/suppliers/SupplierCard.tsx"],
+              "acceptanceCriteria": ["Company name and contact display", "Balance with color indicator", "Category badge", "Click to open detail modal"]
+            },
+            {
+              "id": "task-127",
+              "title": "Create supplier detail page",
+              "description": "Full supplier details with transaction history",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-125"],
+              "files": ["app/(platform)/[locale]/[shopId]/suppliers/[supplierId]/page.tsx"],
+              "acceptanceCriteria": ["Contact information", "Bank details section", "Balance display", "Transaction history table", "Purchase history tab", "Payment history tab"]
+            },
+            {
+              "id": "task-128",
+              "title": "Create supplier form",
+              "description": "Create/edit supplier form with all fields",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-124"],
+              "files": ["components/domain/suppliers/SupplierForm.tsx"],
+              "acceptanceCriteria": ["Company name, contact fields", "Address fields", "Bank details section", "Category selector", "Credit terms fields", "Zod validation"]
+            },
+            {
+              "id": "task-129",
+              "title": "Create supplier categories page",
+              "description": "CRUD for supplier categories",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/supplier-categories/page.tsx"],
+              "acceptanceCriteria": ["List of categories", "Create/edit drawer", "Delete confirmation", "Count of suppliers per category"]
+            }
+          ]
+        },
+        {
+          "id": "epic-4-2",
+          "name": "Purchases Management",
+          "description": "Purchase orders, receiving, and supplier payments",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-130",
+              "title": "Create purchase hooks",
+              "description": "TanStack Query hooks for purchases",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-122"],
+              "files": ["lib/hooks/data/usePurchases.ts", "lib/hooks/data/usePurchase.ts", "lib/hooks/data/usePurchaseItems.ts"],
+              "acceptanceCriteria": ["usePurchases with pagination", "usePurchase for single purchase", "usePurchaseItems for line items"]
+            },
+            {
+              "id": "task-131",
+              "title": "Create purchase server actions",
+              "description": "Server actions for purchase CRUD",
+              "agent": "api",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/actions/purchase.ts"],
+              "acceptanceCriteria": ["createPurchase action", "addPurchaseItem action", "receivePurchase action", "recordSupplierPayment action", "Generate purchase number"]
+            },
+            {
+              "id": "task-132",
+              "title": "Create purchase Zod schemas",
+              "description": "Validation schemas for purchase forms",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/utils/schemas/purchase.ts"],
+              "acceptanceCriteria": ["purchaseSchema", "purchaseItemSchema", "supplierPaymentSchema"]
+            },
+            {
+              "id": "task-133",
+              "title": "Create purchases list page",
+              "description": "Purchase orders list with filters",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-130"],
+              "files": ["app/(platform)/[locale]/[shopId]/purchases/page.tsx"],
+              "acceptanceCriteria": ["DataTable with purchases", "Date range filter", "Status filter", "Supplier filter", "Payment status filter"]
+            },
+            {
+              "id": "task-134",
+              "title": "Create purchase form page",
+              "description": "Multi-step purchase order creation",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-132", "task-122"],
+              "files": ["app/(platform)/[locale]/[shopId]/purchases/new/page.tsx", "components/domain/purchases/PurchaseForm.tsx"],
+              "acceptanceCriteria": ["Supplier selection step", "Items entry with metal details", "Weight and price inputs", "Notes field", "Expected delivery date"]
+            },
+            {
+              "id": "task-135",
+              "title": "Create purchase detail page",
+              "description": "Full purchase details view",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-130"],
+              "files": ["app/(platform)/[locale]/[shopId]/purchases/[purchaseId]/page.tsx"],
+              "acceptanceCriteria": ["Purchase header info", "Line items table", "Payment history", "Supplier info", "Actions (receive, pay, cancel)"]
+            },
+            {
+              "id": "task-136",
+              "title": "Create supplier payment modal",
+              "description": "Record payment to supplier",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["components/domain/suppliers/RecordPaymentModal.tsx"],
+              "acceptanceCriteria": ["Show balance due", "Payment form", "Payment method selection", "Reference number field", "Create supplier_transaction record"]
+            },
+            {
+              "id": "task-137",
+              "title": "Create purchase receiving flow",
+              "description": "Mark purchase as received and add items to inventory",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-135"],
+              "files": ["components/domain/purchases/ReceivePurchaseModal.tsx"],
+              "acceptanceCriteria": ["Verify received items", "Generate SKUs/barcodes", "Update inventory_items", "Partial receiving support"]
+            }
+          ]
+        },
+        {
+          "id": "epic-4-3",
+          "name": "Workshops Management",
+          "description": "Workshop profiles, orders, and payments",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-138",
+              "title": "Create workshop hooks",
+              "description": "TanStack Query hooks for workshops",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useWorkshops.ts", "lib/hooks/data/useWorkshop.ts", "lib/hooks/data/useWorkshopOrders.ts"],
+              "acceptanceCriteria": ["useWorkshops with internal/external filter", "useWorkshop for single workshop", "useWorkshopOrders for orders list"]
+            },
+            {
+              "id": "task-139",
+              "title": "Create workshop server actions",
+              "description": "Server actions for workshop CRUD",
+              "agent": "api",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/actions/workshop.ts"],
+              "acceptanceCriteria": ["createWorkshop action", "createWorkshopOrder action", "updateOrderStatus action", "recordWorkshopPayment action"]
+            },
+            {
+              "id": "task-140",
+              "title": "Create workshop Zod schemas",
+              "description": "Validation schemas for workshop forms",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/utils/schemas/workshop.ts"],
+              "acceptanceCriteria": ["workshopSchema", "workshopOrderSchema", "workshopPaymentSchema"]
+            },
+            {
+              "id": "task-141",
+              "title": "Create workshops list page",
+              "description": "Workshop profiles listing",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-138"],
+              "files": ["app/(platform)/[locale]/[shopId]/workshops/page.tsx"],
+              "acceptanceCriteria": ["DataTable with workshops", "Internal/external filter", "Specialization filter", "Balance display"]
+            },
+            {
+              "id": "task-142",
+              "title": "Create workshop form",
+              "description": "Create/edit workshop profile",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-140"],
+              "files": ["components/domain/workshops/WorkshopForm.tsx"],
+              "acceptanceCriteria": ["Name and contact fields", "Internal/external toggle", "Specializations multi-select", "Pricing info"]
+            },
+            {
+              "id": "task-143",
+              "title": "Create workshop orders page",
+              "description": "Workshop orders listing and management",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-138"],
+              "files": ["app/(platform)/[locale]/[shopId]/workshops/orders/page.tsx"],
+              "acceptanceCriteria": ["DataTable with orders", "Status filter (pending, in_progress, completed)", "Workshop filter", "Due date sorting"]
+            },
+            {
+              "id": "task-144",
+              "title": "Create workshop order form",
+              "description": "Create new workshop order",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-140"],
+              "files": ["components/domain/workshops/WorkshopOrderForm.tsx"],
+              "acceptanceCriteria": ["Workshop selection", "Order type (repair, custom, resize, etc.)", "Items selection from inventory", "Description and notes", "Due date", "Estimated cost"]
+            },
+            {
+              "id": "task-145",
+              "title": "Create workshop order detail page",
+              "description": "Full workshop order details",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-143"],
+              "files": ["app/(platform)/[locale]/[shopId]/workshops/orders/[orderId]/page.tsx"],
+              "acceptanceCriteria": ["Order header with status", "Items list", "Workshop info", "Status history", "Payment history", "Actions (update status, pay)"]
+            },
+            {
+              "id": "task-146",
+              "title": "Create workshop payment modal",
+              "description": "Record payment to workshop",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["components/domain/workshops/RecordPaymentModal.tsx"],
+              "acceptanceCriteria": ["Order balance display", "Payment form", "Create workshop_transaction"]
+            }
+          ]
+        },
+        {
+          "id": "epic-4-4",
+          "name": "Deliveries Management",
+          "description": "Courier companies, delivery tracking, and payments",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-147",
+              "title": "Create delivery hooks",
+              "description": "TanStack Query hooks for deliveries",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useDeliveries.ts", "lib/hooks/data/useCouriers.ts"],
+              "acceptanceCriteria": ["useDeliveries with status filter", "useDelivery for single delivery", "useCouriers for courier companies"]
+            },
+            {
+              "id": "task-148",
+              "title": "Create delivery server actions",
+              "description": "Server actions for delivery CRUD",
+              "agent": "api",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/actions/delivery.ts"],
+              "acceptanceCriteria": ["createDelivery action", "updateDeliveryStatus action", "recordCourierPayment action", "Create courier_transaction"]
+            },
+            {
+              "id": "task-149",
+              "title": "Create delivery Zod schemas",
+              "description": "Validation schemas for delivery forms",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/utils/schemas/delivery.ts"],
+              "acceptanceCriteria": ["deliverySchema", "courierSchema", "courierPaymentSchema"]
+            },
+            {
+              "id": "task-150",
+              "title": "Create deliveries list page",
+              "description": "Delivery records listing",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-147"],
+              "files": ["app/(platform)/[locale]/[shopId]/deliveries/page.tsx"],
+              "acceptanceCriteria": ["DataTable with deliveries", "Status filter", "Date range filter", "Courier filter"]
+            },
+            {
+              "id": "task-151",
+              "title": "Create delivery form",
+              "description": "Create new delivery",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-149"],
+              "files": ["components/domain/deliveries/DeliveryForm.tsx"],
+              "acceptanceCriteria": ["Link to sale", "Customer address", "Courier selection", "Tracking number", "Scheduled date"]
+            },
+            {
+              "id": "task-152",
+              "title": "Create courier companies page",
+              "description": "Manage courier company profiles",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/couriers/page.tsx"],
+              "acceptanceCriteria": ["List of couriers", "Create/edit drawer", "Contact info", "Balance display"]
+            },
+            {
+              "id": "task-153",
+              "title": "Create delivery detail view",
+              "description": "Full delivery details with tracking",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": ["task-150"],
+              "files": ["components/domain/deliveries/DeliveryDetailDrawer.tsx"],
+              "acceptanceCriteria": ["Delivery info", "Customer address", "Tracking info", "Status history", "Payment info"]
+            }
+          ]
+        },
+        {
+          "id": "epic-4-5",
+          "name": "Expenses Management",
+          "description": "Expense tracking, approvals, and budgeting",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-154",
+              "title": "Create expense hooks",
+              "description": "TanStack Query hooks for expenses",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useExpenses.ts", "lib/hooks/data/useExpenseCategories.ts"],
+              "acceptanceCriteria": ["useExpenses with pagination", "useExpense for single expense", "useExpenseCategories", "useRecurringExpenses"]
+            },
+            {
+              "id": "task-155",
+              "title": "Create expense server actions",
+              "description": "Server actions for expense CRUD",
+              "agent": "api",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/actions/expense.ts"],
+              "acceptanceCriteria": ["createExpense action", "approveExpense action", "rejectExpense action", "createRecurringExpense action"]
+            },
+            {
+              "id": "task-156",
+              "title": "Create expense Zod schemas",
+              "description": "Validation schemas for expense forms",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/utils/schemas/expense.ts"],
+              "acceptanceCriteria": ["expenseSchema", "expenseCategorySchema", "recurringExpenseSchema", "expenseApprovalSchema"]
+            },
+            {
+              "id": "task-157",
+              "title": "Create expenses list page",
+              "description": "Expense records listing",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-154"],
+              "files": ["app/(platform)/[locale]/[shopId]/expenses/page.tsx"],
+              "acceptanceCriteria": ["DataTable with expenses", "Category filter", "Date range filter", "Approval status filter", "Payment status filter"]
+            },
+            {
+              "id": "task-158",
+              "title": "Create expense form",
+              "description": "Create/edit expense form",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "completed",
+              "dependencies": ["task-156"],
+              "files": ["components/domain/expenses/ExpenseForm.tsx"],
+              "acceptanceCriteria": ["Category selector", "Amount and description", "Date picker", "Receipt upload", "Vendor info"]
+            },
+            {
+              "id": "task-159",
+              "title": "Create expense categories page",
+              "description": "Manage expense categories",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/expense-categories/page.tsx"],
+              "acceptanceCriteria": ["List of categories", "Create/edit drawer", "Parent category support", "Budget association"]
+            },
+            {
+              "id": "task-160",
+              "title": "Create expense approval workflow",
+              "description": "Approve/reject expenses",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": ["task-157"],
+              "files": ["components/domain/expenses/ExpenseApprovalModal.tsx"],
+              "acceptanceCriteria": ["Expense details display", "Approve/reject actions", "Comments field", "Role-based visibility"]
+            },
+            {
+              "id": "task-161",
+              "title": "Create recurring expenses page",
+              "description": "Manage recurring expense schedules",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "completed",
+              "dependencies": ["task-154"],
+              "files": ["app/(platform)/[locale]/[shopId]/expenses/recurring/page.tsx"],
+              "acceptanceCriteria": ["List of recurring expenses", "Frequency display", "Next occurrence date", "Pause/resume actions"]
+            }
+          ]
+        },
+        {
+          "id": "epic-4-6",
+          "name": "Budget Management",
+          "description": "Budget categories, allocations, and tracking",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-162",
+              "title": "Create budget hooks",
+              "description": "TanStack Query hooks for budgets",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useBudgets.ts", "lib/hooks/data/useBudgetAllocations.ts"],
+              "acceptanceCriteria": ["useBudgetCategories", "useBudgetAllocations for period", "useBudgetTransactions"]
+            },
+            {
+              "id": "task-163",
+              "title": "Create budget server actions",
+              "description": "Server actions for budget management",
+              "agent": "api",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/actions/budget.ts"],
+              "acceptanceCriteria": ["createBudgetCategory action", "allocateBudget action", "adjustBudget action"]
+            },
+            {
+              "id": "task-164",
+              "title": "Create budget Zod schemas",
+              "description": "Validation schemas for budget forms",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/utils/schemas/budget.ts"],
+              "acceptanceCriteria": ["budgetCategorySchema", "budgetAllocationSchema"]
+            },
+            {
+              "id": "task-165",
+              "title": "Create budgets page",
+              "description": "Budget overview and management",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": ["task-162"],
+              "files": ["app/(platform)/[locale]/[shopId]/expenses/budgets/page.tsx"],
+              "acceptanceCriteria": ["Budget categories list", "Allocated vs spent display", "Progress bars", "Period selector"]
+            },
+            {
+              "id": "task-166",
+              "title": "Create budget allocation form",
+              "description": "Allocate budget to categories",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "completed",
+              "dependencies": ["task-164"],
+              "files": ["components/domain/expenses/BudgetAllocationForm.tsx"],
+              "acceptanceCriteria": ["Category selection", "Amount input", "Period selection", "Notes field"]
+            },
+            {
+              "id": "task-167",
+              "title": "Create budget vs actual chart",
+              "description": "Visual comparison of budget vs actual spending",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "completed",
+              "dependencies": ["task-165"],
+              "files": ["components/domain/expenses/BudgetChart.tsx"],
+              "acceptanceCriteria": ["Bar chart comparison", "Category breakdown", "Trend over time", "Variance highlighting"]
+            }
+          ]
+        },
+        {
+          "id": "epic-4-7",
+          "name": "Payment Reminders",
+          "description": "Payment reminder system for suppliers, workshops, couriers",
+          "status": "completed",
+          "tasks": [
+            {
+              "id": "task-168",
+              "title": "Create payment reminders hooks",
+              "description": "Hooks for payment reminders",
+              "agent": "logic",
+              "priority": "P2",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/hooks/data/usePaymentReminders.ts"],
+              "acceptanceCriteria": ["usePaymentReminders with filters", "Due date sorting", "Entity type filter"]
+            },
+            {
+              "id": "task-169",
+              "title": "Create payment reminders server actions",
+              "description": "Server actions for reminders",
+              "agent": "api",
+              "priority": "P2",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["lib/actions/paymentReminder.ts"],
+              "acceptanceCriteria": ["createReminder action", "markAsCompleted action", "snoozeReminder action"]
+            },
+            {
+              "id": "task-170",
+              "title": "Create payment reminders widget",
+              "description": "Dashboard widget for upcoming payments",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "completed",
+              "dependencies": ["task-168"],
+              "files": ["components/domain/dashboard/PaymentRemindersWidget.tsx"],
+              "acceptanceCriteria": ["Upcoming payments list", "Overdue highlighting", "Quick pay action", "Snooze action"]
+            },
+            {
+              "id": "task-171",
+              "title": "Create payment reminders page",
+              "description": "Full payment reminders management",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "completed",
+              "dependencies": ["task-168"],
+              "files": ["app/(platform)/[locale]/[shopId]/reminders/page.tsx"],
+              "acceptanceCriteria": ["DataTable with reminders", "Entity type tabs", "Date range filter", "Status filter", "Calendar view option"]
+            },
+            {
+              "id": "task-172",
+              "title": "Create reminder form",
+              "description": "Create/edit payment reminder",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "completed",
+              "dependencies": [],
+              "files": ["components/domain/reminders/ReminderForm.tsx"],
+              "acceptanceCriteria": ["Entity type and ID selection", "Due date picker", "Amount field", "Notes field", "Recurring option"]
+            },
+            {
+              "id": "task-173",
+              "title": "Create reminder calendar view",
+              "description": "Calendar visualization of payment reminders",
+              "agent": "ui",
+              "priority": "P3",
+              "status": "completed",
+              "dependencies": ["task-171"],
+              "files": ["components/domain/reminders/ReminderCalendar.tsx"],
+              "acceptanceCriteria": ["FullCalendar integration", "Color-coded by entity type", "Click to view details", "Drag to reschedule"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Advanced Features",
+      "description": "Settings, Analytics, AI Assistant, Reports",
+      "status": "completed",
+      "startDate": "2025-12-06",
+      "endDate": "2025-12-07",
+      "progress": {
+        "completed": 48,
+        "total": 48
+      },
+      "epics": [
+        {
+          "id": "epic-5-1",
+          "name": "Shop Settings",
+          "description": "Shop configuration, preferences, and customization",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-174",
+              "title": "Create shop settings hooks",
+              "description": "TanStack Query hooks for shop settings",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useShopSettings.ts"],
+              "acceptanceCriteria": ["useShopSettings hook", "useUpdateShopSettings mutation", "Currency and timezone settings"]
+            },
+            {
+              "id": "task-175",
+              "title": "Create shop settings server actions",
+              "description": "Server actions for shop configuration",
+              "agent": "api",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/actions/shopSettings.ts"],
+              "acceptanceCriteria": ["getShopSettings action", "updateShopSettings action", "updateShopLogo action"]
+            },
+            {
+              "id": "task-176",
+              "title": "Create general settings page",
+              "description": "Shop name, logo, currency, timezone settings",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": ["task-174"],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/general/page.tsx"],
+              "acceptanceCriteria": ["Shop name and logo upload", "Currency selector", "Timezone selector", "Language preference"]
+            },
+            {
+              "id": "task-177",
+              "title": "Create business settings page",
+              "description": "Tax rates, invoice templates, receipt settings",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-174"],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/business/page.tsx"],
+              "acceptanceCriteria": ["Tax rate configuration", "Invoice number format", "Receipt header/footer", "Default payment terms"]
+            },
+            {
+              "id": "task-178",
+              "title": "Create notification settings page",
+              "description": "Email and in-app notification preferences",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/notifications/page.tsx"],
+              "acceptanceCriteria": ["Email notification toggles", "Low stock alerts", "Payment reminder settings", "Daily summary preferences"]
+            }
+          ]
+        },
+        {
+          "id": "epic-5-2",
+          "name": "User & Role Management",
+          "description": "Team management, roles, and permissions",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-179",
+              "title": "Create team management hooks",
+              "description": "Hooks for managing shop team members",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useTeam.ts", "lib/hooks/data/useRoles.ts"],
+              "acceptanceCriteria": ["useTeamMembers hook", "useRoles hook", "useInviteUser mutation"]
+            },
+            {
+              "id": "task-180",
+              "title": "Create team server actions",
+              "description": "Server actions for team management",
+              "agent": "api",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/actions/team.ts"],
+              "acceptanceCriteria": ["inviteTeamMember action", "removeTeamMember action", "updateMemberRole action", "updateMemberPermissions action"]
+            },
+            {
+              "id": "task-181",
+              "title": "Create team members page",
+              "description": "List and manage shop team members",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": ["task-179"],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/team/page.tsx"],
+              "acceptanceCriteria": ["Team members table", "Role badges", "Invite button", "Remove/edit actions"]
+            },
+            {
+              "id": "task-182",
+              "title": "Create invite member modal",
+              "description": "Invite new team members via email",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": ["task-180"],
+              "files": ["components/domain/settings/InviteMemberModal.tsx"],
+              "acceptanceCriteria": ["Email input", "Role selector", "Permission overrides", "Send invite action"]
+            },
+            {
+              "id": "task-183",
+              "title": "Create roles management page",
+              "description": "View and customize role permissions",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-179"],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/roles/page.tsx"],
+              "acceptanceCriteria": ["List of roles", "Permission matrix", "Role descriptions", "Member count per role"]
+            },
+            {
+              "id": "task-184",
+              "title": "Create permission editor component",
+              "description": "Visual permission toggle matrix",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["components/domain/settings/PermissionEditor.tsx"],
+              "acceptanceCriteria": ["Permission categories", "Toggle switches", "Bulk enable/disable", "Permission descriptions"]
+            }
+          ]
+        },
+        {
+          "id": "epic-5-3",
+          "name": "AI Assistant",
+          "description": "AI-powered chat assistant and insights",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-185",
+              "title": "Create AI hooks",
+              "description": "TanStack Query hooks for AI features",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useAI.ts", "lib/hooks/data/useAIConversations.ts"],
+              "acceptanceCriteria": ["useAIConversations hook", "useAIMessages hook", "useAICredits hook", "useSendMessage mutation"]
+            },
+            {
+              "id": "task-186",
+              "title": "Create AI server actions",
+              "description": "Server actions for AI interactions",
+              "agent": "api",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/actions/ai.ts"],
+              "acceptanceCriteria": ["createConversation action", "sendMessage action", "getAIResponse action (Claude integration)", "trackTokenUsage action"]
+            },
+            {
+              "id": "task-187",
+              "title": "Create AI API route",
+              "description": "API endpoint for Claude integration",
+              "agent": "api",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["app/api/ai/chat/route.ts"],
+              "acceptanceCriteria": ["Claude API integration", "Streaming response support", "Token counting", "Credit checking"]
+            },
+            {
+              "id": "task-188",
+              "title": "Create AI chat page",
+              "description": "Full-page AI assistant interface",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": ["task-185"],
+              "files": ["app/(platform)/[locale]/[shopId]/ai/page.tsx"],
+              "acceptanceCriteria": ["Conversation list sidebar", "Chat message area", "Input with send button", "New conversation button"]
+            },
+            {
+              "id": "task-189",
+              "title": "Create AI chat components",
+              "description": "Chat message bubbles and input",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["components/domain/ai/ChatMessage.tsx", "components/domain/ai/ChatInput.tsx", "components/domain/ai/ConversationList.tsx"],
+              "acceptanceCriteria": ["User/AI message styling", "Markdown rendering", "Code block support", "Typing indicator"]
+            },
+            {
+              "id": "task-190",
+              "title": "Create AI quick panel",
+              "description": "Slide-out AI panel accessible from anywhere",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-189"],
+              "files": ["components/domain/ai/AIQuickPanel.tsx"],
+              "acceptanceCriteria": ["Slide-out drawer", "Context-aware prompts", "Quick actions", "Keyboard shortcut (Cmd+K)"]
+            },
+            {
+              "id": "task-191",
+              "title": "Create AI credits display",
+              "description": "Credit usage and remaining balance",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-185"],
+              "files": ["components/domain/ai/AICreditsWidget.tsx"],
+              "acceptanceCriteria": ["Credits remaining", "Usage this period", "Staff allocation view", "Low credit warning"]
+            },
+            {
+              "id": "task-192",
+              "title": "Create AI insights widget",
+              "description": "Dashboard widget with AI-generated insights",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-186"],
+              "files": ["components/domain/dashboard/AIInsightsWidget.tsx"],
+              "acceptanceCriteria": ["Daily insights summary", "Sales trends", "Inventory recommendations", "Actionable suggestions"]
+            }
+          ]
+        },
+        {
+          "id": "epic-5-4",
+          "name": "Analytics Dashboard",
+          "description": "Business analytics and performance metrics",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-193",
+              "title": "Create analytics hooks",
+              "description": "Hooks for analytics data aggregation",
+              "agent": "logic",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useAnalytics.ts"],
+              "acceptanceCriteria": ["useSalesAnalytics hook", "useInventoryAnalytics hook", "useExpenseAnalytics hook", "Date range filtering"]
+            },
+            {
+              "id": "task-194",
+              "title": "Create analytics server actions",
+              "description": "Server actions for analytics queries",
+              "agent": "api",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/actions/analytics.ts"],
+              "acceptanceCriteria": ["getSalesMetrics action", "getInventoryMetrics action", "getTopProducts action", "getRevenueByPeriod action"]
+            },
+            {
+              "id": "task-195",
+              "title": "Create analytics page",
+              "description": "Main analytics dashboard",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": ["task-193"],
+              "files": ["app/(platform)/[locale]/[shopId]/analytics/page.tsx"],
+              "acceptanceCriteria": ["Date range selector", "Key metrics cards", "Charts section", "Comparison periods"]
+            },
+            {
+              "id": "task-196",
+              "title": "Create sales analytics tab",
+              "description": "Sales performance charts",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": ["task-195"],
+              "files": ["components/domain/analytics/SalesAnalytics.tsx"],
+              "acceptanceCriteria": ["Revenue over time chart", "Sales by category pie chart", "Top selling items", "Sales by payment method"]
+            },
+            {
+              "id": "task-197",
+              "title": "Create inventory analytics tab",
+              "description": "Inventory insights and trends",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-195"],
+              "files": ["components/domain/analytics/InventoryAnalytics.tsx"],
+              "acceptanceCriteria": ["Stock value over time", "Category distribution", "Low stock alerts", "Aging inventory"]
+            },
+            {
+              "id": "task-198",
+              "title": "Create financial analytics tab",
+              "description": "Financial performance metrics",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-195"],
+              "files": ["components/domain/analytics/FinancialAnalytics.tsx"],
+              "acceptanceCriteria": ["Revenue vs expenses", "Profit margins", "Cash flow chart", "Outstanding balances"]
+            },
+            {
+              "id": "task-199",
+              "title": "Create chart components",
+              "description": "Reusable chart components with Recharts",
+              "agent": "ui",
+              "priority": "P0",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["components/charts/LineChart.tsx", "components/charts/BarChart.tsx", "components/charts/PieChart.tsx", "components/charts/AreaChart.tsx"],
+              "acceptanceCriteria": ["Responsive charts", "Gold theme colors", "Tooltips", "Legend support"]
+            }
+          ]
+        },
+        {
+          "id": "epic-5-5",
+          "name": "Reports & Export",
+          "description": "Report generation and data export",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-200",
+              "title": "Create report hooks",
+              "description": "Hooks for report generation",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useReports.ts"],
+              "acceptanceCriteria": ["useSalesReport hook", "useInventoryReport hook", "useExpenseReport hook"]
+            },
+            {
+              "id": "task-201",
+              "title": "Create report server actions",
+              "description": "Server actions for report generation",
+              "agent": "api",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/actions/report.ts"],
+              "acceptanceCriteria": ["generateSalesReport action", "generateInventoryReport action", "generateExpenseReport action"]
+            },
+            {
+              "id": "task-202",
+              "title": "Create PDF export API",
+              "description": "API route for PDF generation",
+              "agent": "api",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["app/api/export/pdf/route.ts"],
+              "acceptanceCriteria": ["PDF generation with react-pdf", "Report templates", "Shop branding", "Download response"]
+            },
+            {
+              "id": "task-203",
+              "title": "Create Excel export API",
+              "description": "API route for Excel generation",
+              "agent": "api",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["app/api/export/excel/route.ts"],
+              "acceptanceCriteria": ["Excel generation with xlsx", "Multiple sheets support", "Formatted columns", "Download response"]
+            },
+            {
+              "id": "task-204",
+              "title": "Create reports page",
+              "description": "Report generation interface",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-200"],
+              "files": ["app/(platform)/[locale]/[shopId]/reports/page.tsx"],
+              "acceptanceCriteria": ["Report type selector", "Date range picker", "Filter options", "Generate and download buttons"]
+            },
+            {
+              "id": "task-205",
+              "title": "Create sales report template",
+              "description": "PDF template for sales reports",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-202"],
+              "files": ["components/domain/reports/SalesReportTemplate.tsx"],
+              "acceptanceCriteria": ["Header with shop info", "Summary metrics", "Sales table", "Payment breakdown"]
+            },
+            {
+              "id": "task-206",
+              "title": "Create inventory report template",
+              "description": "PDF template for inventory reports",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-202"],
+              "files": ["components/domain/reports/InventoryReportTemplate.tsx"],
+              "acceptanceCriteria": ["Stock summary", "Category breakdown", "Item listing", "Valuation totals"]
+            }
+          ]
+        },
+        {
+          "id": "epic-5-6",
+          "name": "Metal Prices",
+          "description": "Metal price tracking and alerts",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-207",
+              "title": "Create metal prices hooks",
+              "description": "Hooks for metal price tracking",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useMetalPrices.ts"],
+              "acceptanceCriteria": ["useMetalPrices hook", "useMetalPriceHistory hook", "useUpdateMetalPrice mutation"]
+            },
+            {
+              "id": "task-208",
+              "title": "Create metal prices server actions",
+              "description": "Server actions for price management",
+              "agent": "api",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/actions/metalPrices.ts"],
+              "acceptanceCriteria": ["getMetalPrices action", "updateMetalPrice action", "getMetalPriceHistory action"]
+            },
+            {
+              "id": "task-209",
+              "title": "Create metal prices page",
+              "description": "Metal price management interface",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-207"],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/metal-prices/page.tsx"],
+              "acceptanceCriteria": ["Current prices table", "Update price form", "Price history chart", "Last updated timestamp"]
+            },
+            {
+              "id": "task-210",
+              "title": "Create metal prices widget",
+              "description": "Dashboard widget for metal prices",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-207"],
+              "files": ["components/domain/dashboard/MetalPricesWidget.tsx"],
+              "acceptanceCriteria": ["Current prices display", "Change indicators", "Mini chart", "Quick update action"]
+            }
+          ]
+        },
+        {
+          "id": "epic-5-7",
+          "name": "Data Import/Export",
+          "description": "Bulk data import and backup export",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-211",
+              "title": "Create import hooks",
+              "description": "Hooks for data import",
+              "agent": "logic",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useImport.ts"],
+              "acceptanceCriteria": ["useImportCustomers hook", "useImportInventory hook", "useImportSuppliers hook"]
+            },
+            {
+              "id": "task-212",
+              "title": "Create import server actions",
+              "description": "Server actions for bulk import",
+              "agent": "api",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/actions/import.ts"],
+              "acceptanceCriteria": ["parseCSV action", "validateImportData action", "bulkImport action"]
+            },
+            {
+              "id": "task-213",
+              "title": "Create import API route",
+              "description": "API endpoint for file upload and processing",
+              "agent": "api",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["app/api/import/route.ts"],
+              "acceptanceCriteria": ["File upload handling", "CSV parsing", "Validation response", "Progress tracking"]
+            },
+            {
+              "id": "task-214",
+              "title": "Create import page",
+              "description": "Data import interface",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-211"],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/import/page.tsx"],
+              "acceptanceCriteria": ["Data type selector", "File upload zone", "Preview table", "Import button with progress"]
+            },
+            {
+              "id": "task-215",
+              "title": "Create export page",
+              "description": "Full data export interface",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/export/page.tsx"],
+              "acceptanceCriteria": ["Data type selector", "Date range filter", "Format selector (CSV/Excel)", "Download button"]
+            }
+          ]
+        },
+        {
+          "id": "epic-5-8",
+          "name": "Audit & Activity Log",
+          "description": "Activity tracking and audit logs",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-216",
+              "title": "Create activity log hooks",
+              "description": "Hooks for activity log viewing",
+              "agent": "logic",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["lib/hooks/data/useActivityLog.ts"],
+              "acceptanceCriteria": ["useActivityLog hook with pagination", "Filter by user", "Filter by action type", "Filter by entity"]
+            },
+            {
+              "id": "task-217",
+              "title": "Create activity log page",
+              "description": "View shop activity history",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-216"],
+              "files": ["app/(platform)/[locale]/[shopId]/settings/activity/page.tsx"],
+              "acceptanceCriteria": ["Activity timeline", "User filter", "Action type filter", "Date range filter"]
+            },
+            {
+              "id": "task-218",
+              "title": "Create activity log item component",
+              "description": "Individual activity log entry",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["components/domain/settings/ActivityLogItem.tsx"],
+              "acceptanceCriteria": ["User avatar and name", "Action description", "Timestamp", "Link to affected entity"]
+            }
+          ]
+        },
+        {
+          "id": "epic-5-9",
+          "name": "Enhanced Dashboard",
+          "description": "Dashboard improvements and customization",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-219",
+              "title": "Create dashboard customization",
+              "description": "Allow users to customize dashboard layout",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["components/domain/dashboard/DashboardCustomizer.tsx"],
+              "acceptanceCriteria": ["Widget visibility toggles", "Widget ordering", "Save preferences", "Reset to default"]
+            },
+            {
+              "id": "task-220",
+              "title": "Create quick actions widget",
+              "description": "Dashboard widget with common actions",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["components/domain/dashboard/QuickActionsWidget.tsx"],
+              "acceptanceCriteria": ["New sale button", "Add inventory button", "Record expense button", "Create purchase button"]
+            },
+            {
+              "id": "task-221",
+              "title": "Create outstanding balances widget",
+              "description": "Widget showing all outstanding balances",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["components/domain/dashboard/OutstandingBalancesWidget.tsx"],
+              "acceptanceCriteria": ["Customer receivables", "Supplier payables", "Workshop balances", "Courier balances"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-6",
+      "name": "Polish & Testing",
+      "description": "Quality, performance, edge cases",
+      "status": "completed",
+      "startDate": "2025-12-07",
+      "endDate": "2025-12-07",
+      "progress": {
+        "completed": 48,
+        "total": 48
+      },
+      "epics": [
+        {
+          "id": "epic-6-1",
+          "name": "Unit Tests - Utils & Helpers",
+          "description": "Vitest unit tests for utility functions",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-222",
+              "title": "Setup Vitest configuration",
+              "description": "Configure Vitest with React Testing Library",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["vitest.config.ts", "vitest.setup.ts"],
+              "acceptanceCriteria": ["Vitest configured", "React Testing Library setup", "Path aliases working", "Coverage reporting"]
+            },
+            {
+              "id": "task-223",
+              "title": "Test formatting utilities",
+              "description": "Unit tests for format.ts functions",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/utils/format.test.ts"],
+              "acceptanceCriteria": ["formatCurrency tests", "formatWeight tests", "formatDate tests", "formatPhone tests", "Edge cases covered"]
+            },
+            {
+              "id": "task-224",
+              "title": "Test calculation utilities",
+              "description": "Unit tests for calculate.ts functions",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/utils/calculate.test.ts"],
+              "acceptanceCriteria": ["calculateBalance tests", "calculateTotals tests", "Price calculations", "Weight calculations"]
+            },
+            {
+              "id": "task-225",
+              "title": "Test validation schemas",
+              "description": "Unit tests for Zod schemas",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/utils/schemas.test.ts"],
+              "acceptanceCriteria": ["Customer schema tests", "Sale schema tests", "Inventory schema tests", "Error message validation"]
+            },
+            {
+              "id": "task-226",
+              "title": "Test export utilities",
+              "description": "Unit tests for export.ts functions",
+              "agent": "test",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/utils/export.test.ts"],
+              "acceptanceCriteria": ["flattenForExport tests", "formatCurrencyForExport tests", "formatDateForExport tests", "sanitizeFilename tests"]
+            }
+          ]
+        },
+        {
+          "id": "epic-6-2",
+          "name": "Unit Tests - Stores",
+          "description": "Vitest tests for Zustand stores",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-227",
+              "title": "Test shopStore",
+              "description": "Unit tests for shop store",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/stores/shopStore.test.ts"],
+              "acceptanceCriteria": ["setCurrentShop tests", "clearShop tests", "State persistence tests"]
+            },
+            {
+              "id": "task-228",
+              "title": "Test uiStore",
+              "description": "Unit tests for UI store",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/stores/uiStore.test.ts"],
+              "acceptanceCriteria": ["Sidebar toggle tests", "Modal state tests", "Theme tests"]
+            },
+            {
+              "id": "task-229",
+              "title": "Test cartStore",
+              "description": "Unit tests for cart/POS store",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/stores/cartStore.test.ts"],
+              "acceptanceCriteria": ["addItem tests", "removeItem tests", "updateQuantity tests", "clearCart tests", "Total calculation tests"]
+            },
+            {
+              "id": "task-230",
+              "title": "Test notificationStore",
+              "description": "Unit tests for notification store",
+              "agent": "test",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/stores/notificationStore.test.ts"],
+              "acceptanceCriteria": ["addNotification tests", "markAsRead tests", "clearAll tests", "Unread count tests"]
+            }
+          ]
+        },
+        {
+          "id": "epic-6-3",
+          "name": "Component Tests",
+          "description": "React Testing Library component tests",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-231",
+              "title": "Test UI wrapper components",
+              "description": "Tests for Ant Design wrapper components",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/components/ui/Button.test.tsx", "src/tests/unit/components/ui/Card.test.tsx"],
+              "acceptanceCriteria": ["Button renders correctly", "Loading state works", "Disabled state works", "Click handlers fire"]
+            },
+            {
+              "id": "task-232",
+              "title": "Test common data components",
+              "description": "Tests for data display components",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/components/common/StatCard.test.tsx", "src/tests/unit/components/common/EmptyState.test.tsx"],
+              "acceptanceCriteria": ["StatCard renders values", "EmptyState shows action button", "Badge renders correct colors"]
+            },
+            {
+              "id": "task-233",
+              "title": "Test form components",
+              "description": "Tests for form input components",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/components/common/CurrencyInput.test.tsx", "src/tests/unit/components/common/WeightInput.test.tsx"],
+              "acceptanceCriteria": ["Input validation works", "Currency formatting", "Weight unit conversion", "Error messages display"]
+            },
+            {
+              "id": "task-234",
+              "title": "Test layout components",
+              "description": "Tests for app shell components",
+              "agent": "test",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/components/layout/PageHeader.test.tsx", "src/tests/unit/components/layout/Sidebar.test.tsx"],
+              "acceptanceCriteria": ["PageHeader renders title and actions", "Sidebar collapses correctly", "Navigation links work"]
+            },
+            {
+              "id": "task-235",
+              "title": "Test domain components",
+              "description": "Tests for business domain components",
+              "agent": "test",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/unit/components/domain/inventory/ItemCard.test.tsx", "src/tests/unit/components/domain/sales/CartItem.test.tsx"],
+              "acceptanceCriteria": ["ItemCard displays item data", "CartItem quantity controls work", "Status badges display correctly"]
+            }
+          ]
+        },
+        {
+          "id": "epic-6-4",
+          "name": "Hook Integration Tests",
+          "description": "Tests for custom hooks with mocked Supabase",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-236",
+              "title": "Setup MSW for API mocking",
+              "description": "Configure Mock Service Worker for Supabase",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-222"],
+              "files": ["src/tests/mocks/handlers.ts", "src/tests/mocks/server.ts"],
+              "acceptanceCriteria": ["MSW handlers for Supabase REST", "Authentication mocking", "Error response mocking"]
+            },
+            {
+              "id": "task-237",
+              "title": "Test auth hooks",
+              "description": "Integration tests for authentication hooks",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-236"],
+              "files": ["src/tests/integration/hooks/useAuth.test.ts"],
+              "acceptanceCriteria": ["useUser returns user data", "useSession handles expiry", "Login/logout flows"]
+            },
+            {
+              "id": "task-238",
+              "title": "Test data hooks",
+              "description": "Integration tests for data fetching hooks",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-236"],
+              "files": ["src/tests/integration/hooks/useCustomers.test.ts", "src/tests/integration/hooks/useInventory.test.ts"],
+              "acceptanceCriteria": ["Data fetching works", "Mutations update cache", "Error handling", "Loading states"]
+            },
+            {
+              "id": "task-239",
+              "title": "Test permission hooks",
+              "description": "Integration tests for permission checking",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-236"],
+              "files": ["src/tests/integration/hooks/usePermissions.test.ts"],
+              "acceptanceCriteria": ["can() returns correct values", "Role-based checks", "Permission overrides work"]
+            }
+          ]
+        },
+        {
+          "id": "epic-6-5",
+          "name": "E2E Tests",
+          "description": "Playwright end-to-end tests for critical flows",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-240",
+              "title": "Setup Playwright configuration",
+              "description": "Configure Playwright for E2E testing",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["playwright.config.ts", "src/tests/e2e/fixtures.ts"],
+              "acceptanceCriteria": ["Playwright configured", "Test fixtures setup", "Auth state persistence", "Screenshot on failure"]
+            },
+            {
+              "id": "task-241",
+              "title": "E2E: Authentication flow",
+              "description": "Test login, logout, and session handling",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-240"],
+              "files": ["src/tests/e2e/auth.spec.ts"],
+              "acceptanceCriteria": ["Login with valid credentials", "Login with invalid credentials", "Logout clears session", "Session persistence"]
+            },
+            {
+              "id": "task-242",
+              "title": "E2E: Sales/POS flow",
+              "description": "Test complete sales transaction",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-240"],
+              "files": ["src/tests/e2e/sales.spec.ts"],
+              "acceptanceCriteria": ["Add items to cart", "Select customer", "Process payment", "Generate receipt"]
+            },
+            {
+              "id": "task-243",
+              "title": "E2E: Inventory management",
+              "description": "Test inventory CRUD operations",
+              "agent": "test",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": ["task-240"],
+              "files": ["src/tests/e2e/inventory.spec.ts"],
+              "acceptanceCriteria": ["Create new item", "Edit item details", "Filter and search", "Barcode scanning"]
+            },
+            {
+              "id": "task-244",
+              "title": "E2E: Customer management",
+              "description": "Test customer operations and balance tracking",
+              "agent": "test",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-240"],
+              "files": ["src/tests/e2e/customers.spec.ts"],
+              "acceptanceCriteria": ["Create customer", "View transaction history", "Record payment", "Balance updates correctly"]
+            },
+            {
+              "id": "task-245",
+              "title": "E2E: Report generation",
+              "description": "Test report creation and export",
+              "agent": "test",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-240"],
+              "files": ["src/tests/e2e/reports.spec.ts"],
+              "acceptanceCriteria": ["Generate sales report", "Export to PDF", "Export to Excel", "Date range filtering"]
+            }
+          ]
+        },
+        {
+          "id": "epic-6-6",
+          "name": "Performance Optimization",
+          "description": "Bundle analysis, lazy loading, caching",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-246",
+              "title": "Bundle analysis and optimization",
+              "description": "Analyze and reduce bundle size",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["next.config.mjs"],
+              "acceptanceCriteria": ["Bundle analyzer setup", "Identify large dependencies", "Code splitting implemented", "Tree shaking verified"]
+            },
+            {
+              "id": "task-247",
+              "title": "Implement lazy loading",
+              "description": "Add dynamic imports for heavy components",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/components/domain/analytics/ChartWidget.tsx", "src/components/domain/reports/ReportBuilder.tsx"],
+              "acceptanceCriteria": ["Charts lazy loaded", "Report builder lazy loaded", "Loading fallbacks", "No layout shift"]
+            },
+            {
+              "id": "task-248",
+              "title": "Optimize images and assets",
+              "description": "Implement image optimization",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["next.config.mjs", "src/components/common/OptimizedImage.tsx"],
+              "acceptanceCriteria": ["Next.js Image component used", "WebP format", "Responsive images", "Lazy loading for offscreen"]
+            },
+            {
+              "id": "task-249",
+              "title": "Implement data caching strategy",
+              "description": "Configure TanStack Query caching",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/lib/query/queryClient.ts"],
+              "acceptanceCriteria": ["Stale time configured", "Cache invalidation patterns", "Prefetching for navigation", "Background refetch"]
+            }
+          ]
+        },
+        {
+          "id": "epic-6-7",
+          "name": "Accessibility",
+          "description": "WCAG compliance and keyboard navigation",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-250",
+              "title": "Audit and fix ARIA labels",
+              "description": "Add proper ARIA attributes throughout",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/components/ui/*.tsx", "src/components/layout/*.tsx"],
+              "acceptanceCriteria": ["All interactive elements labeled", "Form inputs associated with labels", "Live regions for updates", "Role attributes correct"]
+            },
+            {
+              "id": "task-251",
+              "title": "Implement keyboard navigation",
+              "description": "Ensure all features accessible via keyboard",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/components/layout/Sidebar.tsx", "src/components/common/data/DataTable.tsx"],
+              "acceptanceCriteria": ["Tab order logical", "Focus visible indicators", "Escape closes modals", "Arrow key navigation in menus"]
+            },
+            {
+              "id": "task-252",
+              "title": "Color contrast compliance",
+              "description": "Ensure AA contrast ratios",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/styles/antd-theme.ts", "src/styles/globals.css"],
+              "acceptanceCriteria": ["Text meets 4.5:1 ratio", "Large text meets 3:1 ratio", "Focus indicators visible", "Both themes compliant"]
+            },
+            {
+              "id": "task-253",
+              "title": "Screen reader testing",
+              "description": "Test with screen readers and fix issues",
+              "agent": "test",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-250"],
+              "files": ["src/tests/a11y/screenreader.test.ts"],
+              "acceptanceCriteria": ["NVDA/VoiceOver tested", "Announcements correct", "Navigation logical", "No content skipped"]
+            }
+          ]
+        },
+        {
+          "id": "epic-6-8",
+          "name": "Error Handling & Edge Cases",
+          "description": "Robust error handling and edge case coverage",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-254",
+              "title": "Implement error boundaries",
+              "description": "Add React error boundaries throughout",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/components/common/feedback/ErrorBoundary.tsx", "src/app/(platform)/[locale]/[shopId]/error.tsx"],
+              "acceptanceCriteria": ["Page-level error boundaries", "Component error boundaries", "Fallback UI with retry", "Error reporting to Sentry"]
+            },
+            {
+              "id": "task-255",
+              "title": "Handle network errors gracefully",
+              "description": "Offline support and retry logic",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/lib/hooks/utils/useNetworkStatus.ts", "src/components/common/feedback/OfflineBanner.tsx"],
+              "acceptanceCriteria": ["Offline detection", "Retry on reconnect", "Queue mutations offline", "User notification"]
+            },
+            {
+              "id": "task-256",
+              "title": "Form validation edge cases",
+              "description": "Handle all form validation scenarios",
+              "agent": "logic",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/lib/utils/schemas/*.ts"],
+              "acceptanceCriteria": ["Empty values handled", "Max lengths enforced", "Special characters handled", "Unicode support"]
+            },
+            {
+              "id": "task-257",
+              "title": "Handle concurrent updates",
+              "description": "Optimistic locking and conflict resolution",
+              "agent": "logic",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/lib/hooks/data/useOptimisticUpdate.ts"],
+              "acceptanceCriteria": ["Version checking", "Conflict notification", "Refresh stale data", "Merge strategies"]
+            }
+          ]
+        },
+        {
+          "id": "epic-6-9",
+          "name": "Mobile & RTL Polish",
+          "description": "Responsive design and RTL refinement",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-258",
+              "title": "Mobile responsive fixes",
+              "description": "Fix mobile layout issues",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/components/layout/Sidebar.tsx", "src/components/layout/Header.tsx"],
+              "acceptanceCriteria": ["Sidebar drawer on mobile", "Touch-friendly targets", "Readable text sizes", "No horizontal scroll"]
+            },
+            {
+              "id": "task-259",
+              "title": "RTL layout refinement",
+              "description": "Polish Arabic RTL layout",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/styles/rtl.css", "src/components/layout/*.tsx"],
+              "acceptanceCriteria": ["Logical properties used", "Icons flip correctly", "Tables RTL aligned", "Forms RTL compatible"]
+            },
+            {
+              "id": "task-260",
+              "title": "Responsive tables",
+              "description": "Make data tables mobile-friendly",
+              "agent": "ui",
+              "priority": "P1",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/components/common/data/DataTable.tsx", "src/components/common/data/MobileCard.tsx"],
+              "acceptanceCriteria": ["Horizontal scroll on mobile", "OR card view option", "Key columns visible", "Actions accessible"]
+            },
+            {
+              "id": "task-261",
+              "title": "Touch gesture support",
+              "description": "Add swipe and gesture interactions",
+              "agent": "ui",
+              "priority": "P3",
+              "status": "not_started",
+              "dependencies": [],
+              "files": ["src/lib/hooks/ui/useSwipe.ts"],
+              "acceptanceCriteria": ["Swipe to delete on lists", "Pull to refresh", "Pinch zoom on images", "Gesture hints"]
+            }
+          ]
+        },
+        {
+          "id": "epic-6-10",
+          "name": "Documentation & Storybook",
+          "description": "Component documentation and visual testing",
+          "status": "not_started",
+          "tasks": [
+            {
+              "id": "task-262",
+              "title": "Setup Storybook",
+              "description": "Configure Storybook for component docs",
+              "agent": "logic",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": [],
+              "files": [".storybook/main.ts", ".storybook/preview.ts"],
+              "acceptanceCriteria": ["Storybook configured", "Ant Design theme applied", "Dark mode toggle", "RTL support"]
+            },
+            {
+              "id": "task-263",
+              "title": "Document UI components",
+              "description": "Create stories for UI wrapper components",
+              "agent": "ui",
+              "priority": "P2",
+              "status": "not_started",
+              "dependencies": ["task-262"],
+              "files": ["stories/ui/*.stories.tsx"],
+              "acceptanceCriteria": ["Button stories", "Card stories", "Form component stories", "All variants documented"]
+            },
+            {
+              "id": "task-264",
+              "title": "Document common components",
+              "description": "Create stories for common components",
+              "agent": "ui",
+              "priority": "P3",
+              "status": "not_started",
+              "dependencies": ["task-262"],
+              "files": ["stories/common/*.stories.tsx"],
+              "acceptanceCriteria": ["StatCard stories", "EmptyState stories", "DataTable stories", "Form input stories"]
+            },
+            {
+              "id": "task-265",
+              "title": "Visual regression setup",
+              "description": "Configure Chromatic for visual testing",
+              "agent": "test",
+              "priority": "P3",
+              "status": "not_started",
+              "dependencies": ["task-262"],
+              "files": [".github/workflows/chromatic.yml"],
+              "acceptanceCriteria": ["Chromatic configured", "PR checks enabled", "Baseline snapshots", "Review workflow"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "globalLogs": []
+}

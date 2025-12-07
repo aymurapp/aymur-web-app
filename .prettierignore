@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+*.min.js
+*.min.css
+
+# Cache directories
+.cache/
+.vercel/
+
+# Coverage reports
+coverage/
+
+# Environment files
+.env*
+
+# Public assets that shouldn't be formatted
+public/
+
+# IDE
+.idea/
+.vscode/
+
+# Type definitions that are auto-generated
+*.d.ts
+!src/**/*.d.ts
