@@ -333,9 +333,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(url);
   }
 
-  // NOTE: General auth page redirects are handled per-domain below.
-  // On platform domain (platform.aymur.com), we redirect authenticated users to /shops.
-  // This avoids redirect loops because the platform layout only checks auth, not middleware.
+  // NOTE: Auth page redirects for authenticated users are NOT handled in middleware.
+  // The login page itself handles redirecting to /shops after successful authentication.
+  // This avoids redirect loops caused by auth state inconsistency between middleware and layouts.
 
   // Platform domain (platform.aymur.com) - redirect marketing routes to aymur.com
   if (domainType === 'platform') {
@@ -369,14 +369,6 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
         url.hostname = 'aymur.com';
         return NextResponse.redirect(url);
       }
-    }
-
-    // Redirect authenticated users from auth pages to shops (on platform domain only)
-    // This is safe because we're only doing it on platform domain, not in general middleware
-    if (user && ['/login', '/signup', '/register'].includes(pathnameWithoutLocale)) {
-      const url = request.nextUrl.clone();
-      url.pathname = `/${locale}/shops`;
-      return NextResponse.redirect(url);
     }
   }
 
