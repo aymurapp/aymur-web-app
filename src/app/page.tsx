@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import { defaultLocale } from '@/middleware';
+import { routing } from '@/lib/i18n/routing';
 
 /**
  * Root Page
@@ -9,5 +9,5 @@ import { defaultLocale } from '@/middleware';
  * The middleware handles locale detection, but this serves as a fallback.
  */
 export default function RootPage() {
-  redirect(`/${defaultLocale}`);
+  redirect(`/${routing.defaultLocale}`);
 }

@@ -23,6 +23,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { createServerClient } from '@supabase/ssr';
 
+import { routing, type Locale } from '@/lib/i18n/routing';
 import type { Database } from '@/lib/types/database';
 
 /**
@@ -33,16 +34,10 @@ const PLATFORM_DOMAINS = ['platform.aymur.com'];
 // Localhost and preview deployments work for both
 
 /**
- * Supported locales for the application.
- * Add new locales here as they are supported.
+ * Locales from routing configuration - single source of truth
  */
-export const locales = ['en', 'tr'] as const;
-export type Locale = (typeof locales)[number];
-
-/**
- * Default locale when none is detected.
- */
-export const defaultLocale: Locale = 'en';
+const locales = routing.locales;
+const defaultLocale = routing.defaultLocale;
 
 /**
  * Routes that don't require authentication.
