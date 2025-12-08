@@ -164,16 +164,23 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   // === STEP 2: Let next-intl handle i18n routing ===
   // This handles locale detection, redirects, rewrites, and cookies
-  const response = handleI18nRouting(request);
+  const intlResponse = handleI18nRouting(request);
 
-  // If next-intl returned a redirect, return it immediately
-  if (
-    response.headers.get('x-middleware-rewrite') === null &&
-    response.status >= 300 &&
-    response.status < 400
-  ) {
-    return response;
+  // If next-intl returned a redirect to a DIFFERENT path, return it
+  // (This handles locale detection redirects like / -> /en)
+  const isRedirect = intlResponse.status >= 300 && intlResponse.status < 400;
+  const redirectLocation = intlResponse.headers.get('location');
+
+  if (isRedirect && redirectLocation) {
+    // Check if it's a different path (not a self-redirect)
+    const redirectUrl = new URL(redirectLocation, request.url);
+    if (redirectUrl.pathname !== pathname) {
+      return intlResponse;
+    }
   }
+
+  // Use intlResponse as base for further modifications
+  const response = isRedirect ? NextResponse.next() : intlResponse;
 
   // === STEP 3: Supabase session refresh ===
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
