@@ -136,7 +136,7 @@ export interface InventoryItemFull extends Tables<'inventory_items'> {
     metal_name: string;
   } | null;
   metal_purity?: {
-    id_metal_purity: string;
+    id_purity: string;
     purity_name: string;
     purity_percentage: number;
     id_metal_type: string;
@@ -261,7 +261,7 @@ async function fetchInventoryItem(
       metal_name
     ),
     metal_purity:metal_purities!fk_inventory_items_metal_purity (
-      id_metal_purity,
+      id_purity,
       purity_name,
       purity_percentage,
       id_metal_type
@@ -1036,7 +1036,7 @@ export function useInventoryItemsByIds(itemIds: string[]) {
             metal_name
           ),
           metal_purity:metal_purities!fk_inventory_items_metal_purity (
-            id_metal_purity,
+            id_purity,
             purity_name,
             purity_percentage
           )

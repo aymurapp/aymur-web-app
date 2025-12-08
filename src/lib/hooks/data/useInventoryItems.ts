@@ -69,7 +69,7 @@ export interface InventoryItemWithRelations extends InventoryItem {
     metal_name: string;
   } | null;
   metal_purity?: {
-    id_metal_purity: string;
+    id_purity: string;
     purity_name: string;
     purity_percentage: number;
   } | null;
@@ -198,7 +198,7 @@ function buildInventorySelect(includeRelations: boolean): string {
       metal_name
     ),
     metal_purity:metal_purities!fk_inventory_items_metal_purity (
-      id_metal_purity,
+      id_purity,
       purity_name,
       purity_percentage
     ),
