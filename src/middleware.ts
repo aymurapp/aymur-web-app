@@ -119,16 +119,20 @@ function isPublicRoute(pathname: string): boolean {
 
 /**
  * Determines the domain type from the request hostname.
+ * IMPORTANT: Check platform domains FIRST, since they are subdomains of aymur.com
+ * and would otherwise match the marketing `.aymur.com` pattern.
  */
 function getDomainType(hostname: string): 'marketing' | 'platform' | 'development' {
   const host = hostname.toLowerCase();
 
-  if (MARKETING_DOMAINS.some((d) => host === d || host.endsWith(`.${d}`))) {
-    return 'marketing';
-  }
-
+  // Check platform domains FIRST (they are subdomains like app.aymur.com, platform.aymur.com)
   if (PLATFORM_DOMAINS.some((d) => host === d || host.endsWith(`.${d}`))) {
     return 'platform';
+  }
+
+  // Then check marketing domains
+  if (MARKETING_DOMAINS.some((d) => host === d || host.endsWith(`.${d}`))) {
+    return 'marketing';
   }
 
   return 'development';
