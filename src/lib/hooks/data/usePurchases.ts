@@ -223,10 +223,12 @@ async function fetchPurchases(
   const offset = (page - 1) * pageSize;
 
   // Build select query based on options
+  // Note: Using simple relation syntax without explicit FK hint
+  // The FK relationship is inferred automatically by PostgREST
   const selectQuery = includeSupplier
     ? `
       *,
-      supplier:suppliers!purchases_id_supplier_fkey (
+      supplier:suppliers (
         id_supplier,
         company_name,
         contact_person,
@@ -315,7 +317,7 @@ async function fetchPurchase(
     .select(
       `
       *,
-      supplier:suppliers!purchases_id_supplier_fkey (
+      supplier:suppliers (
         id_supplier,
         company_name,
         contact_person,
@@ -499,7 +501,7 @@ export function usePurchasesBySupplier(
         .select(
           `
           *,
-          supplier:suppliers!purchases_id_supplier_fkey (
+          supplier:suppliers (
             id_supplier,
             company_name,
             contact_person,
@@ -554,7 +556,7 @@ export function usePurchasesByDateRange(startDate: string, endDate: string) {
         .select(
           `
           *,
-          supplier:suppliers!purchases_id_supplier_fkey (
+          supplier:suppliers (
             id_supplier,
             company_name,
             contact_person,
@@ -607,7 +609,7 @@ export function usePendingPurchases() {
         .select(
           `
           *,
-          supplier:suppliers!purchases_id_supplier_fkey (
+          supplier:suppliers (
             id_supplier,
             company_name,
             contact_person,
