@@ -145,6 +145,18 @@ function getLocaleFromPath(pathname: string): string {
 }
 
 /**
+ * Checks if the pathname already has a valid locale prefix.
+ */
+function hasLocalePrefix(pathname: string): boolean {
+  for (const locale of routing.locales) {
+    if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Main middleware function.
  * Composes next-intl i18n routing with Supabase auth and domain routing.
  */
@@ -162,25 +174,28 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(url);
   }
 
-  // === STEP 2: Let next-intl handle i18n routing ===
-  // This handles locale detection, redirects, rewrites, and cookies
-  const intlResponse = handleI18nRouting(request);
+  // === STEP 2: Handle i18n routing ===
+  // IMPORTANT: Only use next-intl's middleware for paths WITHOUT a locale prefix.
+  // For paths that already have a locale (like /en/shops), we skip it entirely
+  // to avoid redirect loops caused by next-intl's cookie/redirect behavior.
 
-  // If next-intl returned a redirect to a DIFFERENT path, return it
-  // (This handles locale detection redirects like / -> /en)
-  const isRedirect = intlResponse.status >= 300 && intlResponse.status < 400;
-  const redirectLocation = intlResponse.headers.get('location');
+  let response: NextResponse;
 
-  if (isRedirect && redirectLocation) {
-    // Check if it's a different path (not a self-redirect)
-    const redirectUrl = new URL(redirectLocation, request.url);
-    if (redirectUrl.pathname !== pathname) {
+  if (hasLocalePrefix(pathname)) {
+    // Path already has locale - skip next-intl, just create a basic response
+    response = NextResponse.next();
+  } else {
+    // Path needs locale detection - let next-intl handle it
+    const intlResponse = handleI18nRouting(request);
+
+    // If next-intl wants to redirect (e.g., / -> /en), return that redirect
+    const isRedirect = intlResponse.status >= 300 && intlResponse.status < 400;
+    if (isRedirect) {
       return intlResponse;
     }
-  }
 
-  // Use intlResponse as base for further modifications
-  const response = isRedirect ? NextResponse.next() : intlResponse;
+    response = intlResponse;
+  }
 
   // === STEP 3: Supabase session refresh ===
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
