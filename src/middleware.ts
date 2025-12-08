@@ -220,10 +220,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     locale = detectLocale(request);
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
-    const localeRedirect = NextResponse.redirect(url);
-    localeRedirect.headers.set('x-aymur-redirect-reason', 'add-locale-prefix');
-    localeRedirect.headers.set('x-aymur-target', url.pathname);
-    return localeRedirect;
+    return NextResponse.redirect(url);
   }
 
   // Set NEXT_LOCALE cookie if not already set
@@ -234,11 +231,6 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       maxAge: 60 * 60 * 24 * 365, // 1 year
     });
   }
-
-  // DEBUG: Add custom header to verify middleware execution
-  response.headers.set('x-aymur-middleware', 'executed');
-  response.headers.set('x-aymur-domain', domainType);
-  response.headers.set('x-aymur-pathname', pathname);
 
   // === STEP 3: Supabase session refresh ===
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -275,10 +267,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}/login`;
     url.searchParams.set('redirect', pathname);
-    const redirectResponse = NextResponse.redirect(url);
-    redirectResponse.headers.set('x-aymur-redirect-reason', 'auth-protection');
-    redirectResponse.headers.set('x-aymur-target', url.pathname);
-    return redirectResponse;
+    return NextResponse.redirect(url);
   }
 
   // === STEP 5: Platform domain specific routing ===
