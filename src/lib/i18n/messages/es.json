@@ -172,19 +172,32 @@
     }
   },
   "navigation": {
+    "groups": {
+      "main": "Principal",
+      "commerce": "Comercio",
+      "operations": "Operaciones",
+      "insights": "Analisis",
+      "admin": "Administracion"
+    },
     "dashboard": "Panel de control",
     "inventory": "Inventario",
     "sales": "Ventas",
     "customers": "Clientes",
+    "purchases": "Compras",
     "suppliers": "Proveedores",
     "workshops": "Talleres",
     "deliveries": "Entregas",
     "expenses": "Gastos",
-    "payroll": "Nomina",
     "analytics": "Analiticas",
     "reports": "Informes",
-    "ai": "Asistente IA",
-    "settings": "Configuracion",
+    "aiAssistant": "Asistente IA",
+    "settings": {
+      "_label": "Configuracion",
+      "general": "Configuracion general",
+      "catalog": "Catalogo",
+      "team": "Equipo",
+      "roles": "Roles y permisos"
+    },
     "help": "Ayuda",
     "support": "Soporte",
     "feedback": "Comentarios",

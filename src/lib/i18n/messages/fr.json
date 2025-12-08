@@ -172,19 +172,32 @@
     }
   },
   "navigation": {
+    "groups": {
+      "main": "Principal",
+      "commerce": "Commerce",
+      "operations": "Operations",
+      "insights": "Analyses",
+      "admin": "Administration"
+    },
     "dashboard": "Tableau de bord",
     "inventory": "Inventaire",
     "sales": "Ventes",
     "customers": "Clients",
+    "purchases": "Achats",
     "suppliers": "Fournisseurs",
     "workshops": "Ateliers",
     "deliveries": "Livraisons",
     "expenses": "Depenses",
-    "payroll": "Paie",
     "analytics": "Analytiques",
     "reports": "Rapports",
-    "ai": "Assistant IA",
-    "settings": "Parametres",
+    "aiAssistant": "Assistant IA",
+    "settings": {
+      "_label": "Parametres",
+      "general": "Parametres generaux",
+      "catalog": "Catalogue",
+      "team": "Equipe",
+      "roles": "Roles et permissions"
+    },
     "help": "Aide",
     "support": "Support",
     "feedback": "Commentaires",

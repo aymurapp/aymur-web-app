@@ -177,55 +177,27 @@
       "main": "الرئيسية",
       "commerce": "التجارة",
       "operations": "العمليات",
-      "staff": "الموظفون",
       "insights": "التحليلات",
       "admin": "الادارة"
     },
     "dashboard": "لوحة التحكم",
-    "inventory": {
-      "_label": "المخزون",
-      "items": "العناصر",
-      "categories": "الفئات",
-      "metals": "المعادن",
-      "stones": "الاحجار"
-    },
-    "sales": {
-      "_label": "المبيعات",
-      "transactions": "المعاملات",
-      "customers": "العملاء",
-      "payments": "المدفوعات"
-    },
-    "purchases": {
-      "_label": "المشتريات",
-      "orders": "الطلبات",
-      "suppliers": "الموردون",
-      "payments": "المدفوعات"
-    },
+    "inventory": "المخزون",
+    "sales": "المبيعات",
+    "customers": "العملاء",
+    "purchases": "المشتريات",
+    "suppliers": "الموردون",
     "workshops": "ورش العمل",
     "deliveries": "التوصيل",
-    "expenses": {
-      "_label": "المصروفات",
-      "records": "السجلات",
-      "budgets": "الميزانيات"
-    },
-    "payroll": {
-      "_label": "الرواتب",
-      "periods": "الفترات",
-      "records": "السجلات",
-      "advances": "السلف"
-    },
-    "analytics": {
-      "_label": "التحليلات",
-      "dashboard": "لوحة التحكم",
-      "reports": "التقارير"
-    },
+    "expenses": "المصروفات",
+    "analytics": "التحليلات",
+    "reports": "التقارير",
     "aiAssistant": "مساعد الذكاء الاصطناعي",
     "settings": {
       "_label": "الاعدادات",
-      "shop": "المتجر",
-      "staff": "الموظفون",
-      "roles": "الادوار",
-      "integrations": "التكاملات"
+      "general": "الاعدادات العامة",
+      "catalog": "الفهرس",
+      "team": "الفريق",
+      "roles": "الادوار والصلاحيات"
     },
     "help": "المساعدة",
     "support": "الدعم",

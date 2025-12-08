@@ -194,59 +194,28 @@
       "main": "Main",
       "commerce": "Commerce",
       "operations": "Operations",
-      "staff": "Staff",
       "insights": "Insights",
       "admin": "Administration"
     },
     "dashboard": "Dashboard",
-    "inventory": {
-      "_label": "Inventory",
-      "items": "Items",
-      "categories": "Categories",
-      "metals": "Metals",
-      "stones": "Stones"
-    },
-    "sales": {
-      "_label": "Sales",
-      "transactions": "Transactions",
-      "customers": "Customers",
-      "payments": "Payments"
-    },
-    "purchases": {
-      "_label": "Purchases",
-      "orders": "Orders",
-      "suppliers": "Suppliers",
-      "payments": "Payments"
-    },
+    "inventory": "Inventory",
+    "sales": "Sales",
+    "customers": "Customers",
+    "purchases": "Purchases",
+    "suppliers": "Suppliers",
     "workshops": "Workshops",
     "deliveries": "Deliveries",
-    "expenses": {
-      "_label": "Expenses",
-      "records": "Records",
-      "budgets": "Budgets"
-    },
-    "payroll": {
-      "_label": "Payroll",
-      "periods": "Pay Periods",
-      "records": "Records",
-      "advances": "Advances"
-    },
-    "analytics": {
-      "_label": "Analytics",
-      "dashboard": "Dashboard",
-      "reports": "Reports"
-    },
+    "expenses": "Expenses",
+    "analytics": "Analytics",
+    "reports": "Reports",
     "aiAssistant": "AI Assistant",
     "settings": {
       "_label": "Settings",
-      "shop": "Shop Settings",
-      "staff": "Staff",
-      "roles": "Roles & Permissions",
-      "integrations": "Integrations"
+      "general": "General Settings",
+      "catalog": "Catalog",
+      "team": "Team",
+      "roles": "Roles & Permissions"
     },
-    "customers": "Customers",
-    "suppliers": "Suppliers",
-    "reports": "Reports",
     "help": "Help",
     "support": "Support",
     "feedback": "Feedback",

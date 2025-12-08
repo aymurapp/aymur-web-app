@@ -172,19 +172,32 @@
     }
   },
   "navigation": {
+    "groups": {
+      "main": "Hoofdmenu",
+      "commerce": "Handel",
+      "operations": "Operaties",
+      "insights": "Inzichten",
+      "admin": "Beheer"
+    },
     "dashboard": "Dashboard",
     "inventory": "Inventaris",
     "sales": "Verkoop",
     "customers": "Klanten",
+    "purchases": "Inkoop",
     "suppliers": "Leveranciers",
     "workshops": "Werkplaatsen",
     "deliveries": "Leveringen",
     "expenses": "Uitgaven",
-    "payroll": "Salarisadministratie",
     "analytics": "Analytics",
     "reports": "Rapporten",
-    "ai": "AI Assistent",
-    "settings": "Instellingen",
+    "aiAssistant": "AI Assistent",
+    "settings": {
+      "_label": "Instellingen",
+      "general": "Algemene instellingen",
+      "catalog": "Catalogus",
+      "team": "Team",
+      "roles": "Rollen en rechten"
+    },
     "help": "Help",
     "support": "Ondersteuning",
     "feedback": "Feedback",

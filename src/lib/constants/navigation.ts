@@ -13,31 +13,21 @@ import type { ComponentType } from 'react';
 
 import {
   DashboardOutlined,
-  ShoppingOutlined,
   TeamOutlined,
   ShopOutlined,
   ToolOutlined,
   CarOutlined,
   WalletOutlined,
-  DollarOutlined,
   BarChartOutlined,
   RobotOutlined,
   SettingOutlined,
   AppstoreOutlined,
   TagsOutlined,
-  GoldOutlined,
-  DatabaseOutlined,
   ShoppingCartOutlined,
   UserOutlined,
-  CreditCardOutlined,
-  FileTextOutlined,
   TruckOutlined,
-  CalendarOutlined,
-  BankOutlined,
-  PieChartOutlined,
   LineChartOutlined,
   SafetyOutlined,
-  ApiOutlined,
 } from '@ant-design/icons';
 
 import { PERMISSION_KEYS } from './permissions';
@@ -120,70 +110,25 @@ export const navigationConfig: NavGroup[] = [
     items: [
       {
         key: 'inventory',
-        labelKey: 'navigation.inventory._label',
+        labelKey: 'navigation.inventory',
         icon: AppstoreOutlined,
         path: '/inventory',
         permission: PERMISSION_KEYS.INVENTORY_VIEW,
-        children: [
-          {
-            key: 'inventory-items',
-            labelKey: 'navigation.inventory.items',
-            icon: ShoppingOutlined,
-            path: '/inventory/items',
-            permission: PERMISSION_KEYS.INVENTORY_VIEW,
-          },
-          {
-            key: 'inventory-categories',
-            labelKey: 'navigation.inventory.categories',
-            icon: TagsOutlined,
-            path: '/inventory/categories',
-            permission: PERMISSION_KEYS.INVENTORY_VIEW,
-          },
-          {
-            key: 'inventory-metals',
-            labelKey: 'navigation.inventory.metals',
-            icon: GoldOutlined,
-            path: '/inventory/metals',
-            permission: PERMISSION_KEYS.INVENTORY_VIEW,
-          },
-          {
-            key: 'inventory-stones',
-            labelKey: 'navigation.inventory.stones',
-            icon: DatabaseOutlined,
-            path: '/inventory/stones',
-            permission: PERMISSION_KEYS.INVENTORY_VIEW,
-          },
-        ],
+        // Note: Categories, metals, stones are managed in Settings > Catalog
       },
       {
         key: 'sales',
-        labelKey: 'navigation.sales._label',
+        labelKey: 'navigation.sales',
         icon: ShoppingCartOutlined,
         path: '/sales',
         permission: PERMISSION_KEYS.SALES_VIEW,
-        children: [
-          {
-            key: 'sales-transactions',
-            labelKey: 'navigation.sales.transactions',
-            icon: FileTextOutlined,
-            path: '/sales/transactions',
-            permission: PERMISSION_KEYS.SALES_VIEW,
-          },
-          {
-            key: 'sales-customers',
-            labelKey: 'navigation.sales.customers',
-            icon: UserOutlined,
-            path: '/sales/customers',
-            permission: PERMISSION_KEYS.CUSTOMERS_VIEW,
-          },
-          {
-            key: 'sales-payments',
-            labelKey: 'navigation.sales.payments',
-            icon: CreditCardOutlined,
-            path: '/sales/payments',
-            permission: PERMISSION_KEYS.SALES_VIEW,
-          },
-        ],
+      },
+      {
+        key: 'customers',
+        labelKey: 'navigation.customers',
+        icon: UserOutlined,
+        path: '/customers',
+        permission: PERMISSION_KEYS.CUSTOMERS_VIEW,
       },
     ],
   },
@@ -197,33 +142,17 @@ export const navigationConfig: NavGroup[] = [
     items: [
       {
         key: 'purchases',
-        labelKey: 'navigation.purchases._label',
+        labelKey: 'navigation.purchases',
         icon: ShopOutlined,
         path: '/purchases',
         permission: PERMISSION_KEYS.PURCHASES_VIEW,
-        children: [
-          {
-            key: 'purchases-orders',
-            labelKey: 'navigation.purchases.orders',
-            icon: FileTextOutlined,
-            path: '/purchases/orders',
-            permission: PERMISSION_KEYS.PURCHASES_VIEW,
-          },
-          {
-            key: 'purchases-suppliers',
-            labelKey: 'navigation.purchases.suppliers',
-            icon: TruckOutlined,
-            path: '/purchases/suppliers',
-            permission: PERMISSION_KEYS.SUPPLIERS_VIEW,
-          },
-          {
-            key: 'purchases-payments',
-            labelKey: 'navigation.purchases.payments',
-            icon: CreditCardOutlined,
-            path: '/purchases/payments',
-            permission: PERMISSION_KEYS.SUPPLIERS_PAYMENTS,
-          },
-        ],
+      },
+      {
+        key: 'suppliers',
+        labelKey: 'navigation.suppliers',
+        icon: TruckOutlined,
+        path: '/suppliers',
+        permission: PERMISSION_KEYS.SUPPLIERS_VIEW,
       },
       {
         key: 'workshops',
@@ -241,66 +170,10 @@ export const navigationConfig: NavGroup[] = [
       },
       {
         key: 'expenses',
-        labelKey: 'navigation.expenses._label',
+        labelKey: 'navigation.expenses',
         icon: WalletOutlined,
         path: '/expenses',
         permission: PERMISSION_KEYS.EXPENSES_VIEW,
-        children: [
-          {
-            key: 'expenses-records',
-            labelKey: 'navigation.expenses.records',
-            icon: FileTextOutlined,
-            path: '/expenses/records',
-            permission: PERMISSION_KEYS.EXPENSES_VIEW,
-          },
-          {
-            key: 'expenses-budgets',
-            labelKey: 'navigation.expenses.budgets',
-            icon: BankOutlined,
-            path: '/expenses/budgets',
-            permission: PERMISSION_KEYS.BUDGET_VIEW,
-          },
-        ],
-      },
-    ],
-  },
-
-  // ---------------------------------------------------------------------------
-  // STAFF - Payroll management
-  // ---------------------------------------------------------------------------
-  {
-    key: 'staff',
-    labelKey: 'navigation.groups.staff',
-    items: [
-      {
-        key: 'payroll',
-        labelKey: 'navigation.payroll._label',
-        icon: DollarOutlined,
-        path: '/payroll',
-        permission: PERMISSION_KEYS.PAYROLL_VIEW,
-        children: [
-          {
-            key: 'payroll-periods',
-            labelKey: 'navigation.payroll.periods',
-            icon: CalendarOutlined,
-            path: '/payroll/periods',
-            permission: PERMISSION_KEYS.PAYROLL_VIEW,
-          },
-          {
-            key: 'payroll-records',
-            labelKey: 'navigation.payroll.records',
-            icon: FileTextOutlined,
-            path: '/payroll/records',
-            permission: PERMISSION_KEYS.PAYROLL_VIEW,
-          },
-          {
-            key: 'payroll-advances',
-            labelKey: 'navigation.payroll.advances',
-            icon: CreditCardOutlined,
-            path: '/payroll/advances',
-            permission: PERMISSION_KEYS.ADVANCES_APPROVE,
-          },
-        ],
       },
     ],
   },
@@ -314,26 +187,17 @@ export const navigationConfig: NavGroup[] = [
     items: [
       {
         key: 'analytics',
-        labelKey: 'navigation.analytics._label',
+        labelKey: 'navigation.analytics',
         icon: BarChartOutlined,
         path: '/analytics',
         permission: PERMISSION_KEYS.ANALYTICS_VIEW,
-        children: [
-          {
-            key: 'analytics-dashboard',
-            labelKey: 'navigation.analytics.dashboard',
-            icon: PieChartOutlined,
-            path: '/analytics/dashboard',
-            permission: PERMISSION_KEYS.ANALYTICS_VIEW,
-          },
-          {
-            key: 'analytics-reports',
-            labelKey: 'navigation.analytics.reports',
-            icon: LineChartOutlined,
-            path: '/analytics/reports',
-            permission: PERMISSION_KEYS.REPORTS_BASIC,
-          },
-        ],
+      },
+      {
+        key: 'reports',
+        labelKey: 'navigation.reports',
+        icon: LineChartOutlined,
+        path: '/reports',
+        permission: PERMISSION_KEYS.REPORTS_BASIC,
       },
       {
         key: 'ai-assistant',
@@ -361,17 +225,24 @@ export const navigationConfig: NavGroup[] = [
         permission: PERMISSION_KEYS.SETTINGS_VIEW,
         children: [
           {
-            key: 'settings-shop',
-            labelKey: 'navigation.settings.shop',
+            key: 'settings-general',
+            labelKey: 'navigation.settings.general',
             icon: ShopOutlined,
-            path: '/settings/shop',
+            path: '/settings/general',
             permission: PERMISSION_KEYS.SHOP_SETTINGS,
           },
           {
-            key: 'settings-staff',
-            labelKey: 'navigation.settings.staff',
+            key: 'settings-catalog',
+            labelKey: 'navigation.settings.catalog',
+            icon: TagsOutlined,
+            path: '/settings/catalog',
+            permission: PERMISSION_KEYS.INVENTORY_VIEW,
+          },
+          {
+            key: 'settings-team',
+            labelKey: 'navigation.settings.team',
             icon: TeamOutlined,
-            path: '/settings/staff',
+            path: '/settings/team',
             permission: PERMISSION_KEYS.STAFF_VIEW,
           },
           {
@@ -380,14 +251,6 @@ export const navigationConfig: NavGroup[] = [
             icon: SafetyOutlined,
             path: '/settings/roles',
             permission: PERMISSION_KEYS.STAFF_MANAGE_ROLES,
-          },
-          {
-            key: 'settings-integrations',
-            labelKey: 'navigation.settings.integrations',
-            icon: ApiOutlined,
-            path: '/settings/integrations',
-            permission: PERMISSION_KEYS.SETTINGS_MANAGE,
-            badge: 'new',
           },
         ],
       },
