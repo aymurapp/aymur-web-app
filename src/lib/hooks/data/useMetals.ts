@@ -419,7 +419,9 @@ export function useMetalPurities(options: UseMetalPuritiesOptions = {}) {
 
       const supabase = createClient();
 
-      const selectClause = includeMetalType ? '*, metal_type:metal_types(*)' : '*';
+      const selectClause = includeMetalType
+        ? '*, metal_type:metal_types!fk_metal_purities_metal_type(*)'
+        : '*';
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let query = supabase.from('metal_purities').select(selectClause) as any;
@@ -475,7 +477,7 @@ export function useMetalPurity(purityId: string | null | undefined) {
       // Fetch shop-specific metal purity
       const { data, error } = await supabase
         .from('metal_purities')
-        .select('*, metal_type:metal_types(*)')
+        .select('*, metal_type:metal_types!fk_metal_purities_metal_type(*)')
         .eq('id_purity', purityId)
         .eq('id_shop', shopId)
         .is('deleted_at', null)

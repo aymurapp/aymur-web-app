@@ -251,12 +251,11 @@ async function fetchSales(
   const offset = (page - 1) * pageSize;
 
   // Build select query based on options
-  // Note: Using simple relation syntax without explicit FK hint
-  // The FK relationship is inferred automatically by PostgREST
+  // Note: Using explicit FK hint because there are multiple relationships between sales and customers
   const selectQuery = includeCustomer
     ? `
       *,
-      customer:customers (
+      customer:customers!fk_sales_customer (
         id_customer,
         full_name,
         phone
@@ -521,7 +520,7 @@ export function useSalesByDateRange(startDate: string, endDate: string) {
         .select(
           `
           *,
-          customer:customers (
+          customer:customers!fk_sales_customer (
             id_customer,
             full_name,
             phone

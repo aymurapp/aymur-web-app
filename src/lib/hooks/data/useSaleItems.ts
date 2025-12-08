@@ -125,11 +125,10 @@ async function fetchSaleItems(
   let selectQuery = '*';
 
   if (options.includeInventoryDetails) {
-    // Note: Using simple relation syntax without explicit FK hints
-    // The FK relationships are inferred automatically by PostgREST
+    // Note: Using explicit FK hints because there may be multiple relationships
     selectQuery = `
       *,
-      inventory_item:inventory_items (
+      inventory_item:inventory_items!fk_sale_items_item (
         id_item,
         item_name,
         sku,
@@ -137,16 +136,16 @@ async function fetchSaleItems(
         status,
         weight_grams,
         purchase_price,
-        metal_type:metal_types (
+        metal_type:metal_types!fk_inventory_items_metal_type (
           id_metal_type,
           metal_name
         ),
-        metal_purity:metal_purities (
+        metal_purity:metal_purities!fk_inventory_items_metal_purity (
           id_purity,
           purity_name,
           purity_percentage
         ),
-        category:product_categories (
+        category:product_categories!fk_inventory_items_category (
           id_category,
           category_name
         )

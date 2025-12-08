@@ -159,10 +159,9 @@ async function fetchSale(
   const selectParts = ['*'];
 
   if (options.includeCustomer) {
-    // Note: Using simple relation syntax without explicit FK hint
-    // The FK relationship is inferred automatically by PostgREST
+    // Note: Using explicit FK hint because there are multiple relationships between sales and customers
     selectParts.push(`
-      customer:customers (
+      customer:customers!fk_sales_customer (
         id_customer,
         full_name,
         phone,
@@ -210,27 +209,26 @@ async function fetchSale(
     let itemsSelect = '*';
 
     if (options.includeItemDetails) {
-      // Note: Using simple relation syntax without explicit FK hints
-      // The FK relationships are inferred automatically by PostgREST
+      // Note: Using explicit FK hints because there may be multiple relationships
       itemsSelect = `
         *,
-        inventory_item:inventory_items (
+        inventory_item:inventory_items!fk_sale_items_item (
           id_item,
           item_name,
           sku,
           barcode,
           status,
           weight_grams,
-          metal_type:metal_types (
+          metal_type:metal_types!fk_inventory_items_metal_type (
             id_metal_type,
             metal_name
           ),
-          metal_purity:metal_purities (
+          metal_purity:metal_purities!fk_inventory_items_metal_purity (
             id_purity,
             purity_name,
             percentage
           ),
-          category:product_categories (
+          category:product_categories!fk_inventory_items_category (
             id_category,
             category_name
           )
@@ -461,7 +459,7 @@ export function useSalesByIds(saleIds: string[]) {
       const supabase = createClient();
 
       // Database fields: invoice_number (not sale_number), status (not sale_status)
-      // Note: Using simple relation syntax without explicit FK hint
+      // Note: Using explicit FK hint because there are multiple relationships between sales and customers
       const { data, error } = await supabase
         .from('sales')
         .select(
@@ -473,7 +471,7 @@ export function useSalesByIds(saleIds: string[]) {
           paid_amount,
           payment_status,
           status,
-          customer:customers (
+          customer:customers!fk_sales_customer (
             id_customer,
             full_name
           )
@@ -526,7 +524,7 @@ export function useSaleSearch(searchTerm: string, limit: number = 10) {
       const term = `%${searchTerm.trim()}%`;
 
       // Database field is invoice_number (not sale_number)
-      // Note: Using simple relation syntax without explicit FK hint
+      // Note: Using explicit FK hint because there are multiple relationships between sales and customers
       const { data, error } = await supabase
         .from('sales')
         .select(
@@ -536,7 +534,7 @@ export function useSaleSearch(searchTerm: string, limit: number = 10) {
           sale_date,
           total_amount,
           payment_status,
-          customer:customers (
+          customer:customers!fk_sales_customer (
             id_customer,
             full_name
           )
