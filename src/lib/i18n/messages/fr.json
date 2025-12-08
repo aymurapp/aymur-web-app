@@ -1011,7 +1011,7 @@
   "dashboard": {
     "title": "Tableau de bord",
     "subtitle": "Apercu de votre bijouterie",
-    "welcome": "Bon retour, {name}",
+    "welcome": "Bienvenue à",
     "lastUpdated": "Derniere mise a jour: {time}",
     "quickActions": {
       "title": "Actions rapides",

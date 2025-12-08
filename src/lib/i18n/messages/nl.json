@@ -1011,7 +1011,7 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Overzicht van uw juwelierszaak",
-    "welcome": "Welkom terug, {name}",
+    "welcome": "Welkom bij",
     "lastUpdated": "Laatst bijgewerkt: {time}",
     "quickActions": {
       "title": "Snelle acties",

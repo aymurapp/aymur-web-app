@@ -1149,7 +1149,7 @@
   "dashboard": {
     "title": "لوحة التحكم",
     "subtitle": "نظرة عامة على متجر المجوهرات الخاص بك",
-    "welcome": "مرحبا بعودتك، {name}",
+    "welcome": "مرحبا بك في",
     "lastUpdated": "اخر تحديث: {time}",
     "quickActions": {
       "title": "اجراءات سريعة",

@@ -2273,7 +2273,7 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Overview of your jewelry business",
-    "welcome": "Welcome back, {name}",
+    "welcome": "Welcome to",
     "lastUpdated": "Last updated: {time}",
     "defaultShopName": "Your Shop",
     "stats": {

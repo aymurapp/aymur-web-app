@@ -1011,7 +1011,7 @@
   "dashboard": {
     "title": "Panel de control",
     "subtitle": "Resumen de su negocio de joyeria",
-    "welcome": "Bienvenido de nuevo, {name}",
+    "welcome": "Bienvenido a",
     "lastUpdated": "Ultima actualizacion: {time}",
     "quickActions": {
       "title": "Acciones rapidas",
