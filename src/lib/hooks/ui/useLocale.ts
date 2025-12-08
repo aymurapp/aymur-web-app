@@ -15,7 +15,7 @@ import { useCallback, useMemo, useTransition } from 'react';
 
 import { useLocale as useNextIntlLocale, useTranslations } from 'next-intl';
 
-import { useRouter, usePathname } from '@/lib/i18n/navigation';
+import { usePathname } from '@/lib/i18n/navigation';
 import {
   type Locale,
   locales,
@@ -134,7 +134,6 @@ export interface UseLocaleReturn {
  * <div className={isRTL ? 'mr-4' : 'ml-4'}>...</div>
  */
 export function useLocale(namespace: string = 'common'): UseLocaleReturn {
-  const router = useRouter();
   const pathname = usePathname();
   const currentLocale = useNextIntlLocale() as Locale;
   const t = useTranslations(namespace);
@@ -174,16 +173,18 @@ export function useLocale(namespace: string = 'common'): UseLocaleReturn {
 
   /**
    * Switch to a different locale while preserving the current path
+   * Uses window.location for more reliable handling of dynamic route segments
    */
   const switchLocale = useCallback(
     (newLocale: Locale): void => {
       startTransition(() => {
-        // The router from next-intl handles locale switching automatically
-        // It will navigate to the same path but with the new locale prefix
-        router.replace(pathname, { locale: newLocale });
+        // Use window.location for locale switching to avoid INSUFFICIENT_PATH errors
+        // with dynamic route segments (like shopId UUIDs)
+        // The pathname from usePathname() doesn't include locale prefix
+        window.location.href = `/${newLocale}${pathname}`;
       });
     },
-    [router, pathname]
+    [pathname]
   );
 
   /**

@@ -29,7 +29,7 @@ import { GlobalOutlined, CheckOutlined } from '@ant-design/icons';
 import { Button, Dropdown } from 'antd';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { usePathname, useRouter } from '@/lib/i18n/navigation';
+import { usePathname } from '@/lib/i18n/navigation';
 import { locales, localeNames, type Locale } from '@/lib/i18n/routing';
 import { cn } from '@/lib/utils/cn';
 
@@ -105,7 +105,6 @@ export function LocaleSwitcher({
   const t = useTranslations('settings.appearance');
   const currentLocale = useLocale() as Locale;
   const pathname = usePathname();
-  const router = useRouter();
 
   // Handle locale change
   const handleLocaleChange = useCallback(
@@ -114,10 +113,12 @@ export function LocaleSwitcher({
         return;
       }
 
-      // Use next-intl's router to change locale while preserving path
-      router.replace(pathname, { locale: newLocale });
+      // Use window.location for locale switching to avoid INSUFFICIENT_PATH errors
+      // with dynamic route segments (like shopId UUIDs)
+      // The pathname from usePathname() doesn't include locale prefix
+      window.location.href = `/${newLocale}${pathname}`;
     },
-    [currentLocale, pathname, router]
+    [currentLocale, pathname]
   );
 
   // Build dropdown menu items
