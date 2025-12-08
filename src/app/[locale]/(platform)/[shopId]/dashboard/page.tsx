@@ -19,26 +19,11 @@
 
 import React from 'react';
 
-import {
-  ShoppingOutlined,
-  DollarOutlined,
-  InboxOutlined,
-  UserOutlined,
-  ThunderboltOutlined,
-  HistoryOutlined,
-  WarningOutlined,
-  GoldOutlined,
-} from '@ant-design/icons';
 import { Typography } from 'antd';
 import { getTranslations } from 'next-intl/server';
 
-import { StatCard, StatCardGrid } from '@/components/common/data/StatCard';
-import { DashboardGrid, DashboardWidget } from '@/components/domain/dashboard/DashboardGrid';
-import { LowStockAlertWidget } from '@/components/domain/dashboard/LowStockAlertWidget';
-import { PaymentsDueWidget } from '@/components/domain/dashboard/PaymentsDueWidget';
-import { QuickActionsWidget } from '@/components/domain/dashboard/QuickActionsWidget';
-import { RecentActivityWidget } from '@/components/domain/dashboard/RecentActivityWidget';
-import { MetalPriceWidget } from '@/components/domain/settings/MetalPriceWidget';
+import { DashboardWidgetsSection } from '@/components/domain/dashboard/DashboardWidgetsSection';
+import { QuickStatsSection } from '@/components/domain/dashboard/QuickStatsSection';
 import { createClient } from '@/lib/supabase/server';
 
 const { Title, Text } = Typography;
@@ -57,11 +42,16 @@ interface DashboardPageProps {
   }>;
 }
 
+/**
+ * Icon keys for stat cards (resolved to actual icons in client component)
+ */
+type StatIconKey = 'inventory' | 'sales' | 'orders' | 'customers';
+
 interface QuickStat {
   key: string;
   titleKey: string;
   value: number | string;
-  prefix: React.ReactNode;
+  iconKey: StatIconKey;
   suffix?: string;
   color: string;
   trend?: {
@@ -106,7 +96,7 @@ async function getQuickStats(_shopId: string): Promise<QuickStat[]> {
       key: 'inventory',
       titleKey: 'inventoryItems',
       value: 156,
-      prefix: <InboxOutlined />,
+      iconKey: 'inventory',
       suffix: undefined,
       color: '#f59e0b', // amber-500
     },
@@ -114,7 +104,7 @@ async function getQuickStats(_shopId: string): Promise<QuickStat[]> {
       key: 'sales',
       titleKey: 'todaySales',
       value: '$4,250',
-      prefix: <DollarOutlined />,
+      iconKey: 'sales',
       suffix: undefined,
       color: '#10b981', // emerald-500
       trend: { value: 12.5, direction: 'up' },
@@ -123,7 +113,7 @@ async function getQuickStats(_shopId: string): Promise<QuickStat[]> {
       key: 'orders',
       titleKey: 'pendingOrders',
       value: 8,
-      prefix: <ShoppingOutlined />,
+      iconKey: 'orders',
       suffix: undefined,
       color: '#3b82f6', // blue-500
     },
@@ -131,7 +121,7 @@ async function getQuickStats(_shopId: string): Promise<QuickStat[]> {
       key: 'customers',
       titleKey: 'totalCustomers',
       value: 234,
-      prefix: <UserOutlined />,
+      iconKey: 'customers',
       suffix: undefined,
       color: '#8b5cf6', // violet-500
       trend: { value: 3.2, direction: 'up' },
@@ -164,108 +154,6 @@ function WelcomeHeader({
         {subtitleText}
       </Text>
     </div>
-  );
-}
-
-/**
- * Quick Stats Grid using StatCard component
- */
-function QuickStatsSection({
-  stats,
-  translations,
-}: {
-  stats: QuickStat[];
-  translations: Record<string, string>;
-}) {
-  return (
-    <StatCardGrid columns={4} className="mb-6">
-      {stats.map((stat) => (
-        <StatCard
-          key={stat.key}
-          title={translations[stat.titleKey] ?? stat.titleKey}
-          value={stat.value}
-          prefix={
-            <span style={{ color: stat.color }} className="text-xl">
-              {stat.prefix}
-            </span>
-          }
-          suffix={stat.suffix}
-          trend={stat.trend}
-        />
-      ))}
-    </StatCardGrid>
-  );
-}
-
-// =============================================================================
-// DASHBOARD WIDGETS SECTION (Client Component Wrapper)
-// =============================================================================
-
-/**
- * Dashboard Widgets Container
- *
- * This is rendered as a client component container that wraps
- * the interactive widgets. The individual widgets are client components
- * that handle their own data fetching and state.
- */
-function DashboardWidgetsSection({
-  translations,
-}: {
-  translations: {
-    metalPrices: string;
-    quickActions: string;
-    recentActivity: string;
-    lowStockAlerts: string;
-    paymentsDue: string;
-  };
-}) {
-  return (
-    <DashboardGrid>
-      {/* Metal Price Widget - Compact Mode */}
-      <DashboardWidget
-        title={translations.metalPrices}
-        icon={<GoldOutlined />}
-        size="md"
-        collapsible
-      >
-        <MetalPriceWidget compact />
-      </DashboardWidget>
-
-      {/* Quick Actions Widget */}
-      <DashboardWidget title={translations.quickActions} icon={<ThunderboltOutlined />} size="md">
-        <QuickActionsWidget />
-      </DashboardWidget>
-
-      {/* Recent Activity Widget - Large */}
-      <DashboardWidget
-        title={translations.recentActivity}
-        icon={<HistoryOutlined />}
-        size="lg"
-        collapsible
-      >
-        <RecentActivityWidget maxItems={5} />
-      </DashboardWidget>
-
-      {/* Low Stock Alert Widget */}
-      <DashboardWidget
-        title={translations.lowStockAlerts}
-        icon={<WarningOutlined />}
-        size="md"
-        collapsible
-      >
-        <LowStockAlertWidget maxItems={4} />
-      </DashboardWidget>
-
-      {/* Payments Due Widget */}
-      <DashboardWidget
-        title={translations.paymentsDue}
-        icon={<DollarOutlined />}
-        size="md"
-        collapsible
-      >
-        <PaymentsDueWidget maxItems={4} />
-      </DashboardWidget>
-    </DashboardGrid>
   );
 }
 
