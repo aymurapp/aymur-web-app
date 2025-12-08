@@ -25,7 +25,7 @@ import type { Database } from '@/lib/types/database';
  * Domain configuration
  */
 const MARKETING_DOMAINS = ['aymur.com', 'www.aymur.com'];
-const PLATFORM_DOMAINS = ['platform.aymur.com'];
+const PLATFORM_DOMAINS = ['platform.aymur.com', 'app.aymur.com'];
 
 /**
  * Routes that don't require authentication.
