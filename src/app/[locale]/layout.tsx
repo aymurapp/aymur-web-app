@@ -2,9 +2,9 @@ import React from 'react';
 
 import { notFound } from 'next/navigation';
 
-import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 
+import { IntlProvider } from '@/components/providers/IntlProvider';
 import { routing, isRtlLocale, type Locale } from '@/lib/i18n/routing';
 
 /**
@@ -56,9 +56,9 @@ export default async function LocaleLayout({
 
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'} className="min-h-screen">
-      <NextIntlClientProvider messages={messages} locale={locale}>
+      <IntlProvider messages={messages} locale={locale}>
         {children}
-      </NextIntlClientProvider>
+      </IntlProvider>
     </div>
   );
 }
