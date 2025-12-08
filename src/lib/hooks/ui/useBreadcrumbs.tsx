@@ -189,7 +189,7 @@ export function useBreadcrumbs(options: UseBreadcrumbsOptions = {}): BreadcrumbI
     if (includeHome && pathname !== '/dashboard') {
       items.push({
         key: 'home',
-        label: t('nav.dashboard'),
+        label: t('navigation.dashboard'),
         path: '/dashboard',
         isActive: false,
       });

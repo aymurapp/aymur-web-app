@@ -57,7 +57,7 @@ export type NavBadge = 'new' | 'beta';
 export interface NavItem {
   /** Unique identifier for the navigation item */
   key: string;
-  /** i18n translation key (e.g., 'nav.dashboard') */
+  /** i18n translation key (e.g., 'navigation.dashboard') */
   labelKey: string;
   /** Ant Design icon component */
   icon: ComponentType;
@@ -99,11 +99,11 @@ export const navigationConfig: NavGroup[] = [
   // ---------------------------------------------------------------------------
   {
     key: 'main',
-    labelKey: 'nav.groups.main',
+    labelKey: 'navigation.groups.main',
     items: [
       {
         key: 'dashboard',
-        labelKey: 'nav.dashboard',
+        labelKey: 'navigation.dashboard',
         icon: DashboardOutlined,
         path: '/dashboard',
         // Dashboard is visible to everyone with shop access
@@ -116,39 +116,39 @@ export const navigationConfig: NavGroup[] = [
   // ---------------------------------------------------------------------------
   {
     key: 'commerce',
-    labelKey: 'nav.groups.commerce',
+    labelKey: 'navigation.groups.commerce',
     items: [
       {
         key: 'inventory',
-        labelKey: 'nav.inventory',
+        labelKey: 'navigation.inventory._label',
         icon: AppstoreOutlined,
         path: '/inventory',
         permission: PERMISSION_KEYS.INVENTORY_VIEW,
         children: [
           {
             key: 'inventory-items',
-            labelKey: 'nav.inventory.items',
+            labelKey: 'navigation.inventory.items',
             icon: ShoppingOutlined,
             path: '/inventory/items',
             permission: PERMISSION_KEYS.INVENTORY_VIEW,
           },
           {
             key: 'inventory-categories',
-            labelKey: 'nav.inventory.categories',
+            labelKey: 'navigation.inventory.categories',
             icon: TagsOutlined,
             path: '/inventory/categories',
             permission: PERMISSION_KEYS.INVENTORY_VIEW,
           },
           {
             key: 'inventory-metals',
-            labelKey: 'nav.inventory.metals',
+            labelKey: 'navigation.inventory.metals',
             icon: GoldOutlined,
             path: '/inventory/metals',
             permission: PERMISSION_KEYS.INVENTORY_VIEW,
           },
           {
             key: 'inventory-stones',
-            labelKey: 'nav.inventory.stones',
+            labelKey: 'navigation.inventory.stones',
             icon: DatabaseOutlined,
             path: '/inventory/stones',
             permission: PERMISSION_KEYS.INVENTORY_VIEW,
@@ -157,28 +157,28 @@ export const navigationConfig: NavGroup[] = [
       },
       {
         key: 'sales',
-        labelKey: 'nav.sales',
+        labelKey: 'navigation.sales._label',
         icon: ShoppingCartOutlined,
         path: '/sales',
         permission: PERMISSION_KEYS.SALES_VIEW,
         children: [
           {
             key: 'sales-transactions',
-            labelKey: 'nav.sales.transactions',
+            labelKey: 'navigation.sales.transactions',
             icon: FileTextOutlined,
             path: '/sales/transactions',
             permission: PERMISSION_KEYS.SALES_VIEW,
           },
           {
             key: 'sales-customers',
-            labelKey: 'nav.sales.customers',
+            labelKey: 'navigation.sales.customers',
             icon: UserOutlined,
             path: '/sales/customers',
             permission: PERMISSION_KEYS.CUSTOMERS_VIEW,
           },
           {
             key: 'sales-payments',
-            labelKey: 'nav.sales.payments',
+            labelKey: 'navigation.sales.payments',
             icon: CreditCardOutlined,
             path: '/sales/payments',
             permission: PERMISSION_KEYS.SALES_VIEW,
@@ -193,32 +193,32 @@ export const navigationConfig: NavGroup[] = [
   // ---------------------------------------------------------------------------
   {
     key: 'operations',
-    labelKey: 'nav.groups.operations',
+    labelKey: 'navigation.groups.operations',
     items: [
       {
         key: 'purchases',
-        labelKey: 'nav.purchases',
+        labelKey: 'navigation.purchases._label',
         icon: ShopOutlined,
         path: '/purchases',
         permission: PERMISSION_KEYS.PURCHASES_VIEW,
         children: [
           {
             key: 'purchases-orders',
-            labelKey: 'nav.purchases.orders',
+            labelKey: 'navigation.purchases.orders',
             icon: FileTextOutlined,
             path: '/purchases/orders',
             permission: PERMISSION_KEYS.PURCHASES_VIEW,
           },
           {
             key: 'purchases-suppliers',
-            labelKey: 'nav.purchases.suppliers',
+            labelKey: 'navigation.purchases.suppliers',
             icon: TruckOutlined,
             path: '/purchases/suppliers',
             permission: PERMISSION_KEYS.SUPPLIERS_VIEW,
           },
           {
             key: 'purchases-payments',
-            labelKey: 'nav.purchases.payments',
+            labelKey: 'navigation.purchases.payments',
             icon: CreditCardOutlined,
             path: '/purchases/payments',
             permission: PERMISSION_KEYS.SUPPLIERS_PAYMENTS,
@@ -227,35 +227,35 @@ export const navigationConfig: NavGroup[] = [
       },
       {
         key: 'workshops',
-        labelKey: 'nav.workshops',
+        labelKey: 'navigation.workshops',
         icon: ToolOutlined,
         path: '/workshops',
         permission: PERMISSION_KEYS.WORKSHOPS_VIEW,
       },
       {
         key: 'deliveries',
-        labelKey: 'nav.deliveries',
+        labelKey: 'navigation.deliveries',
         icon: CarOutlined,
         path: '/deliveries',
         permission: PERMISSION_KEYS.DELIVERIES_VIEW,
       },
       {
         key: 'expenses',
-        labelKey: 'nav.expenses',
+        labelKey: 'navigation.expenses._label',
         icon: WalletOutlined,
         path: '/expenses',
         permission: PERMISSION_KEYS.EXPENSES_VIEW,
         children: [
           {
             key: 'expenses-records',
-            labelKey: 'nav.expenses.records',
+            labelKey: 'navigation.expenses.records',
             icon: FileTextOutlined,
             path: '/expenses/records',
             permission: PERMISSION_KEYS.EXPENSES_VIEW,
           },
           {
             key: 'expenses-budgets',
-            labelKey: 'nav.expenses.budgets',
+            labelKey: 'navigation.expenses.budgets',
             icon: BankOutlined,
             path: '/expenses/budgets',
             permission: PERMISSION_KEYS.BUDGET_VIEW,
@@ -270,32 +270,32 @@ export const navigationConfig: NavGroup[] = [
   // ---------------------------------------------------------------------------
   {
     key: 'staff',
-    labelKey: 'nav.groups.staff',
+    labelKey: 'navigation.groups.staff',
     items: [
       {
         key: 'payroll',
-        labelKey: 'nav.payroll',
+        labelKey: 'navigation.payroll._label',
         icon: DollarOutlined,
         path: '/payroll',
         permission: PERMISSION_KEYS.PAYROLL_VIEW,
         children: [
           {
             key: 'payroll-periods',
-            labelKey: 'nav.payroll.periods',
+            labelKey: 'navigation.payroll.periods',
             icon: CalendarOutlined,
             path: '/payroll/periods',
             permission: PERMISSION_KEYS.PAYROLL_VIEW,
           },
           {
             key: 'payroll-records',
-            labelKey: 'nav.payroll.records',
+            labelKey: 'navigation.payroll.records',
             icon: FileTextOutlined,
             path: '/payroll/records',
             permission: PERMISSION_KEYS.PAYROLL_VIEW,
           },
           {
             key: 'payroll-advances',
-            labelKey: 'nav.payroll.advances',
+            labelKey: 'navigation.payroll.advances',
             icon: CreditCardOutlined,
             path: '/payroll/advances',
             permission: PERMISSION_KEYS.ADVANCES_APPROVE,
@@ -310,25 +310,25 @@ export const navigationConfig: NavGroup[] = [
   // ---------------------------------------------------------------------------
   {
     key: 'insights',
-    labelKey: 'nav.groups.insights',
+    labelKey: 'navigation.groups.insights',
     items: [
       {
         key: 'analytics',
-        labelKey: 'nav.analytics',
+        labelKey: 'navigation.analytics._label',
         icon: BarChartOutlined,
         path: '/analytics',
         permission: PERMISSION_KEYS.ANALYTICS_VIEW,
         children: [
           {
             key: 'analytics-dashboard',
-            labelKey: 'nav.analytics.dashboard',
+            labelKey: 'navigation.analytics.dashboard',
             icon: PieChartOutlined,
             path: '/analytics/dashboard',
             permission: PERMISSION_KEYS.ANALYTICS_VIEW,
           },
           {
             key: 'analytics-reports',
-            labelKey: 'nav.analytics.reports',
+            labelKey: 'navigation.analytics.reports',
             icon: LineChartOutlined,
             path: '/analytics/reports',
             permission: PERMISSION_KEYS.REPORTS_BASIC,
@@ -337,7 +337,7 @@ export const navigationConfig: NavGroup[] = [
       },
       {
         key: 'ai-assistant',
-        labelKey: 'nav.aiAssistant',
+        labelKey: 'navigation.aiAssistant',
         icon: RobotOutlined,
         path: '/ai',
         permission: PERMISSION_KEYS.AI_USE,
@@ -351,39 +351,39 @@ export const navigationConfig: NavGroup[] = [
   // ---------------------------------------------------------------------------
   {
     key: 'admin',
-    labelKey: 'nav.groups.admin',
+    labelKey: 'navigation.groups.admin',
     items: [
       {
         key: 'settings',
-        labelKey: 'nav.settings',
+        labelKey: 'navigation.settings._label',
         icon: SettingOutlined,
         path: '/settings',
         permission: PERMISSION_KEYS.SETTINGS_VIEW,
         children: [
           {
             key: 'settings-shop',
-            labelKey: 'nav.settings.shop',
+            labelKey: 'navigation.settings.shop',
             icon: ShopOutlined,
             path: '/settings/shop',
             permission: PERMISSION_KEYS.SHOP_SETTINGS,
           },
           {
             key: 'settings-staff',
-            labelKey: 'nav.settings.staff',
+            labelKey: 'navigation.settings.staff',
             icon: TeamOutlined,
             path: '/settings/staff',
             permission: PERMISSION_KEYS.STAFF_VIEW,
           },
           {
             key: 'settings-roles',
-            labelKey: 'nav.settings.roles',
+            labelKey: 'navigation.settings.roles',
             icon: SafetyOutlined,
             path: '/settings/roles',
             permission: PERMISSION_KEYS.STAFF_MANAGE_ROLES,
           },
           {
             key: 'settings-integrations',
-            labelKey: 'nav.settings.integrations',
+            labelKey: 'navigation.settings.integrations',
             icon: ApiOutlined,
             path: '/settings/integrations',
             permission: PERMISSION_KEYS.SETTINGS_MANAGE,
