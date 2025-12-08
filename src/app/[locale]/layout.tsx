@@ -3,7 +3,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 
 import { routing, isRtlLocale, type Locale } from '@/lib/i18n/routing';
 
@@ -26,14 +26,13 @@ interface LocaleLayoutProps {
 /**
  * Locale Layout
  *
- * This layout wraps all pages within a specific locale.
+ * This is the SINGLE [locale] layout that wraps all localized pages.
  * It provides:
  * - next-intl message provider for translations
  * - RTL direction support for Arabic locale
  * - Validation that the locale is supported
  *
- * The layout is a server component that loads messages and passes
- * them to the NextIntlClientProvider for client-side usage.
+ * All route groups (auth, platform, marketing) are nested inside this layout.
  */
 export default async function LocaleLayout({
   children,
@@ -45,6 +44,9 @@ export default async function LocaleLayout({
   if (!routing.locales.includes(locale as Locale)) {
     notFound();
   }
+
+  // Enable static rendering
+  setRequestLocale(locale);
 
   // Load messages for this locale
   const messages = await getMessages();

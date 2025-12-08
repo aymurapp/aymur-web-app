@@ -21,16 +21,11 @@ export const metadata: Metadata = {
 /**
  * Platform Layout
  *
- * This is the root layout for all authenticated platform pages.
+ * This layout wraps all authenticated platform pages.
  * Authentication is handled by middleware - this layout only provides
  * the QueryProvider wrapper for TanStack Query support.
  *
- * NOTE: Auth checks were removed from this layout to prevent redirect loops
- * caused by auth state inconsistency between middleware (uses request.cookies)
- * and server components (uses next/headers cookies()). Middleware is now the
- * single source of truth for route protection.
- *
- * @see https://nextjs.org/docs/app/building-your-application/routing/route-groups
+ * NOTE: NextIntlClientProvider is provided by parent [locale]/layout.tsx
  */
 export default function PlatformLayout({
   children,
