@@ -8,20 +8,23 @@
  * - es: Spanish
  * - nl: Dutch
  * - ar: Arabic (RTL)
+ *
+ * NOTE: We use a plain config object instead of defineRouting() to avoid
+ * INSUFFICIENT_PATH errors with dynamic route segments like [shopId].
+ * The defineRouting function does internal path registration that conflicts
+ * with dynamic UUID-based routes.
  */
-
-import { defineRouting } from 'next-intl/routing';
 
 /**
  * Routing configuration for next-intl
  * - localePrefix: 'always' ensures URLs always include locale (e.g., /en/dashboard)
  * - defaultLocale: 'en' is used when no locale is detected
  */
-export const routing = defineRouting({
-  locales: ['en', 'fr', 'es', 'nl', 'ar'],
-  defaultLocale: 'en',
-  localePrefix: 'always',
-});
+export const routing = {
+  locales: ['en', 'fr', 'es', 'nl', 'ar'] as const,
+  defaultLocale: 'en' as const,
+  localePrefix: 'always' as const,
+};
 
 /**
  * Available locales array for type safety and iteration
