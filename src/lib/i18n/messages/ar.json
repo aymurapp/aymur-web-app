@@ -169,7 +169,8 @@
       "previous": "السابق",
       "next": "التالي",
       "showing": "عرض {from} الى {to} من {total}"
-    }
+    },
+    "language": "اللغة"
   },
   "navigation": {
     "dashboard": "لوحة التحكم",
@@ -193,7 +194,11 @@
     "notifications": "الاشعارات",
     "messages": "الرسائل",
     "calendar": "التقويم",
-    "tasks": "المهام"
+    "tasks": "المهام",
+    "menu": "القائمة",
+    "breadcrumbs": "مسار التنقل",
+    "collapseSidebar": "طي الشريط الجانبي",
+    "expandSidebar": "توسيع الشريط الجانبي"
   },
   "auth": {
     "login": {

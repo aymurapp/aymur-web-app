@@ -93,7 +93,7 @@ async function fetchShopDetails(shopId: string): Promise<ShopWithDetails | null>
     .select(
       `
       *,
-      owner:users!shops_id_owner_fkey (
+      owner:users!fk_shops_owner (
         id_user,
         full_name,
         email

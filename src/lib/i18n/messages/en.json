@@ -186,7 +186,8 @@
       "loading": "Loading...",
       "noResults": "No results found",
       "typeToSearch": "Type to search"
-    }
+    },
+    "language": "Language"
   },
   "navigation": {
     "groups": {
@@ -254,7 +255,11 @@
     "notifications": "Notifications",
     "messages": "Messages",
     "calendar": "Calendar",
-    "tasks": "Tasks"
+    "tasks": "Tasks",
+    "menu": "Menu",
+    "breadcrumbs": "Breadcrumbs",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar"
   },
   "auth": {
     "login": {
