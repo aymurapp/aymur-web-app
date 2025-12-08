@@ -173,19 +173,60 @@
     "language": "اللغة"
   },
   "navigation": {
+    "groups": {
+      "main": "الرئيسية",
+      "commerce": "التجارة",
+      "operations": "العمليات",
+      "staff": "الموظفون",
+      "insights": "التحليلات",
+      "admin": "الادارة"
+    },
     "dashboard": "لوحة التحكم",
-    "inventory": "المخزون",
-    "sales": "المبيعات",
-    "customers": "العملاء",
-    "suppliers": "الموردون",
+    "inventory": {
+      "_label": "المخزون",
+      "items": "العناصر",
+      "categories": "الفئات",
+      "metals": "المعادن",
+      "stones": "الاحجار"
+    },
+    "sales": {
+      "_label": "المبيعات",
+      "transactions": "المعاملات",
+      "customers": "العملاء",
+      "payments": "المدفوعات"
+    },
+    "purchases": {
+      "_label": "المشتريات",
+      "orders": "الطلبات",
+      "suppliers": "الموردون",
+      "payments": "المدفوعات"
+    },
     "workshops": "ورش العمل",
     "deliveries": "التوصيل",
-    "expenses": "المصروفات",
-    "payroll": "الرواتب",
-    "analytics": "التحليلات",
-    "reports": "التقارير",
-    "ai": "مساعد الذكاء الاصطناعي",
-    "settings": "الاعدادات",
+    "expenses": {
+      "_label": "المصروفات",
+      "records": "السجلات",
+      "budgets": "الميزانيات"
+    },
+    "payroll": {
+      "_label": "الرواتب",
+      "periods": "الفترات",
+      "records": "السجلات",
+      "advances": "السلف"
+    },
+    "analytics": {
+      "_label": "التحليلات",
+      "dashboard": "لوحة التحكم",
+      "reports": "التقارير"
+    },
+    "aiAssistant": "مساعد الذكاء الاصطناعي",
+    "settings": {
+      "_label": "الاعدادات",
+      "shop": "المتجر",
+      "staff": "الموظفون",
+      "roles": "الادوار",
+      "integrations": "التكاملات"
+    },
     "help": "المساعدة",
     "support": "الدعم",
     "feedback": "الملاحظات",
@@ -394,7 +435,8 @@
     "customer": "العميل",
     "addCustomer": "اضافة عميل",
     "editCustomer": "تعديل العميل",
-    "searchCustomer": "البحث عن عملاء..."
+    "searchCustomer": "البحث عن عملاء...",
+    "customerList": "قائمة العملاء"
   },
   "settings": {
     "title": "الاعدادات",

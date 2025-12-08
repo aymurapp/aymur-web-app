@@ -66,7 +66,7 @@ export interface InventoryItemWithRelations extends InventoryItem {
   } | null;
   metal_type?: {
     id_metal_type: string;
-    type_name: string;
+    metal_name: string;
   } | null;
   metal_purity?: {
     id_metal_purity: string;
@@ -195,7 +195,7 @@ function buildInventorySelect(includeRelations: boolean): string {
     ),
     metal_type:metal_types!fk_inventory_items_metal_type (
       id_metal_type,
-      type_name
+      metal_name
     ),
     metal_purity:metal_purities!fk_inventory_items_metal_purity (
       id_metal_purity,

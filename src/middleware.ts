@@ -28,7 +28,7 @@ const handleI18nRouting = createIntlMiddleware(routing);
  * Domain configuration
  */
 const MARKETING_DOMAINS = ['aymur.com', 'www.aymur.com'];
-const PLATFORM_DOMAINS = ['platform.aymur.com', 'app.aymur.com'];
+const PLATFORM_DOMAINS = ['platform.aymur.com'];
 
 /**
  * Routes that don't require authentication.
