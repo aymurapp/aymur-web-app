@@ -2,14 +2,10 @@
  * Next.js Middleware
  *
  * This middleware runs on every request and handles:
- * 1. Locale routing (manual implementation - NO next-intl createMiddleware)
+ * 1. Locale routing via next-intl's createMiddleware
  * 2. Supabase session refresh (keeps auth tokens valid)
  * 3. Route protection (redirects unauthenticated users)
  * 4. Domain-based routing (aymur.com vs platform.aymur.com)
- *
- * IMPORTANT: We intentionally DON'T use next-intl's createMiddleware
- * because it was causing redirect loops. Instead, we handle locale
- * detection and routing manually.
  *
  * @module middleware
  */
@@ -17,9 +13,16 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
 import { createServerClient } from '@supabase/ssr';
+import createIntlMiddleware from 'next-intl/middleware';
 
 import { routing } from '@/lib/i18n/routing';
 import type { Database } from '@/lib/types/database';
+
+/**
+ * Create the next-intl middleware handler
+ * This properly sets up locale context for server components
+ */
+const handleI18nRouting = createIntlMiddleware(routing);
 
 /**
  * Domain configuration
@@ -62,30 +65,6 @@ const marketingOnlyPaths = ['/about', '/pricing', '/contact', '/terms', '/privac
 const platformPaths = ['/shops', '/profile', '/subscription'];
 
 /**
- * Checks if the pathname already has a valid locale prefix.
- */
-function hasLocalePrefix(pathname: string): boolean {
-  for (const locale of routing.locales) {
-    if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Extracts the locale from a pathname that has a locale prefix.
- */
-function getLocaleFromPath(pathname: string): string {
-  for (const locale of routing.locales) {
-    if (pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`) {
-      return locale;
-    }
-  }
-  return routing.defaultLocale;
-}
-
-/**
  * Removes the locale prefix from a pathname.
  */
 function removeLocalePrefix(pathname: string): string {
@@ -98,6 +77,18 @@ function removeLocalePrefix(pathname: string): string {
     }
   }
   return pathname;
+}
+
+/**
+ * Extracts the locale from a pathname that has a locale prefix.
+ */
+function getLocaleFromPath(pathname: string): string {
+  for (const locale of routing.locales) {
+    if (pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`) {
+      return locale;
+    }
+  }
+  return routing.defaultLocale;
 }
 
 /**
@@ -119,8 +110,6 @@ function isPublicRoute(pathname: string): boolean {
 
 /**
  * Determines the domain type from the request hostname.
- * IMPORTANT: Check platform domains FIRST, since they are subdomains of aymur.com
- * and would otherwise match the marketing `.aymur.com` pattern.
  */
 function getDomainType(hostname: string): 'marketing' | 'platform' | 'development' {
   const host = hostname.toLowerCase();
@@ -154,43 +143,8 @@ function isPlatformPath(pathname: string): boolean {
 }
 
 /**
- * Detects the preferred locale from request headers and cookies.
- */
-function detectLocale(request: NextRequest): string {
-  // 1. Check NEXT_LOCALE cookie first
-  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
-  if (cookieLocale && routing.locales.includes(cookieLocale as (typeof routing.locales)[number])) {
-    return cookieLocale;
-  }
-
-  // 2. Check Accept-Language header
-  const acceptLanguage = request.headers.get('accept-language');
-  if (acceptLanguage) {
-    // Parse Accept-Language header (e.g., "en-US,en;q=0.9,fr;q=0.8")
-    const languages: string[] = [];
-    for (const part of acceptLanguage.split(',')) {
-      const code = part.trim().split(';')[0] ?? '';
-      const langCode = code.split('-')[0] ?? '';
-      if (langCode) {
-        languages.push(langCode.toLowerCase());
-      }
-    }
-
-    // Find first matching locale
-    for (const lang of languages) {
-      if (routing.locales.includes(lang as (typeof routing.locales)[number])) {
-        return lang;
-      }
-    }
-  }
-
-  // 3. Fall back to default locale
-  return routing.defaultLocale;
-}
-
-/**
  * Main middleware function.
- * Handles locale routing, auth, and domain routing WITHOUT next-intl middleware.
+ * Composes next-intl middleware with custom auth and domain routing.
  */
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname;
@@ -206,31 +160,12 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(url);
   }
 
-  // === STEP 2: Locale routing (manual implementation) ===
+  // === STEP 2: Let next-intl handle locale routing ===
+  // This properly sets up locale context for server components
+  const response = handleI18nRouting(request);
 
-  let locale: string;
-  let response: NextResponse;
-
-  if (hasLocalePrefix(pathname)) {
-    // Path already has locale (e.g., /en/shops) - just proceed
-    locale = getLocaleFromPath(pathname);
-    response = NextResponse.next();
-  } else {
-    // Path needs locale prefix (e.g., /shops → /en/shops)
-    locale = detectLocale(request);
-    const url = request.nextUrl.clone();
-    url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
-    return NextResponse.redirect(url);
-  }
-
-  // Set NEXT_LOCALE cookie if not already set
-  if (!request.cookies.has('NEXT_LOCALE')) {
-    response.cookies.set('NEXT_LOCALE', locale, {
-      path: '/',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-    });
-  }
+  // Get locale from the pathname (after next-intl processes it)
+  const locale = getLocaleFromPath(pathname) || routing.defaultLocale;
 
   // === STEP 3: Supabase session refresh ===
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
