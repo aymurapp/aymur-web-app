@@ -166,7 +166,7 @@ export function ProductSearchItem({
   const sku = item.sku || '-';
   const price = (item as { selling_price?: number }).selling_price || item.purchase_price;
   const weight = item.weight_grams;
-  const metalType = item.metal_type?.type_name;
+  const metalType = item.metal_type?.metal_name;
   const purity = item.metal_purity?.purity_name;
   const status = item.status || 'available';
   const statusColor = STATUS_COLORS[status] || 'bg-stone-400';

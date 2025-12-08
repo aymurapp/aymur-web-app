@@ -877,7 +877,7 @@ export default function POSPage(): JSX.Element {
           price: item.purchase_price || 0, // TODO: Use selling_price when available
           quantity: 1,
           weight: item.weight_grams || undefined,
-          metalType: item.metal_type?.type_name,
+          metalType: item.metal_type?.metal_name,
           purity: item.metal_purity?.purity_name,
           imageUrl: undefined, // TODO: Add image URL when available
         };

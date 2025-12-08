@@ -257,7 +257,7 @@ export function ProductSearch({
         price: (item as { selling_price?: number }).selling_price || item.purchase_price || 0,
         quantity: 1,
         weight: item.weight_grams || undefined,
-        metalType: item.metal_type?.type_name,
+        metalType: item.metal_type?.metal_name,
         purity: item.metal_purity?.purity_name,
         category: item.category?.category_name,
         imageUrl: (item as { image_url?: string }).image_url || undefined,

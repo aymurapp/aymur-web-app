@@ -334,7 +334,7 @@ function DetailsSection({ item, t }: DetailsSectionProps): JSX.Element {
             <Descriptions.Item label={t('inventory.metals.title')}>
               <Space>
                 <GoldOutlined className="text-amber-500" />
-                <span>{item.metal_type.type_name}</span>
+                <span>{item.metal_type.metal_name}</span>
                 {item.metal_purity && <Tag color="gold">{item.metal_purity.purity_name}</Tag>}
               </Space>
             </Descriptions.Item>

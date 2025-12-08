@@ -229,7 +229,7 @@ export function ItemCard({
   const price = formatPrice(displayItem.selling_price || item.purchase_price);
   const weight = formatWeight(item.weight_grams);
   const category = item.category?.category_name;
-  const metalType = item.metal_type?.type_name;
+  const metalType = item.metal_type?.metal_name;
   const purity = item.metal_purity?.purity_name;
   const statusLabel = item.status
     ? t(`inventory.${item.status}` as Parameters<typeof t>[0])

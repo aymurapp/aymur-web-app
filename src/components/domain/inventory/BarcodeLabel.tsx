@@ -402,7 +402,7 @@ export const BarcodeLabel = forwardRef<BarcodeLabelRef, BarcodeLabelProps>(funct
   const sku = item.sku || '-';
   const price = formatPrice(item.purchase_price, currency, locale);
   const weight = formatWeight(item.weight_grams);
-  const metalType = item.metal_type?.type_name || '';
+  const metalType = item.metal_type?.metal_name || '';
   const purity = item.metal_purity?.purity_name || '';
   const metalInfo = [metalType, purity].filter(Boolean).join(' ');
 

@@ -133,7 +133,7 @@ export interface InventoryItemFull extends Tables<'inventory_items'> {
   } | null;
   metal_type?: {
     id_metal_type: string;
-    type_name: string;
+    metal_name: string;
   } | null;
   metal_purity?: {
     id_metal_purity: string;
@@ -258,7 +258,7 @@ async function fetchInventoryItem(
     ),
     metal_type:metal_types!fk_inventory_items_metal_type (
       id_metal_type,
-      type_name
+      metal_name
     ),
     metal_purity:metal_purities!fk_inventory_items_metal_purity (
       id_metal_purity,
@@ -1033,7 +1033,7 @@ export function useInventoryItemsByIds(itemIds: string[]) {
           ),
           metal_type:metal_types!fk_inventory_items_metal_type (
             id_metal_type,
-            type_name
+            metal_name
           ),
           metal_purity:metal_purities!fk_inventory_items_metal_purity (
             id_metal_purity,
