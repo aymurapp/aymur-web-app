@@ -42,5 +42,6 @@ export {
   type Locale,
 } from './routing';
 
-// Navigation helpers
-export { Link, redirect, usePathname, useRouter, getPathname } from './navigation';
+// Navigation helpers (client-side only)
+// For server-side redirects, use `redirect` from 'next/navigation' directly
+export { Link, usePathname, useRouter } from './navigation';
