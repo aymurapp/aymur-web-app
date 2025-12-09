@@ -306,6 +306,7 @@ export default function InventoryPage(): JSX.Element {
   const router = useRouter();
   const { can } = usePermissions();
   const currentShopId = useShopStore((state) => state.currentShopId);
+  const locale = useLocale();
   const isMobile = useMobile();
 
   // ==========================================================================
@@ -452,10 +453,10 @@ export default function InventoryPage(): JSX.Element {
         });
       } else {
         // Navigate to item detail
-        router.push(`/${currentShopId}/inventory/items/${item.id_item}`);
+        router.push(`/${locale}/${currentShopId}/inventory/${item.id_item}`);
       }
     },
-    [isSelectionMode, currentShopId, router]
+    [isSelectionMode, locale, currentShopId, router]
   );
 
   // Handle quick actions
@@ -463,11 +464,11 @@ export default function InventoryPage(): JSX.Element {
     (action: 'edit' | 'reserve' | 'sell', item: InventoryItemWithRelations) => {
       switch (action) {
         case 'edit':
-          router.push(`/${currentShopId}/inventory/items/${item.id_item}/edit`);
+          router.push(`/${locale}/${currentShopId}/inventory/${item.id_item}/edit`);
           break;
         case 'sell':
           // Navigate to POS with item pre-selected
-          router.push(`/${currentShopId}/pos?item=${item.id_item}`);
+          router.push(`/${locale}/${currentShopId}/sales/pos?item=${item.id_item}`);
           break;
         case 'reserve':
           // TODO: Open reserve modal
@@ -475,13 +476,13 @@ export default function InventoryPage(): JSX.Element {
           break;
       }
     },
-    [currentShopId, router]
+    [locale, currentShopId, router]
   );
 
   // Handle add new item
   const handleAddItem = useCallback(() => {
-    router.push(`/${currentShopId}/inventory/items/new`);
-  }, [currentShopId, router]);
+    router.push(`/${locale}/${currentShopId}/inventory/new`);
+  }, [locale, currentShopId, router]);
 
   // Handle filter change from FilterPanel
   const handleFilterChange = useCallback(

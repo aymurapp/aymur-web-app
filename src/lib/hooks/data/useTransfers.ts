@@ -694,7 +694,12 @@ export function useCreateTransfer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { neighborId: string; itemIds: string[]; notes?: string }) => {
+    mutationFn: async (data: {
+      neighborId: string;
+      itemIds: string[];
+      notes?: string;
+      direction?: TransferDirection;
+    }) => {
       if (!shopId) {
         throw new Error('No shop context available');
       }
@@ -789,13 +794,16 @@ export function useCreateTransfer() {
         0
       );
 
-      // Create the transfer (direction is always 'outgoing' when creating from a shop)
+      // Determine transfer direction (default to 'outgoing' if not specified)
+      const transferDirection: TransferDirection = data.direction || 'outgoing';
+
+      // Create the transfer
       const { data: transfer, error: transferError } = await supabase
         .from('shop_transfers')
         .insert({
           id_shop: shopId,
           id_neighbor: data.neighborId,
-          direction: 'outgoing',
+          direction: transferDirection,
           total_items_count: totalItemsCount,
           total_items_value: totalItemsValue,
           gold_grams: goldGrams,

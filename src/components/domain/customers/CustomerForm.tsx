@@ -25,6 +25,9 @@ import {
   DeleteOutlined,
   LoadingOutlined,
   CrownOutlined,
+  InstagramOutlined,
+  FacebookOutlined,
+  WhatsAppOutlined,
 } from '@ant-design/icons';
 import {
   Input,
@@ -37,6 +40,7 @@ import {
   InputNumber,
   Radio,
   Typography,
+  Collapse,
 } from 'antd';
 import { useTranslations } from 'next-intl';
 import { z } from 'zod';
@@ -55,6 +59,10 @@ import {
   streetSchema,
   postalCodeSchema,
   creditLimitFieldSchema,
+  instagramSchema,
+  facebookSchema,
+  whatsappSchema,
+  tiktokSchema,
   type ClientType,
 } from '@/lib/utils/schemas/customer';
 
@@ -70,6 +78,15 @@ interface ExtendedCustomer extends Customer {
   tax_id?: string | null;
   is_vip?: boolean;
   credit_limit?: number;
+  // Social media fields
+  instagram?: string | null;
+  facebook?: string | null;
+  whatsapp?: string | null;
+  tiktok?: string | null;
+  // Address component fields
+  postal_code?: string | null;
+  city?: string | null;
+  area?: string | null;
 }
 
 // =============================================================================
@@ -77,7 +94,7 @@ interface ExtendedCustomer extends Customer {
 // =============================================================================
 
 /**
- * Extended form schema with address components and credit limit
+ * Extended form schema with address components, social media, and credit limit
  * This extends the base customerSchema with additional UI-specific fields
  */
 const customerFormSchema = customerSchema.extend({
@@ -86,6 +103,11 @@ const customerFormSchema = customerSchema.extend({
   area: areaSchema,
   street: streetSchema,
   postal_code: postalCodeSchema,
+  // Social media fields
+  instagram: instagramSchema,
+  facebook: facebookSchema,
+  whatsapp: whatsappSchema,
+  tiktok: tiktokSchema,
   // Credit field (permission-based, validated on server)
   credit_limit: creditLimitFieldSchema.optional(),
   // ID card images (stored as URLs after upload)
@@ -291,9 +313,7 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
             data.postal_code
           );
 
-          // Prepare customer data - only include fields that exist in the database
-          // Note: tax_id, is_vip, and credit_limit are planned fields and will be
-          // added when the database schema is updated
+          // Prepare customer data with all fields
           const customerData: Record<string, unknown> = {
             full_name: data.full_name,
             phone: data.phone,
@@ -301,17 +321,24 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
             address: combinedAddress,
             client_type: data.client_type,
             notes: data.notes || null,
+            // Address component fields (new DB columns)
+            postal_code: data.postal_code || null,
+            city: data.city || null,
+            area: data.area || null,
+            // Social media fields
+            instagram: data.instagram || null,
+            facebook: data.facebook || null,
+            whatsapp: data.whatsapp || null,
+            tiktok: data.tiktok || null,
           };
 
-          // Add optional fields if they're supported by the current DB schema
-          // These will be ignored if the columns don't exist yet
-          // TODO: Uncomment when database schema is updated
-          // if (data.client_type === 'company' && data.tax_id) {
-          //   customerData.tax_id = data.tax_id;
-          // }
-          // if (canManageVip && data.is_vip !== undefined) {
-          //   customerData.is_vip = data.is_vip;
-          // }
+          // Add optional fields if user has permission
+          if (data.client_type === 'company' && data.tax_id) {
+            customerData.tax_id = data.tax_id;
+          }
+          if (canManageVip && data.is_vip !== undefined) {
+            customerData.is_vip = data.is_vip;
+          }
 
           let result: Customer;
 
@@ -378,11 +405,16 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
         tax_id: customer?.tax_id || '',
         is_vip: customer?.is_vip || false,
         notes: customer?.notes || '',
-        // Address components
-        city: parsedAddress.city,
-        area: parsedAddress.area,
+        // Address components - use DB fields if available, fallback to parsed address
+        city: customer?.city || parsedAddress.city,
+        area: customer?.area || parsedAddress.area,
         street: parsedAddress.street,
-        postal_code: parsedAddress.postal_code,
+        postal_code: customer?.postal_code || parsedAddress.postal_code,
+        // Social media fields
+        instagram: customer?.instagram || '',
+        facebook: customer?.facebook || '',
+        whatsapp: customer?.whatsapp || '',
+        tiktok: customer?.tiktok || '',
         // Credit limit (only for edit mode if user has permission)
         credit_limit: customer?.credit_limit || 0,
       }}
@@ -435,6 +467,16 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
           {t('sections.address')}
         </Title>
 
+        {/* Street Address - Full width */}
+        <Form.Item<CustomerFormValues> name="street" label={t('streetAddress')}>
+          <Input.TextArea rows={2} placeholder={t('placeholders.streetAddress')} maxLength={255} />
+        </Form.Item>
+
+        {/* Postal Code */}
+        <Form.Item<CustomerFormValues> name="postal_code" label={t('postalCode')}>
+          <Input size="large" placeholder={t('placeholders.postalCode')} maxLength={20} dir="ltr" />
+        </Form.Item>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* City */}
           <Form.Item<CustomerFormValues> name="city" label={t('city')}>
@@ -446,17 +488,91 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
             <Input size="large" placeholder={t('placeholders.area')} maxLength={100} />
           </Form.Item>
         </div>
-
-        {/* Street Address */}
-        <Form.Item<CustomerFormValues> name="street" label={t('streetAddress')}>
-          <Input size="large" placeholder={t('placeholders.streetAddress')} maxLength={255} />
-        </Form.Item>
-
-        {/* Postal Code */}
-        <Form.Item<CustomerFormValues> name="postal_code" label={tCommon('labels.postalCode')}>
-          <Input size="large" placeholder={t('placeholders.postalCode')} maxLength={20} dir="ltr" />
-        </Form.Item>
       </div>
+
+      <Divider className="my-6" />
+
+      {/* Social Media Section - Collapsible */}
+      <Collapse
+        ghost
+        className="bg-stone-50 rounded-lg border border-stone-200"
+        items={[
+          {
+            key: 'social-media',
+            label: (
+              <Title level={5} className="!mb-0 text-stone-800">
+                {t('sections.socialMedia')}
+              </Title>
+            ),
+            children: (
+              <div className="pt-2">
+                <Text type="secondary" className="block mb-4">
+                  {t('socialMedia.hint')}
+                </Text>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Instagram */}
+                  <Form.Item<CustomerFormValues>
+                    name="instagram"
+                    label={t('socialMedia.instagram')}
+                  >
+                    <Input
+                      size="large"
+                      placeholder={t('placeholders.instagram')}
+                      maxLength={100}
+                      prefix={<InstagramOutlined className="text-stone-400" />}
+                      addonBefore="@"
+                      dir="ltr"
+                    />
+                  </Form.Item>
+
+                  {/* TikTok */}
+                  <Form.Item<CustomerFormValues> name="tiktok" label={t('socialMedia.tiktok')}>
+                    <Input
+                      size="large"
+                      placeholder={t('placeholders.tiktok')}
+                      maxLength={100}
+                      prefix={
+                        <svg
+                          className="w-4 h-4 text-stone-400"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+                        </svg>
+                      }
+                      addonBefore="@"
+                      dir="ltr"
+                    />
+                  </Form.Item>
+
+                  {/* Facebook */}
+                  <Form.Item<CustomerFormValues> name="facebook" label={t('socialMedia.facebook')}>
+                    <Input
+                      size="large"
+                      placeholder={t('placeholders.facebook')}
+                      maxLength={100}
+                      prefix={<FacebookOutlined className="text-stone-400" />}
+                      dir="ltr"
+                    />
+                  </Form.Item>
+
+                  {/* WhatsApp */}
+                  <Form.Item<CustomerFormValues> name="whatsapp" label={t('socialMedia.whatsapp')}>
+                    <Input
+                      size="large"
+                      placeholder={t('placeholders.whatsapp')}
+                      maxLength={20}
+                      prefix={<WhatsAppOutlined className="text-stone-400" />}
+                      dir="ltr"
+                    />
+                  </Form.Item>
+                </div>
+              </div>
+            ),
+          },
+        ]}
+      />
 
       <Divider className="my-6" />
 

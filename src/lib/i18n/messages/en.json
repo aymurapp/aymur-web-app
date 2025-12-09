@@ -892,7 +892,10 @@
     "phone": "Phone",
     "mobile": "Mobile",
     "address": "Address",
+    "streetAddress": "Street Address",
     "city": "City",
+    "area": "Area/District",
+    "postalCode": "Postal Code",
     "country": "Country",
     "dateOfBirth": "Date of Birth",
     "anniversary": "Anniversary",
@@ -908,6 +911,58 @@
     "transactions": "Transactions",
     "wishlist": "Wishlist",
     "reminders": "Reminders",
+    "clientType": "Client Type",
+    "taxId": "Tax ID",
+    "vipDescription": "Priority service and special offers",
+    "sections": {
+      "basicInfo": "Basic Information",
+      "address": "Address",
+      "socialMedia": "Social Media",
+      "businessInfo": "Business Information",
+      "documents": "Documents"
+    },
+    "placeholders": {
+      "fullName": "Enter customer name",
+      "phone": "Enter phone number",
+      "email": "Enter email address",
+      "streetAddress": "Enter street address, building, apartment...",
+      "city": "Enter city",
+      "area": "Enter area or district",
+      "postalCode": "Enter postal code",
+      "taxId": "Enter tax ID",
+      "creditLimit": "Enter credit limit",
+      "notes": "Enter notes about this customer...",
+      "instagram": "username",
+      "facebook": "Profile name or URL",
+      "whatsapp": "+1234567890",
+      "tiktok": "username"
+    },
+    "socialMedia": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "whatsapp": "WhatsApp",
+      "tiktok": "TikTok",
+      "hint": "Add social media accounts to easily contact the customer"
+    },
+    "idCard": {
+      "front": "ID Card (Front)",
+      "back": "ID Card (Back)",
+      "uploadFront": "Upload front side",
+      "uploadBack": "Upload back side",
+      "fileTooLarge": "File size exceeds 5MB limit",
+      "uploadSuccess": "ID card uploaded successfully",
+      "uploadError": "Failed to upload ID card",
+      "removeSuccess": "ID card removed",
+      "hint": "Accepted formats: JPG, PNG, WebP. Max size: 5MB"
+    },
+    "messages": {
+      "createSuccess": "Customer created successfully",
+      "createError": "Failed to create customer",
+      "updateSuccess": "Customer updated successfully",
+      "updateError": "Failed to update customer",
+      "deleteSuccess": "Customer deleted successfully",
+      "deleteError": "Failed to delete customer"
+    },
     "segments": {
       "title": "Customer Segments",
       "vip": "VIP",
@@ -1174,7 +1229,15 @@
       "invalidType": "Invalid file type. Please upload an image or PDF file.",
       "maxFilesReached": "Maximum {max} files allowed",
       "fileCount": "{count} of {max} files uploaded"
-    }
+    },
+    "barcode": {
+      "label": "Barcode",
+      "printAll": "Print All Barcodes",
+      "printSingle": "Print Barcode",
+      "regenerate": "Regenerate Barcode",
+      "generated": "Auto-generated barcode for this item"
+    },
+    "printBarcode": "Print Barcode"
   },
   "workshops": {
     "title": "Workshops",
@@ -1471,6 +1534,13 @@
     "noTransferSelected": "No transfer selected",
     "outgoing": "Outgoing",
     "incoming": "Incoming",
+    "outgoingTransfer": "Outgoing Transfer",
+    "incomingTransfer": "Incoming Transfer",
+    "outgoingDescription": "Send items from your shop to a partner shop",
+    "incomingDescription": "Receive items from a partner shop to your shop",
+    "transferTo": "Transfer to",
+    "selectSource": "Select Source",
+    "selectSourceShop": "Select source shop",
     "pending": "Pending",
     "shipped": "Shipped",
     "received": "Received",

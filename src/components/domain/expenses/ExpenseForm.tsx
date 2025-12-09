@@ -54,6 +54,7 @@ import {
   useUpdateExpense,
   type ExpenseWithCategory,
 } from '@/lib/hooks/data/useExpenses';
+import { useRole } from '@/lib/hooks/permissions';
 
 import type { UploadFile, UploadProps } from 'antd';
 
@@ -102,6 +103,7 @@ export function ExpenseForm({
 }: ExpenseFormProps): React.JSX.Element {
   const t = useTranslations('expenses');
   const tCommon = useTranslations('common');
+  const { isOwner } = useRole();
 
   const [form] = Form.useForm<FormValues>();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -390,8 +392,9 @@ export function ExpenseForm({
             <TextArea placeholder={tCommon('labels.notes')} rows={3} showCount maxLength={1000} />
           </Form.Item>
 
-          {/* Info Text */}
-          {!isEditing && (
+          {/* Info Text - Only show pending approval message for non-owner roles */}
+          {/* Owners are the approvers, so showing "pending approval" to them is illogical */}
+          {!isEditing && !isOwner && (
             <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <Text className="text-amber-700 text-sm">{t('status.pending')}</Text>
             </div>

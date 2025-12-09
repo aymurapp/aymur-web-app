@@ -128,6 +128,68 @@ export const postalCodeSchema = z
   .nullable()
   .transform((val) => val?.trim() || null);
 
+// =============================================================================
+// SOCIAL MEDIA FIELD SCHEMAS
+// =============================================================================
+
+/**
+ * Instagram username validation - varchar(100), optional
+ * Allows usernames with or without @ prefix
+ */
+export const instagramSchema = z
+  .string()
+  .max(100, 'Instagram handle cannot exceed 100 characters')
+  .regex(/^@?[a-zA-Z0-9._]*$/, 'Invalid Instagram handle format')
+  .optional()
+  .nullable()
+  .transform((val) => {
+    if (!val?.trim()) {
+      return null;
+    }
+    // Remove @ prefix if present for consistent storage
+    return val.trim().replace(/^@/, '');
+  });
+
+/**
+ * Facebook username/URL validation - varchar(100), optional
+ */
+export const facebookSchema = z
+  .string()
+  .max(100, 'Facebook handle cannot exceed 100 characters')
+  .optional()
+  .nullable()
+  .transform((val) => val?.trim() || null);
+
+/**
+ * WhatsApp number validation - varchar(20), optional
+ * Should be a valid phone number format
+ */
+export const whatsappSchema = z
+  .string()
+  .max(20, 'WhatsApp number cannot exceed 20 characters')
+  .regex(/^[+]?[0-9\s-]*$/, 'Invalid WhatsApp number format')
+  .optional()
+  .nullable()
+  .transform((val) => val?.trim() || null);
+
+/**
+ * TikTok username validation - varchar(100), optional
+ * Allows usernames with or without @ prefix
+ */
+export const tiktokSchema = z
+  .string()
+  .max(100, 'TikTok handle cannot exceed 100 characters')
+  .regex(/^@?[a-zA-Z0-9._]*$/, 'Invalid TikTok handle format')
+  .optional()
+  .nullable()
+  .transform((val) => {
+    if (!val?.trim()) {
+      return null;
+    }
+    // Remove @ prefix if present for consistent storage
+    return val.trim().replace(/^@/, '');
+  });
+
 /**
  * Tax ID validation - varchar(50), optional (typically required for companies)
  */
@@ -190,6 +252,17 @@ const customerBaseSchema = z.object({
 
   // Address fields (combined into single address field in DB)
   address: addressFieldSchema,
+
+  // Address component fields (new columns in DB)
+  postal_code: postalCodeSchema,
+  city: citySchema,
+  area: areaSchema,
+
+  // Social media fields
+  instagram: instagramSchema,
+  facebook: facebookSchema,
+  whatsapp: whatsappSchema,
+  tiktok: tiktokSchema,
 
   // Customer classification
   client_type: clientTypeEnum.default('individual'),

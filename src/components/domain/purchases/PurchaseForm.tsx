@@ -13,15 +13,24 @@
  * - Item fields: description, metal type, purity, weight, quantity, price
  * - Auto-calculate line totals and grand total
  * - Invoice image upload (multiple files)
+ * - Barcode generation and printing per item
+ * - Bulk barcode printing
  * - Notes field
  * - Save as draft or submit
  *
  * @module components/domain/purchases/PurchaseForm
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
-import { PlusOutlined, DeleteOutlined, SaveOutlined, FileImageOutlined } from '@ant-design/icons';
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  SaveOutlined,
+  FileImageOutlined,
+  PrinterOutlined,
+  BarcodeOutlined,
+} from '@ant-design/icons';
 import {
   Form,
   Input,
@@ -34,9 +43,12 @@ import {
   Row,
   Col,
   message,
+  Tooltip,
 } from 'antd';
 import dayjs from 'dayjs';
+import JsBarcode from 'jsbarcode';
 import { useTranslations, useLocale } from 'next-intl';
+import { useReactToPrint } from 'react-to-print';
 
 import { InvoiceImageUpload } from '@/components/domain/purchases/InvoiceImageUpload';
 import { SupplierSelect } from '@/components/domain/suppliers/SupplierSelect';
@@ -45,7 +57,7 @@ import { useLinkFilesToEntity, type FileUploadResult } from '@/lib/hooks/data/us
 import { useCreatePurchase, useUpdatePurchase } from '@/lib/hooks/data/usePurchases';
 import { useShop } from '@/lib/hooks/shop';
 import type { Locale } from '@/lib/i18n/routing';
-import { formatCurrency } from '@/lib/utils/format';
+import { formatCurrency, formatNumber, formatDecimal } from '@/lib/utils/format';
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -63,6 +75,7 @@ export interface PurchaseLineItem {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  barcode: string;
 }
 
 export interface PurchaseFormData {
@@ -120,11 +133,34 @@ const PURITY_OPTIONS = {
 // HELPER FUNCTIONS
 // =============================================================================
 
+/** Counter for unique barcode sequence within a session */
+let barcodeSequence = 0;
+
 function generateItemId(): string {
   return `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-function createEmptyItem(): PurchaseLineItem {
+/**
+ * Generates a unique barcode for an item
+ * Format: {SHOP_PREFIX}-{6_DIGIT_SEQUENCE}
+ * Example: SHOP-000001
+ */
+function generateBarcode(shopName: string): string {
+  barcodeSequence += 1;
+  // Create shop prefix from first 4 letters of shop name (uppercase, alphanumeric only)
+  const prefix = (shopName || 'SHOP')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .substring(0, 4)
+    .toUpperCase()
+    .padEnd(4, 'X');
+  // Generate 6-digit sequence with leading zeros
+  const sequence = String(barcodeSequence + (Date.now() % 10000))
+    .padStart(6, '0')
+    .slice(-6);
+  return `${prefix}-${sequence}`;
+}
+
+function createEmptyItem(shopName: string): PurchaseLineItem {
   return {
     id: generateItemId(),
     description: '',
@@ -134,11 +170,62 @@ function createEmptyItem(): PurchaseLineItem {
     quantity: 1,
     unitPrice: 0,
     lineTotal: 0,
+    barcode: generateBarcode(shopName),
   };
 }
 
 function calculateLineTotal(item: PurchaseLineItem): number {
   return item.quantity * item.unitPrice;
+}
+
+// =============================================================================
+// BARCODE DISPLAY COMPONENT
+// =============================================================================
+
+interface BarcodeDisplayProps {
+  barcode: string;
+  onPrint: () => void;
+  t: ReturnType<typeof useTranslations>;
+}
+
+function BarcodeDisplay({ barcode, onPrint, t }: BarcodeDisplayProps): React.JSX.Element {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (svgRef.current && barcode) {
+      try {
+        JsBarcode(svgRef.current, barcode, {
+          format: 'CODE128',
+          width: 1.5,
+          height: 40,
+          displayValue: true,
+          fontSize: 10,
+          margin: 5,
+          background: 'transparent',
+          lineColor: '#000000',
+        });
+      } catch (error) {
+        console.error('Barcode generation failed:', error);
+      }
+    }
+  }, [barcode]);
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex-1 bg-white border border-stone-200 rounded p-2 flex justify-center">
+        <svg ref={svgRef} />
+      </div>
+      <Tooltip title={t('printBarcode')}>
+        <Button
+          type="default"
+          size="small"
+          icon={<PrinterOutlined />}
+          onClick={onPrint}
+          className="flex-shrink-0"
+        />
+      </Tooltip>
+    </div>
+  );
 }
 
 // =============================================================================
@@ -152,6 +239,8 @@ interface LineItemRowProps {
   locale: Locale;
   onChange: (id: string, field: keyof PurchaseLineItem, value: unknown) => void;
   onRemove: (id: string) => void;
+  onPrintBarcode: (item: PurchaseLineItem) => void;
+  onRegenerateBarcode: (id: string) => void;
   canRemove: boolean;
   t: ReturnType<typeof useTranslations>;
   tInventory: ReturnType<typeof useTranslations>;
@@ -164,6 +253,8 @@ function LineItemRow({
   locale,
   onChange,
   onRemove,
+  onPrintBarcode,
+  onRegenerateBarcode,
   canRemove,
   t,
   tInventory,
@@ -175,20 +266,33 @@ function LineItemRow({
       size="small"
       className="border border-stone-200 mb-3"
       title={
-        <span className="text-stone-600">
-          {t('lineItem')} #{index + 1}
-        </span>
+        <div className="flex items-center gap-2">
+          <BarcodeOutlined className="text-amber-500" />
+          <span className="text-stone-600">
+            {t('lineItem')} #{index + 1}
+          </span>
+        </div>
       }
       extra={
-        canRemove && (
-          <Button
-            type="text"
-            danger
-            size="small"
-            icon={<DeleteOutlined />}
-            onClick={() => onRemove(item.id)}
-          />
-        )
+        <div className="flex items-center gap-1">
+          <Tooltip title={t('regenerate')}>
+            <Button
+              type="text"
+              size="small"
+              icon={<BarcodeOutlined />}
+              onClick={() => onRegenerateBarcode(item.id)}
+            />
+          </Tooltip>
+          {canRemove && (
+            <Button
+              type="text"
+              danger
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={() => onRemove(item.id)}
+            />
+          )}
+        </div>
       }
     >
       <Row gutter={[12, 12]}>
@@ -289,8 +393,67 @@ function LineItemRow({
             </div>
           </Form.Item>
         </Col>
+
+        {/* Barcode Display */}
+        <Col xs={24}>
+          <Form.Item label={t('barcode.label')} className="mb-0">
+            <BarcodeDisplay barcode={item.barcode} onPrint={() => onPrintBarcode(item)} t={t} />
+          </Form.Item>
+        </Col>
       </Row>
     </Card>
+  );
+}
+
+// =============================================================================
+// PRINTABLE BARCODE LABEL COMPONENT
+// =============================================================================
+
+interface PrintableBarcodeLabelProps {
+  item: PurchaseLineItem;
+  shopName: string;
+}
+
+/**
+ * Printable barcode label for use in print views
+ * Renders a CODE128 barcode with item details
+ */
+function PrintableBarcodeLabel({ item, shopName }: PrintableBarcodeLabelProps): React.JSX.Element {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (svgRef.current && item.barcode) {
+      try {
+        JsBarcode(svgRef.current, item.barcode, {
+          format: 'CODE128',
+          width: 2,
+          height: 60,
+          displayValue: true,
+          fontSize: 12,
+          margin: 10,
+          background: '#ffffff',
+          lineColor: '#000000',
+        });
+      } catch (error) {
+        console.error('Barcode generation failed:', error);
+      }
+    }
+  }, [item.barcode]);
+
+  return (
+    <div
+      className="border border-stone-300 rounded p-3 bg-white text-center"
+      style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+    >
+      <div className="text-xs text-stone-500 mb-1">{shopName}</div>
+      <div className="font-semibold text-sm mb-2 truncate" title={item.description}>
+        {item.description || 'Item'}
+      </div>
+      <svg ref={svgRef} className="mx-auto" />
+      <div className="text-xs text-stone-600 mt-2">
+        {item.metalType.toUpperCase()} | {item.purity} | {item.weightGrams}g
+      </div>
+    </div>
   );
 }
 
@@ -311,11 +474,17 @@ export function PurchaseForm({
   const locale = useLocale() as Locale;
   const { shop } = useShop();
   const currency = shop?.currency || 'USD';
+  const shopName = shop?.shop_name || 'SHOP';
 
   // Mutations
   const createPurchase = useCreatePurchase();
   const updatePurchase = useUpdatePurchase();
   const linkFiles = useLinkFilesToEntity();
+
+  // Print refs
+  const singlePrintRef = useRef<HTMLDivElement>(null);
+  const bulkPrintRef = useRef<HTMLDivElement>(null);
+  const [printingItem, setPrintingItem] = useState<PurchaseLineItem | null>(null);
 
   // ==========================================================================
   // STATE
@@ -326,7 +495,9 @@ export function PurchaseForm({
   const [purchaseDate, setPurchaseDate] = useState<string>(
     initialData?.purchaseDate || dayjs().format('YYYY-MM-DD')
   );
-  const [items, setItems] = useState<PurchaseLineItem[]>(initialData?.items || [createEmptyItem()]);
+  const [items, setItems] = useState<PurchaseLineItem[]>(
+    () => initialData?.items || [createEmptyItem(shopName)]
+  );
   const [notes, setNotes] = useState(initialData?.notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Invoice images - stores uploaded file info for linking after purchase creation
@@ -365,12 +536,29 @@ export function PurchaseForm({
   );
 
   const handleAddItem = useCallback(() => {
-    setItems((prev) => [...prev, createEmptyItem()]);
-  }, []);
+    setItems((prev) => [...prev, createEmptyItem(shopName)]);
+  }, [shopName]);
 
   const handleRemoveItem = useCallback((id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
+
+  /**
+   * Regenerates a barcode for a specific item
+   */
+  const handleRegenerateBarcode = useCallback(
+    (id: string) => {
+      setItems((prev) =>
+        prev.map((item) => {
+          if (item.id !== id) {
+            return item;
+          }
+          return { ...item, barcode: generateBarcode(shopName) };
+        })
+      );
+    },
+    [shopName]
+  );
 
   /**
    * Handles invoice image uploads for new purchases.
@@ -379,6 +567,37 @@ export function PurchaseForm({
   const handleInvoiceImagesChange = useCallback((files: FileUploadResult[]) => {
     setUploadedInvoiceImages(files);
   }, []);
+
+  /**
+   * Print single barcode label
+   */
+  const handlePrintSingleBarcode = useReactToPrint({
+    content: () => singlePrintRef.current,
+    documentTitle: 'Barcode Label',
+    onAfterPrint: () => setPrintingItem(null),
+  });
+
+  /**
+   * Print all barcode labels
+   */
+  const handlePrintAllBarcodes = useReactToPrint({
+    content: () => bulkPrintRef.current,
+    documentTitle: 'All Barcode Labels',
+  });
+
+  /**
+   * Trigger printing for a single item
+   */
+  const handlePrintItemBarcode = useCallback(
+    (item: PurchaseLineItem) => {
+      setPrintingItem(item);
+      // Small delay to ensure the print content is rendered
+      setTimeout(() => {
+        handlePrintSingleBarcode();
+      }, 100);
+    },
+    [handlePrintSingleBarcode]
+  );
 
   const handleSubmit = useCallback(
     async (_asDraft: boolean = false) => {
@@ -466,7 +685,7 @@ export function PurchaseForm({
 
   return (
     <Form layout="vertical" className="space-y-6">
-      {/* Supplier and Basic Info */}
+      {/* Supplier and Basic Info - Including Invoice Images */}
       <Card title={t('purchaseDetails')} className="border border-stone-200">
         <Row gutter={[16, 16]}>
           {/* Supplier */}
@@ -506,17 +725,55 @@ export function PurchaseForm({
               />
             </Form.Item>
           </Col>
+
+          {/* Invoice Images - Moved to Purchase Details section */}
+          <Col xs={24}>
+            <Form.Item
+              label={
+                <div className="flex items-center gap-2">
+                  <FileImageOutlined className="text-amber-500" />
+                  <span>{t('invoiceImages.title')}</span>
+                </div>
+              }
+            >
+              <InvoiceImageUpload
+                purchaseId={isEditing ? (purchaseId ?? null) : null}
+                onFilesChange={handleInvoiceImagesChange}
+                maxFiles={10}
+                disabled={isSubmitting}
+              />
+            </Form.Item>
+          </Col>
         </Row>
       </Card>
 
       {/* Line Items */}
       <Card
-        title={t('lineItems')}
+        title={
+          <div className="flex items-center gap-2">
+            <BarcodeOutlined className="text-amber-500" />
+            <span>{t('lineItems')}</span>
+          </div>
+        }
         className="border border-stone-200"
         extra={
-          <Button type="dashed" icon={<PlusOutlined />} onClick={handleAddItem}>
-            {t('addItem')}
-          </Button>
+          <div className="flex items-center gap-2">
+            {items.length > 0 && (
+              <Tooltip title={t('barcode.printAll')}>
+                <Button
+                  type="default"
+                  icon={<PrinterOutlined />}
+                  onClick={() => handlePrintAllBarcodes()}
+                  disabled={items.length === 0}
+                >
+                  {t('barcode.printAll')}
+                </Button>
+              </Tooltip>
+            )}
+            <Button type="dashed" icon={<PlusOutlined />} onClick={handleAddItem}>
+              {t('addItem')}
+            </Button>
+          </div>
         }
       >
         {items.map((item, index) => (
@@ -528,50 +785,50 @@ export function PurchaseForm({
             locale={locale}
             onChange={handleItemChange}
             onRemove={handleRemoveItem}
+            onPrintBarcode={handlePrintItemBarcode}
+            onRegenerateBarcode={handleRegenerateBarcode}
             canRemove={items.length > 1}
             t={t}
             tInventory={tInventory}
           />
         ))}
 
-        {/* Totals Summary */}
+        {/* Totals Summary - Enhanced display */}
         <Divider />
-        <div className="flex flex-col items-end space-y-2">
-          <div className="flex justify-between w-full max-w-xs">
-            <Text type="secondary">{t('totalItems')}:</Text>
-            <Text>{totals.totalItems}</Text>
-          </div>
-          <div className="flex justify-between w-full max-w-xs">
-            <Text type="secondary">{t('totalWeight')}:</Text>
-            <Text>{totals.totalWeight.toFixed(2)} g</Text>
-          </div>
-          <div className="flex justify-between w-full max-w-xs">
-            <Text type="secondary" strong>
-              {t('grandTotal')}:
-            </Text>
-            <Title level={4} className="!mb-0 text-amber-700">
-              {formatCurrency(totals.totalAmount, currency, locale)}
-            </Title>
-          </div>
+        <div className="bg-stone-50 rounded-lg p-4">
+          <Row gutter={[24, 16]}>
+            <Col xs={24} sm={8}>
+              <div className="text-center">
+                <Text type="secondary" className="block text-sm">
+                  {t('totalItems')}
+                </Text>
+                <Text strong className="text-xl">
+                  {formatNumber(totals.totalItems, locale)}
+                </Text>
+              </div>
+            </Col>
+            <Col xs={24} sm={8}>
+              <div className="text-center">
+                <Text type="secondary" className="block text-sm">
+                  {t('totalWeight')}
+                </Text>
+                <Text strong className="text-xl">
+                  {formatDecimal(totals.totalWeight, 2, locale)} g
+                </Text>
+              </div>
+            </Col>
+            <Col xs={24} sm={8}>
+              <div className="text-center">
+                <Text type="secondary" className="block text-sm">
+                  {t('grandTotal')}
+                </Text>
+                <Title level={3} className="!mb-0 text-amber-700">
+                  {formatCurrency(totals.totalAmount, currency, locale)}
+                </Title>
+              </div>
+            </Col>
+          </Row>
         </div>
-      </Card>
-
-      {/* Invoice Images */}
-      <Card
-        title={
-          <div className="flex items-center gap-2">
-            <FileImageOutlined className="text-amber-500" />
-            <span>{t('invoiceImages.title')}</span>
-          </div>
-        }
-        className="border border-stone-200"
-      >
-        <InvoiceImageUpload
-          purchaseId={isEditing ? (purchaseId ?? null) : null}
-          onFilesChange={handleInvoiceImagesChange}
-          maxFiles={10}
-          disabled={isSubmitting}
-        />
       </Card>
 
       {/* Notes */}
@@ -601,6 +858,25 @@ export function PurchaseForm({
         >
           {isEditing ? tCommon('actions.save') : t('createPurchase')}
         </Button>
+      </div>
+
+      {/* Hidden Print Areas */}
+      {/* Single barcode print area */}
+      <div className="hidden">
+        <div ref={singlePrintRef} className="p-4">
+          {printingItem && <PrintableBarcodeLabel item={printingItem} shopName={shopName} />}
+        </div>
+      </div>
+
+      {/* Bulk barcode print area */}
+      <div className="hidden">
+        <div ref={bulkPrintRef} className="p-4">
+          <div className="grid grid-cols-3 gap-4">
+            {items.map((item) => (
+              <PrintableBarcodeLabel key={item.id} item={item} shopName={shopName} />
+            ))}
+          </div>
+        </div>
       </div>
     </Form>
   );

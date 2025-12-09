@@ -4,10 +4,11 @@
  * TransferForm Component
  *
  * Drawer form for creating new shop transfers.
- * Allows selecting destination shop and items to transfer.
+ * Supports both outgoing and incoming transfers.
  *
  * Features:
- * - Select destination shop (from neighbor_shops)
+ * - Direction toggle (outgoing/incoming)
+ * - Select source/destination shop (from neighbor_shops)
  * - Select items to transfer (multi-select from inventory)
  * - Notes field
  * - Submit creates transfer with status "pending"
@@ -16,10 +17,18 @@
  * @module components/domain/transfers/TransferForm
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 
-import { SwapOutlined, ShopOutlined, FileTextOutlined } from '@ant-design/icons';
-import { Drawer, Form, Select, Input, message, Divider, Alert } from 'antd';
+import {
+  SwapOutlined,
+  ShopOutlined,
+  FileTextOutlined,
+  ArrowRightOutlined,
+  ArrowLeftOutlined,
+  ExportOutlined,
+  ImportOutlined,
+} from '@ant-design/icons';
+import { Drawer, Form, Select, Input, message, Divider, Alert, Segmented } from 'antd';
 import { useTranslations } from 'next-intl';
 
 import { TransferItemSelector } from '@/components/domain/transfers/TransferItemSelector';
@@ -28,6 +37,7 @@ import {
   useNeighborShops,
   useCreateTransfer,
   getNeighborDisplayName,
+  type TransferDirection,
 } from '@/lib/hooks/data/useTransfers';
 import { useShop } from '@/lib/hooks/shop';
 
@@ -47,6 +57,7 @@ interface TransferFormProps {
 }
 
 interface TransferFormValues {
+  direction: TransferDirection;
   neighborId: string;
   itemIds: string[];
   notes?: string;
@@ -66,6 +77,9 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
   const { shop } = useShop();
   const [form] = Form.useForm<TransferFormValues>();
 
+  // Direction state
+  const [direction, setDirection] = useState<TransferDirection>('outgoing');
+
   // Selected items state
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
 
@@ -79,6 +93,32 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
 
   // Derived state
   const isSubmitting = createMutation.isPending;
+  const isOutgoing = direction === 'outgoing';
+
+  // Direction options for segmented control
+  const directionOptions = useMemo(
+    () => [
+      {
+        label: (
+          <span className="flex items-center gap-2 px-2">
+            <ExportOutlined />
+            <span>{t('outgoingTransfer')}</span>
+          </span>
+        ),
+        value: 'outgoing' as TransferDirection,
+      },
+      {
+        label: (
+          <span className="flex items-center gap-2 px-2">
+            <ImportOutlined />
+            <span>{t('incomingTransfer')}</span>
+          </span>
+        ),
+        value: 'incoming' as TransferDirection,
+      },
+    ],
+    [t]
+  );
 
   // ==========================================================================
   // EFFECTS
@@ -89,6 +129,7 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
     if (open) {
       form.resetFields();
       setSelectedItemIds([]);
+      setDirection('outgoing');
     }
   }, [open, form]);
 
@@ -99,8 +140,19 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
   const handleClose = useCallback(() => {
     form.resetFields();
     setSelectedItemIds([]);
+    setDirection('outgoing');
     onClose();
   }, [form, onClose]);
+
+  const handleDirectionChange = useCallback(
+    (value: TransferDirection) => {
+      setDirection(value);
+      form.setFieldValue('direction', value);
+      // Clear neighbor selection when direction changes
+      form.setFieldValue('neighborId', undefined);
+    },
+    [form]
+  );
 
   const handleItemsChange = useCallback(
     (itemIds: string[]) => {
@@ -123,6 +175,7 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
         neighborId: values.neighborId,
         itemIds: selectedItemIds,
         notes: values.notes?.trim() || undefined,
+        direction,
       });
 
       message.success(t('transferCreated'));
@@ -135,17 +188,32 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
         message.error(tCommon('messages.operationFailed'));
       }
     }
-  }, [form, selectedItemIds, createMutation, t, tCommon, handleClose, onSuccess]);
+  }, [form, selectedItemIds, createMutation, t, tCommon, handleClose, onSuccess, direction]);
 
   // ==========================================================================
   // RENDER
   // ==========================================================================
 
-  // Build destination shop options
-  const destinationOptions = neighborShops.map((ns) => ({
+  // Build neighbor shop options
+  const neighborOptions = neighborShops.map((ns) => ({
     label: getNeighborDisplayName(ns),
     value: ns.id_neighbor,
   }));
+
+  // Dynamic labels based on direction
+  const shopInfoLabel = isOutgoing ? t('transferFrom') : t('transferTo');
+  const neighborLabel = isOutgoing ? t('toShop') : t('fromShop');
+  const neighborPlaceholder = isOutgoing ? t('selectDestinationShop') : t('selectSourceShop');
+  const sectionTitle = isOutgoing ? t('selectDestination') : t('selectSource');
+
+  // Direction-based styling
+  const directionIcon = isOutgoing ? (
+    <ArrowRightOutlined className="text-amber-500" />
+  ) : (
+    <ArrowLeftOutlined className="text-emerald-500" />
+  );
+  const alertType = isOutgoing ? ('warning' as const) : ('success' as const);
+  const alertIconColor = isOutgoing ? 'text-amber-500' : 'text-emerald-500';
 
   return (
     <Drawer
@@ -180,32 +248,52 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
       }
     >
       <Form form={form} layout="vertical" requiredMark="optional" className="mt-4">
-        {/* Source Shop Info */}
+        {/* Direction Selector */}
+        <div className="mb-6">
+          <Segmented
+            block
+            value={direction}
+            onChange={(value) => handleDirectionChange(value as TransferDirection)}
+            options={directionOptions}
+            className={isOutgoing ? 'transfer-direction-outgoing' : 'transfer-direction-incoming'}
+          />
+        </div>
+
+        {/* Direction Description Alert */}
         <Alert
           type="info"
           showIcon
-          icon={<ShopOutlined />}
-          message={t('transferFrom')}
+          icon={directionIcon}
+          message={isOutgoing ? t('outgoingDescription') : t('incomingDescription')}
+          className="mb-4"
+        />
+
+        {/* Current Shop Info */}
+        <Alert
+          type={alertType}
+          showIcon
+          icon={<ShopOutlined className={alertIconColor} />}
+          message={shopInfoLabel}
           description={shop?.shop_name || '-'}
           className="mb-4"
         />
 
-        {/* Destination Shop Selection */}
+        {/* Neighbor Shop Selection */}
         <Divider orientation="left" className="!text-sm !text-stone-500">
           <span className="flex items-center gap-2">
             <ShopOutlined />
-            {t('selectDestination')}
+            {sectionTitle}
           </span>
         </Divider>
 
         <Form.Item
           name="neighborId"
-          label={t('toShop')}
+          label={neighborLabel}
           rules={[{ required: true, message: tCommon('validation.required') }]}
         >
           <Select
-            placeholder={t('selectDestinationShop')}
-            options={destinationOptions}
+            placeholder={neighborPlaceholder}
+            options={neighborOptions}
             loading={neighborShopsLoading}
             showSearch
             optionFilterProp="label"
