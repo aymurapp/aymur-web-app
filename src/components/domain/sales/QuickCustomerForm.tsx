@@ -26,7 +26,6 @@ import { type z } from 'zod';
 
 import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form';
-import { useUser } from '@/lib/hooks/auth';
 import { useCreateCustomer } from '@/lib/hooks/data/useCustomers';
 import type { Customer } from '@/lib/hooks/data/useCustomers';
 import { cn } from '@/lib/utils/cn';
@@ -67,10 +66,7 @@ export function QuickCustomerForm({
   const tCommon = useTranslations('common');
   const [isPending, startTransition] = useTransition();
 
-  // Get current user for created_by field
-  const { user } = useUser();
-
-  // Mutation hook
+  // Mutation hook - handles created_by internally
   const createCustomer = useCreateCustomer();
 
   // Check if form is submitting
@@ -81,20 +77,15 @@ export function QuickCustomerForm({
    */
   const handleSubmit = useCallback(
     async (data: QuickCustomerFormValues) => {
-      if (!user?.id_user) {
-        message.error(t('messages.createError'));
-        return;
-      }
-
       startTransition(async () => {
         try {
           // Create customer with minimal data
+          // Note: created_by is handled automatically by useCreateCustomer hook
           const result = await createCustomer.mutateAsync({
             full_name: data.full_name.trim(),
             phone: data.phone.trim(),
             email: data.email?.trim() || null,
             client_type: data.client_type || 'individual',
-            created_by: user.id_user,
           });
 
           message.success(t('messages.createSuccess'));
@@ -105,7 +96,7 @@ export function QuickCustomerForm({
         }
       });
     },
-    [createCustomer, t, onSuccess, user]
+    [createCustomer, t, onSuccess]
   );
 
   return (
