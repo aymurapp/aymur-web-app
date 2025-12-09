@@ -817,7 +817,7 @@ export function PurchaseForm({
             try {
               await linkFiles.mutateAsync({
                 fileIds: uploadedInvoiceImages.map((f) => f.id_file),
-                entityType: 'purchase',
+                entityType: 'purchases',
                 entityId: result.id_purchase,
               });
             } catch (linkError) {

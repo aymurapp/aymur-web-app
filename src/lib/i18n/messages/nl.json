@@ -352,6 +352,7 @@
     "vipDescription": "Prioritaire service en speciale aanbiedingen",
     "sections": {
       "basicInfo": "Basisinformatie",
+      "contactInfo": "Contactgegevens",
       "address": "Adres",
       "socialMedia": "Sociale media",
       "businessInfo": "Zakelijke informatie",
@@ -399,7 +400,10 @@
       "updateSuccess": "Klant succesvol bijgewerkt",
       "updateError": "Klant bijwerken mislukt",
       "deleteSuccess": "Klant succesvol verwijderd",
-      "deleteError": "Klant verwijderen mislukt"
+      "deleteError": "Klant verwijderen mislukt",
+      "loadError": "Laden van klantgegevens mislukt",
+      "notFound": "Klant niet gevonden",
+      "notFoundDescription": "De klant die u zoekt bestaat niet of is verwijderd."
     },
     "segments": {
       "title": "Klantsegmenten",
@@ -422,7 +426,25 @@
       "limit": "Kredietlimiet",
       "available": "Beschikbaar krediet",
       "addPayment": "Betaling toevoegen",
-      "viewStatement": "Overzicht bekijken"
+      "viewStatement": "Overzicht bekijken",
+      "debit": "Debet",
+      "credit": "Credit"
+    },
+    "vipStatus": "VIP-status",
+    "financialStatus": "Financiele status",
+    "totalPurchases": "Totaal aankopen",
+    "totalPayments": "Totaal betalingen",
+    "noTransactions": "Geen transacties geregistreerd",
+    "salesHistory": "Verkoopgeschiedenis",
+    "paymentHistory": "Betalingsgeschiedenis",
+    "backToCustomers": "Terug naar klanten",
+    "deleteConfirmTitle": "Klant verwijderen",
+    "deleteConfirmDescription": "Weet u zeker dat u deze klant wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+    "tabs": {
+      "overview": "Overzicht",
+      "transactions": "Transacties",
+      "sales": "Verkopen",
+      "payments": "Betalingen"
     }
   },
   "settings": {

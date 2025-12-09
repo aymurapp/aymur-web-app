@@ -29,14 +29,18 @@ import { createClient } from '@/lib/supabase/client';
 
 /**
  * Entity types that can have file attachments
+ * Must match the database constraint: chk_file_uploads_entity_type
  */
 export type FileEntityType =
-  | 'purchase'
-  | 'customer'
-  | 'inventory_item'
-  | 'expense'
-  | 'workshop_order'
-  | 'sale';
+  | 'purchases'
+  | 'customers'
+  | 'inventory_items'
+  | 'item_certifications'
+  | 'sales'
+  | 'workshop_orders'
+  | 'expenses'
+  | 'suppliers'
+  | 'profile';
 
 /**
  * File upload record from the database

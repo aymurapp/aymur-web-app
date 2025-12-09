@@ -448,6 +448,7 @@
     "vipDescription": "خدمة متميزة وعروض خاصة",
     "sections": {
       "basicInfo": "المعلومات الاساسية",
+      "contactInfo": "معلومات الاتصال",
       "address": "العنوان",
       "socialMedia": "وسائل التواصل الاجتماعي",
       "businessInfo": "معلومات العمل",
@@ -495,7 +496,10 @@
       "updateSuccess": "تم تحديث العميل بنجاح",
       "updateError": "فشل تحديث العميل",
       "deleteSuccess": "تم حذف العميل بنجاح",
-      "deleteError": "فشل حذف العميل"
+      "deleteError": "فشل حذف العميل",
+      "loadError": "فشل تحميل بيانات العميل",
+      "notFound": "العميل غير موجود",
+      "notFoundDescription": "العميل الذي تبحث عنه غير موجود او تم حذفه."
     },
     "segments": {
       "title": "شرائح العملاء",
@@ -518,7 +522,25 @@
       "limit": "حد الائتمان",
       "available": "الائتمان المتاح",
       "addPayment": "اضافة دفعة",
-      "viewStatement": "عرض كشف الحساب"
+      "viewStatement": "عرض كشف الحساب",
+      "debit": "مدين",
+      "credit": "دائن"
+    },
+    "vipStatus": "حالة VIP",
+    "financialStatus": "الحالة المالية",
+    "totalPurchases": "اجمالي المشتريات",
+    "totalPayments": "اجمالي المدفوعات",
+    "noTransactions": "لا توجد معاملات مسجلة",
+    "salesHistory": "سجل المبيعات",
+    "paymentHistory": "سجل المدفوعات",
+    "backToCustomers": "العودة للعملاء",
+    "deleteConfirmTitle": "حذف العميل",
+    "deleteConfirmDescription": "هل انت متاكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الاجراء.",
+    "tabs": {
+      "overview": "نظرة عامة",
+      "transactions": "المعاملات",
+      "sales": "المبيعات",
+      "payments": "المدفوعات"
     }
   },
   "settings": {

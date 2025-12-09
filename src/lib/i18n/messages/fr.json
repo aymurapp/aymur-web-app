@@ -352,6 +352,7 @@
     "vipDescription": "Service prioritaire et offres speciales",
     "sections": {
       "basicInfo": "Informations de base",
+      "contactInfo": "Coordonnees",
       "address": "Adresse",
       "socialMedia": "Reseaux sociaux",
       "businessInfo": "Informations commerciales",
@@ -399,7 +400,10 @@
       "updateSuccess": "Client mis a jour avec succes",
       "updateError": "Echec de la mise a jour du client",
       "deleteSuccess": "Client supprime avec succes",
-      "deleteError": "Echec de la suppression du client"
+      "deleteError": "Echec de la suppression du client",
+      "loadError": "Echec du chargement des donnees client",
+      "notFound": "Client introuvable",
+      "notFoundDescription": "Le client que vous recherchez n'existe pas ou a ete supprime."
     },
     "segments": {
       "title": "Segments de clients",
@@ -422,7 +426,25 @@
       "limit": "Limite de credit",
       "available": "Credit disponible",
       "addPayment": "Ajouter un paiement",
-      "viewStatement": "Voir le releve"
+      "viewStatement": "Voir le releve",
+      "debit": "Debit",
+      "credit": "Credit"
+    },
+    "vipStatus": "Statut VIP",
+    "financialStatus": "Statut financier",
+    "totalPurchases": "Total des achats",
+    "totalPayments": "Total des paiements",
+    "noTransactions": "Aucune transaction enregistree",
+    "salesHistory": "Historique des ventes",
+    "paymentHistory": "Historique des paiements",
+    "backToCustomers": "Retour aux clients",
+    "deleteConfirmTitle": "Supprimer le client",
+    "deleteConfirmDescription": "Etes-vous sur de vouloir supprimer ce client? Cette action est irreversible.",
+    "tabs": {
+      "overview": "Apercu",
+      "transactions": "Transactions",
+      "sales": "Ventes",
+      "payments": "Paiements"
     }
   },
   "settings": {

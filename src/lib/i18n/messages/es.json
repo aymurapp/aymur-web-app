@@ -352,6 +352,7 @@
     "vipDescription": "Servicio prioritario y ofertas especiales",
     "sections": {
       "basicInfo": "Informacion basica",
+      "contactInfo": "Informacion de contacto",
       "address": "Direccion",
       "socialMedia": "Redes sociales",
       "businessInfo": "Informacion comercial",
@@ -399,7 +400,10 @@
       "updateSuccess": "Cliente actualizado con exito",
       "updateError": "Error al actualizar el cliente",
       "deleteSuccess": "Cliente eliminado con exito",
-      "deleteError": "Error al eliminar el cliente"
+      "deleteError": "Error al eliminar el cliente",
+      "loadError": "Error al cargar los datos del cliente",
+      "notFound": "Cliente no encontrado",
+      "notFoundDescription": "El cliente que busca no existe o ha sido eliminado."
     },
     "segments": {
       "title": "Segmentos de clientes",
@@ -422,7 +426,25 @@
       "limit": "Limite de credito",
       "available": "Credito disponible",
       "addPayment": "Agregar pago",
-      "viewStatement": "Ver estado de cuenta"
+      "viewStatement": "Ver estado de cuenta",
+      "debit": "Debito",
+      "credit": "Credito"
+    },
+    "vipStatus": "Estado VIP",
+    "financialStatus": "Estado financiero",
+    "totalPurchases": "Total de compras",
+    "totalPayments": "Total de pagos",
+    "noTransactions": "No hay transacciones registradas",
+    "salesHistory": "Historial de ventas",
+    "paymentHistory": "Historial de pagos",
+    "backToCustomers": "Volver a clientes",
+    "deleteConfirmTitle": "Eliminar cliente",
+    "deleteConfirmDescription": "¿Está seguro de que desea eliminar este cliente? Esta acción no se puede deshacer.",
+    "tabs": {
+      "overview": "Resumen",
+      "transactions": "Transacciones",
+      "sales": "Ventas",
+      "payments": "Pagos"
     }
   },
   "settings": {

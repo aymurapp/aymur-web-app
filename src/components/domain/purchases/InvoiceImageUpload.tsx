@@ -112,7 +112,7 @@ export function InvoiceImageUpload({
   const { uploadFileAsync, isUploading } = useUploadFile();
   const deleteFileMutation = useDeleteFile();
   const { data: existingFiles = [], isLoading: isLoadingFiles } = useEntityFiles(
-    'purchase',
+    'purchases',
     purchaseId
   );
 
@@ -175,7 +175,7 @@ export function InvoiceImageUpload({
         const result = await uploadFileAsync({
           file,
           options: {
-            entityType: 'purchase',
+            entityType: 'purchases',
             entityId: purchaseId,
           },
         });
@@ -236,7 +236,7 @@ export function InvoiceImageUpload({
         await deleteFileMutation.mutateAsync({
           fileId: file.fileId,
           filePath: file.filePath,
-          entityType: 'purchase',
+          entityType: 'purchases',
           entityId: purchaseId ?? undefined,
         });
 
