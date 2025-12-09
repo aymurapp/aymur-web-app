@@ -371,7 +371,8 @@
       "instagram": "gebruikersnaam",
       "facebook": "Profielnaam of URL",
       "whatsapp": "+1234567890",
-      "tiktok": "gebruikersnaam"
+      "tiktok": "gebruikersnaam",
+      "idCard": "Voer identiteitskaartnummer in"
     },
     "socialMedia": {
       "instagram": "Instagram",
@@ -381,6 +382,7 @@
       "hint": "Voeg sociale media-accounts toe om eenvoudig contact op te nemen met de klant"
     },
     "idCard": {
+      "number": "Identiteitskaartnummer",
       "front": "Identiteitskaart (Voorkant)",
       "back": "Identiteitskaart (Achterkant)",
       "uploadFront": "Voorkant uploaden",
@@ -1231,7 +1233,27 @@
     "transferReceived": "Overdracht succesvol ontvangen",
     "transferRejected": "Overdracht afgewezen",
     "validation": {
-      "selectItems": "Selecteer ten minste één artikel om over te dragen"
+      "selectItems": "Selecteer ten minste één artikel om over te dragen",
+      "addItems": "Voeg ten minste één artikel toe aan de overdracht",
+      "completeItemDetails": "Vul alle verplichte velden in voor elk artikel (naam en waarde)"
+    },
+    "addItem": "Artikel toevoegen",
+    "removeItem": "Artikel verwijderen",
+    "noItemsAdded": "Nog geen artikelen toegevoegd",
+    "addItemsToTransfer": "Klik op de knop hieronder om artikelen toe te voegen aan deze overdracht",
+    "manualEntry": {
+      "title": "Artikelen invoeren",
+      "item": "Artikel",
+      "itemName": "Artikelnaam",
+      "itemNamePlaceholder": "Voer artikelnaam in...",
+      "itemSku": "SKU",
+      "itemSkuPlaceholder": "Voer SKU in (optioneel)...",
+      "weightGrams": "Gewicht (gram)",
+      "metalType": "Metaaltype",
+      "metalPurity": "Metaalzuiverheid",
+      "categoryName": "Categorie",
+      "itemValue": "Artikelwaarde",
+      "helpText": "Voor inkomende overdrachten, voer de details in van de artikelen die u verwacht te ontvangen. Artikelen worden aan uw voorraad toegevoegd wanneer de overdracht is voltooid."
     },
     "filters": {
       "allStatuses": "Alle statussen",

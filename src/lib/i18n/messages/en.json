@@ -935,7 +935,8 @@
       "instagram": "username",
       "facebook": "Profile name or URL",
       "whatsapp": "+1234567890",
-      "tiktok": "username"
+      "tiktok": "username",
+      "idCard": "Enter ID card number"
     },
     "socialMedia": {
       "instagram": "Instagram",
@@ -945,6 +946,7 @@
       "hint": "Add social media accounts to easily contact the customer"
     },
     "idCard": {
+      "number": "ID Card Number",
       "front": "ID Card (Front)",
       "back": "ID Card (Back)",
       "uploadFront": "Upload front side",
@@ -1563,7 +1565,27 @@
     "transferReceived": "Transfer received successfully",
     "transferRejected": "Transfer rejected",
     "validation": {
-      "selectItems": "Please select at least one item to transfer"
+      "selectItems": "Please select at least one item to transfer",
+      "addItems": "Please add at least one item to the transfer",
+      "completeItemDetails": "Please complete all required fields for each item (name and value)"
+    },
+    "addItem": "Add Item",
+    "removeItem": "Remove Item",
+    "noItemsAdded": "No items added yet",
+    "addItemsToTransfer": "Click the button below to add items to this transfer",
+    "manualEntry": {
+      "title": "Enter Items",
+      "item": "Item",
+      "itemName": "Item Name",
+      "itemNamePlaceholder": "Enter item name...",
+      "itemSku": "SKU",
+      "itemSkuPlaceholder": "Enter SKU (optional)...",
+      "weightGrams": "Weight (grams)",
+      "metalType": "Metal Type",
+      "metalPurity": "Metal Purity",
+      "categoryName": "Category",
+      "itemValue": "Item Value",
+      "helpText": "For incoming transfers, enter the details of items you expect to receive. Items will be added to your inventory when the transfer is completed."
     },
     "filters": {
       "allStatuses": "All Statuses",

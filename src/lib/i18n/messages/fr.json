@@ -371,7 +371,8 @@
       "instagram": "nom d'utilisateur",
       "facebook": "Nom du profil ou URL",
       "whatsapp": "+1234567890",
-      "tiktok": "nom d'utilisateur"
+      "tiktok": "nom d'utilisateur",
+      "idCard": "Entrez le numero de carte d'identite"
     },
     "socialMedia": {
       "instagram": "Instagram",
@@ -381,6 +382,7 @@
       "hint": "Ajoutez des comptes de reseaux sociaux pour contacter facilement le client"
     },
     "idCard": {
+      "number": "Numero de carte d'identite",
       "front": "Carte d'identite (Recto)",
       "back": "Carte d'identite (Verso)",
       "uploadFront": "Telecharger le recto",
@@ -1231,7 +1233,27 @@
     "transferReceived": "Transfert reçu avec succès",
     "transferRejected": "Transfert rejeté",
     "validation": {
-      "selectItems": "Veuillez sélectionner au moins un article à transférer"
+      "selectItems": "Veuillez sélectionner au moins un article à transférer",
+      "addItems": "Veuillez ajouter au moins un article au transfert",
+      "completeItemDetails": "Veuillez compléter tous les champs requis pour chaque article (nom et valeur)"
+    },
+    "addItem": "Ajouter un article",
+    "removeItem": "Supprimer l'article",
+    "noItemsAdded": "Aucun article ajouté",
+    "addItemsToTransfer": "Cliquez sur le bouton ci-dessous pour ajouter des articles à ce transfert",
+    "manualEntry": {
+      "title": "Saisir les articles",
+      "item": "Article",
+      "itemName": "Nom de l'article",
+      "itemNamePlaceholder": "Entrez le nom de l'article...",
+      "itemSku": "SKU",
+      "itemSkuPlaceholder": "Entrez le SKU (optionnel)...",
+      "weightGrams": "Poids (grammes)",
+      "metalType": "Type de métal",
+      "metalPurity": "Pureté du métal",
+      "categoryName": "Catégorie",
+      "itemValue": "Valeur de l'article",
+      "helpText": "Pour les transferts entrants, saisissez les détails des articles que vous attendez de recevoir. Les articles seront ajoutés à votre stock une fois le transfert terminé."
     },
     "filters": {
       "allStatuses": "Tous les statuts",

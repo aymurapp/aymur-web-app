@@ -202,6 +202,18 @@ export const taxIdSchema = z
   .transform((val) => val?.trim() || null);
 
 /**
+ * ID Card number validation - varchar(50), optional
+ * Alphanumeric with dashes allowed for various ID card formats
+ */
+export const idCardSchema = z
+  .string()
+  .max(50, 'ID card number cannot exceed 50 characters')
+  .regex(/^[a-zA-Z0-9-]*$/, 'ID card number can only contain letters, numbers, and hyphens')
+  .optional()
+  .nullable()
+  .transform((val) => val?.trim() || null);
+
+/**
  * Credit limit validation - numeric(15,4), non-negative
  * This is a permission-based field that may require special access to modify
  */
@@ -275,6 +287,9 @@ const customerBaseSchema = z.object({
 
   // Tax ID (typically for companies)
   tax_id: taxIdSchema,
+
+  // ID Card number
+  id_card: idCardSchema,
 
   // Notes
   notes: customerNotesSchema,

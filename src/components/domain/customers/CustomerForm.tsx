@@ -63,6 +63,7 @@ import {
   facebookSchema,
   whatsappSchema,
   tiktokSchema,
+  idCardSchema,
   type ClientType,
 } from '@/lib/utils/schemas/customer';
 
@@ -87,6 +88,8 @@ interface ExtendedCustomer extends Customer {
   postal_code?: string | null;
   city?: string | null;
   area?: string | null;
+  // ID Card number
+  id_card?: string | null;
 }
 
 // =============================================================================
@@ -110,6 +113,8 @@ const customerFormSchema = customerSchema.extend({
   tiktok: tiktokSchema,
   // Credit field (permission-based, validated on server)
   credit_limit: creditLimitFieldSchema.optional(),
+  // ID card number
+  id_card: idCardSchema,
   // ID card images (stored as URLs after upload)
   id_card_front: z.string().nullable().optional(),
   id_card_back: z.string().nullable().optional(),
@@ -330,6 +335,8 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
             facebook: data.facebook || null,
             whatsapp: data.whatsapp || null,
             tiktok: data.tiktok || null,
+            // ID card number
+            id_card: data.id_card || null,
           };
 
           // Add optional fields if user has permission
@@ -417,6 +424,8 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
         tiktok: customer?.tiktok || '',
         // Credit limit (only for edit mode if user has permission)
         credit_limit: customer?.credit_limit || 0,
+        // ID card number
+        id_card: customer?.id_card || '',
       }}
       className="space-y-6"
     >
@@ -671,6 +680,17 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
         <Title level={5} className="mb-4 text-stone-800">
           {t('sections.documents')}
         </Title>
+
+        {/* ID Card Number */}
+        <Form.Item<CustomerFormValues> name="id_card" label={t('idCard.number')}>
+          <Input
+            size="large"
+            placeholder={t('placeholders.idCard')}
+            maxLength={50}
+            prefix={<IdcardOutlined className="text-stone-400" />}
+            dir="ltr"
+          />
+        </Form.Item>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* ID Card Front */}

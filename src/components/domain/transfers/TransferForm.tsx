@@ -9,7 +9,8 @@
  * Features:
  * - Direction toggle (outgoing/incoming)
  * - Select source/destination shop (from neighbor_shops)
- * - Select items to transfer (multi-select from inventory)
+ * - For outgoing: Select items from inventory (TransferItemSelector)
+ * - For incoming: Manually enter item details (ManualItemEntry)
  * - Notes field
  * - Submit creates transfer with status "pending"
  * - RTL support
@@ -27,10 +28,12 @@ import {
   ArrowLeftOutlined,
   ExportOutlined,
   ImportOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import { Drawer, Form, Select, Input, message, Divider, Alert, Segmented } from 'antd';
 import { useTranslations } from 'next-intl';
 
+import { ManualItemEntry, type ManualItem } from '@/components/domain/transfers/ManualItemEntry';
 import { TransferItemSelector } from '@/components/domain/transfers/TransferItemSelector';
 import { Button } from '@/components/ui/Button';
 import {
@@ -59,7 +62,7 @@ interface TransferFormProps {
 interface TransferFormValues {
   direction: TransferDirection;
   neighborId: string;
-  itemIds: string[];
+  itemIds?: string[];
   notes?: string;
 }
 
@@ -80,8 +83,11 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
   // Direction state
   const [direction, setDirection] = useState<TransferDirection>('outgoing');
 
-  // Selected items state
+  // Selected items state (for outgoing transfers)
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+
+  // Manual items state (for incoming transfers)
+  const [manualItems, setManualItems] = useState<ManualItem[]>([]);
 
   // Mutations
   const createMutation = useCreateTransfer();
@@ -94,6 +100,19 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
   // Derived state
   const isSubmitting = createMutation.isPending;
   const isOutgoing = direction === 'outgoing';
+
+  // Check if we have valid items for submission
+  const hasValidItems = useMemo(() => {
+    if (isOutgoing) {
+      return selectedItemIds.length > 0;
+    } else {
+      // For incoming, check that we have at least one item with required fields
+      return (
+        manualItems.length > 0 &&
+        manualItems.every((item) => item.item_name.trim() !== '' && item.item_value > 0)
+      );
+    }
+  }, [isOutgoing, selectedItemIds, manualItems]);
 
   // Direction options for segmented control
   const directionOptions = useMemo(
@@ -129,6 +148,7 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
     if (open) {
       form.resetFields();
       setSelectedItemIds([]);
+      setManualItems([]);
       setDirection('outgoing');
     }
   }, [open, form]);
@@ -140,6 +160,7 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
   const handleClose = useCallback(() => {
     form.resetFields();
     setSelectedItemIds([]);
+    setManualItems([]);
     setDirection('outgoing');
     onClose();
   }, [form, onClose]);
@@ -150,6 +171,9 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
       form.setFieldValue('direction', value);
       // Clear neighbor selection when direction changes
       form.setFieldValue('neighborId', undefined);
+      // Clear items when direction changes
+      setSelectedItemIds([]);
+      setManualItems([]);
     },
     [form]
   );
@@ -162,18 +186,41 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
     [form]
   );
 
+  const handleManualItemsChange = useCallback((items: ManualItem[]) => {
+    setManualItems(items);
+  }, []);
+
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
 
-      if (selectedItemIds.length === 0) {
-        message.error(t('validation.selectItems'));
-        return;
+      // Validate items based on direction
+      if (isOutgoing) {
+        if (selectedItemIds.length === 0) {
+          message.error(t('validation.selectItems'));
+          return;
+        }
+      } else {
+        // Incoming transfer validation
+        if (manualItems.length === 0) {
+          message.error(t('validation.addItems'));
+          return;
+        }
+
+        // Check that all manual items have required fields
+        const invalidItems = manualItems.filter(
+          (item) => !item.item_name.trim() || item.item_value <= 0
+        );
+        if (invalidItems.length > 0) {
+          message.error(t('validation.completeItemDetails'));
+          return;
+        }
       }
 
       await createMutation.mutateAsync({
         neighborId: values.neighborId,
-        itemIds: selectedItemIds,
+        itemIds: isOutgoing ? selectedItemIds : undefined,
+        manualItems: isOutgoing ? undefined : manualItems,
         notes: values.notes?.trim() || undefined,
         direction,
       });
@@ -188,7 +235,18 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
         message.error(tCommon('messages.operationFailed'));
       }
     }
-  }, [form, selectedItemIds, createMutation, t, tCommon, handleClose, onSuccess, direction]);
+  }, [
+    form,
+    isOutgoing,
+    selectedItemIds,
+    manualItems,
+    createMutation,
+    t,
+    tCommon,
+    handleClose,
+    onSuccess,
+    direction,
+  ]);
 
   // ==========================================================================
   // RENDER
@@ -205,6 +263,13 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
   const neighborLabel = isOutgoing ? t('toShop') : t('fromShop');
   const neighborPlaceholder = isOutgoing ? t('selectDestinationShop') : t('selectSourceShop');
   const sectionTitle = isOutgoing ? t('selectDestination') : t('selectSource');
+
+  // Items section title
+  const itemsSectionTitle = isOutgoing
+    ? `${t('selectItems')} (${selectedItemIds.length} ${t('selected')})`
+    : `${t('manualEntry.title')} (${manualItems.length} ${t('items')})`;
+
+  const itemsSectionIcon = isOutgoing ? <SwapOutlined /> : <EditOutlined />;
 
   // Direction-based styling
   const directionIcon = isOutgoing ? (
@@ -239,7 +304,7 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
             type="primary"
             onClick={handleSubmit}
             loading={isSubmitting}
-            disabled={selectedItemIds.length === 0}
+            disabled={!hasValidItems}
             permission="inventory.transfer"
           >
             {tCommon('actions.create')}
@@ -304,29 +369,43 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
           />
         </Form.Item>
 
-        {/* Items Selection */}
+        {/* Items Selection/Entry */}
         <Divider orientation="left" className="!text-sm !text-stone-500">
           <span className="flex items-center gap-2">
-            <SwapOutlined />
-            {t('selectItems')} ({selectedItemIds.length} {t('selected')})
+            {itemsSectionIcon}
+            {itemsSectionTitle}
           </span>
         </Divider>
 
-        <Form.Item
-          name="itemIds"
-          rules={[
-            {
-              validator: () => {
-                if (selectedItemIds.length === 0) {
-                  return Promise.reject(new Error(t('validation.selectItems')));
-                }
-                return Promise.resolve();
+        {isOutgoing ? (
+          /* Outgoing Transfer: Select from inventory */
+          <Form.Item
+            name="itemIds"
+            rules={[
+              {
+                validator: () => {
+                  if (selectedItemIds.length === 0) {
+                    return Promise.reject(new Error(t('validation.selectItems')));
+                  }
+                  return Promise.resolve();
+                },
               },
-            },
-          ]}
-        >
-          <TransferItemSelector selectedItemIds={selectedItemIds} onChange={handleItemsChange} />
-        </Form.Item>
+            ]}
+          >
+            <TransferItemSelector
+              selectedItemIds={selectedItemIds}
+              onChange={handleItemsChange}
+              disabled={isSubmitting}
+            />
+          </Form.Item>
+        ) : (
+          /* Incoming Transfer: Manual item entry */
+          <ManualItemEntry
+            items={manualItems}
+            onChange={handleManualItemsChange}
+            disabled={isSubmitting}
+          />
+        )}
 
         {/* Notes */}
         <Divider orientation="left" className="!text-sm !text-stone-500">

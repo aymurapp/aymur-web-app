@@ -687,19 +687,55 @@ export function useNeighborShops(options: UseNeighborShopsOptions = {}): UseNeig
 // =============================================================================
 
 /**
+ * Manual item input for incoming transfers (items that don't exist in inventory yet)
+ */
+export interface ManualTransferItem {
+  /** Temporary client-side ID (not saved to DB) */
+  tempId: string;
+  /** Item name (required) */
+  item_name: string;
+  /** Item SKU (optional) */
+  item_sku?: string;
+  /** Weight in grams (optional) */
+  weight_grams?: number;
+  /** Metal type name (optional) */
+  metal_type?: string;
+  /** Metal purity name (optional) */
+  metal_purity?: string;
+  /** Category name (optional) */
+  category_name?: string;
+  /** Item value (required) */
+  item_value: number;
+}
+
+/**
+ * Input data for creating a transfer
+ * - For outgoing transfers: provide itemIds (existing inventory items)
+ * - For incoming transfers: provide manualItems (items to be created)
+ */
+export interface CreateTransferInput {
+  neighborId: string;
+  /** Item IDs from inventory (for outgoing transfers) */
+  itemIds?: string[];
+  /** Manual item entries (for incoming transfers) */
+  manualItems?: ManualTransferItem[];
+  notes?: string;
+  direction?: TransferDirection;
+}
+
+/**
  * Hook to create a new transfer
+ *
+ * Supports two modes:
+ * 1. Outgoing transfers: Select existing items from inventory (itemIds)
+ * 2. Incoming transfers: Manually enter items that will be received (manualItems)
  */
 export function useCreateTransfer() {
   const { shopId } = useShop();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      neighborId: string;
-      itemIds: string[];
-      notes?: string;
-      direction?: TransferDirection;
-    }) => {
+    mutationFn: async (data: CreateTransferInput) => {
       if (!shopId) {
         throw new Error('No shop context available');
       }
@@ -725,77 +761,169 @@ export function useCreateTransfer() {
         throw new Error('User not found');
       }
 
-      // Fetch selected inventory items for denormalized data
-      // Note: metal_type and metal_purity are FKs, need to join with their tables
-      const { data: inventoryItems, error: itemsFetchError } = await supabase
-        .from('inventory_items')
-        .select(
-          `
-          id_item,
-          item_name,
-          sku,
-          weight_grams,
-          purchase_price,
-          id_metal_type,
-          id_metal_purity,
-          metal_type_rel:metal_types!inventory_items_id_metal_type_fkey(metal_name),
-          metal_purity_rel:metal_purities!inventory_items_id_metal_purity_fkey(purity_name)
-        `
-        )
-        .in('id_item', data.itemIds);
-
-      if (itemsFetchError) {
-        throw new Error(`Failed to fetch inventory items: ${itemsFetchError.message}`);
-      }
-
-      if (!inventoryItems || inventoryItems.length === 0) {
-        throw new Error('No valid inventory items selected');
-      }
-
-      // Fetch category names
-      const { data: itemCategories } = await supabase
-        .from('inventory_items')
-        .select(
-          'id_item, category:product_categories!inventory_items_id_category_fkey(category_name)'
-        )
-        .in('id_item', data.itemIds);
-
-      // Type assertion needed because Supabase client doesn't know about FK relationships
-      const typedItemCategories = itemCategories as unknown as Array<{
-        id_item: string;
-        category: { category_name: string } | null;
-      }>;
-
-      const categoryMap = new Map(
-        typedItemCategories?.map((ic) => [ic.id_item, ic.category?.category_name || null]) ?? []
-      );
-
-      // Type the inventory items result
-      const typedInventoryItems = inventoryItems as unknown as Array<{
-        id_item: string;
-        item_name: string;
-        sku: string | null;
-        weight_grams: number | null;
-        purchase_price: number | null;
-        id_metal_type: string | null;
-        id_metal_purity: string | null;
-        metal_type_rel: { metal_name: string } | null;
-        metal_purity_rel: { purity_name: string } | null;
-      }>;
-
-      // Calculate totals
-      const totalItemsCount = typedInventoryItems.length;
-      const totalItemsValue = typedInventoryItems.reduce(
-        (sum, item) => sum + (item.purchase_price || 0),
-        0
-      );
-      const goldGrams = typedInventoryItems.reduce(
-        (sum, item) => sum + (item.weight_grams || 0),
-        0
-      );
-
       // Determine transfer direction (default to 'outgoing' if not specified)
       const transferDirection: TransferDirection = data.direction || 'outgoing';
+      const isOutgoing = transferDirection === 'outgoing';
+
+      // Variables for transfer totals
+      let totalItemsCount = 0;
+      let totalItemsValue = 0;
+      let goldGrams = 0;
+
+      // Prepare transfer items based on direction
+      let transferItemsToInsert: Array<{
+        id_shop: string;
+        id_transfer: string;
+        id_inventory_item: string;
+        item_name: string;
+        item_sku: string | null;
+        weight_grams: number | null;
+        metal_type: string | null;
+        metal_purity: string | null;
+        category_name: string | null;
+        item_value: number;
+        status: string;
+        created_by: string;
+      }> = [];
+
+      // Item IDs to update status (only for outgoing transfers)
+      let itemIdsToUpdateStatus: string[] = [];
+
+      if (isOutgoing) {
+        // =====================================================================
+        // OUTGOING TRANSFER: Select items from existing inventory
+        // =====================================================================
+        if (!data.itemIds || data.itemIds.length === 0) {
+          throw new Error('No items selected for outgoing transfer');
+        }
+
+        // Fetch selected inventory items for denormalized data
+        const { data: inventoryItems, error: itemsFetchError } = await supabase
+          .from('inventory_items')
+          .select(
+            `
+            id_item,
+            item_name,
+            sku,
+            weight_grams,
+            purchase_price,
+            id_metal_type,
+            id_metal_purity,
+            metal_type_rel:metal_types!inventory_items_id_metal_type_fkey(metal_name),
+            metal_purity_rel:metal_purities!inventory_items_id_metal_purity_fkey(purity_name)
+          `
+          )
+          .in('id_item', data.itemIds);
+
+        if (itemsFetchError) {
+          throw new Error(`Failed to fetch inventory items: ${itemsFetchError.message}`);
+        }
+
+        if (!inventoryItems || inventoryItems.length === 0) {
+          throw new Error('No valid inventory items selected');
+        }
+
+        // Fetch category names
+        const { data: itemCategories } = await supabase
+          .from('inventory_items')
+          .select(
+            'id_item, category:product_categories!inventory_items_id_category_fkey(category_name)'
+          )
+          .in('id_item', data.itemIds);
+
+        // Type assertion needed because Supabase client doesn't know about FK relationships
+        const typedItemCategories = itemCategories as unknown as Array<{
+          id_item: string;
+          category: { category_name: string } | null;
+        }>;
+
+        const categoryMap = new Map(
+          typedItemCategories?.map((ic) => [ic.id_item, ic.category?.category_name || null]) ?? []
+        );
+
+        // Type the inventory items result
+        const typedInventoryItems = inventoryItems as unknown as Array<{
+          id_item: string;
+          item_name: string;
+          sku: string | null;
+          weight_grams: number | null;
+          purchase_price: number | null;
+          id_metal_type: string | null;
+          id_metal_purity: string | null;
+          metal_type_rel: { metal_name: string } | null;
+          metal_purity_rel: { purity_name: string } | null;
+        }>;
+
+        // Calculate totals
+        totalItemsCount = typedInventoryItems.length;
+        totalItemsValue = typedInventoryItems.reduce(
+          (sum, item) => sum + (item.purchase_price || 0),
+          0
+        );
+        goldGrams = typedInventoryItems.reduce((sum, item) => sum + (item.weight_grams || 0), 0);
+
+        // Store item IDs for status update
+        itemIdsToUpdateStatus = data.itemIds;
+
+        // Prepare transfer items (will be populated after transfer is created)
+        // We need transfer.id_transfer first, so we'll create them in a placeholder
+        transferItemsToInsert = typedInventoryItems.map((item) => ({
+          id_shop: shopId,
+          id_transfer: '', // Will be set after transfer creation
+          id_inventory_item: item.id_item,
+          item_name: item.item_name,
+          item_sku: item.sku || null,
+          weight_grams: item.weight_grams || null,
+          metal_type: item.metal_type_rel?.metal_name || null,
+          metal_purity: item.metal_purity_rel?.purity_name || null,
+          category_name: categoryMap.get(item.id_item) || null,
+          item_value: item.purchase_price || 0,
+          status: 'transferred',
+          created_by: publicUser.id_user,
+        }));
+      } else {
+        // =====================================================================
+        // INCOMING TRANSFER: Manual item entry (items don't exist in inventory yet)
+        // =====================================================================
+        if (!data.manualItems || data.manualItems.length === 0) {
+          throw new Error('No items provided for incoming transfer');
+        }
+
+        // Validate manual items
+        for (const item of data.manualItems) {
+          if (!item.item_name || item.item_name.trim() === '') {
+            throw new Error('Item name is required for all items');
+          }
+          if (typeof item.item_value !== 'number' || item.item_value <= 0) {
+            throw new Error('Item value must be greater than 0 for all items');
+          }
+        }
+
+        // Calculate totals from manual items
+        totalItemsCount = data.manualItems.length;
+        totalItemsValue = data.manualItems.reduce((sum, item) => sum + (item.item_value || 0), 0);
+        goldGrams = data.manualItems.reduce((sum, item) => sum + (item.weight_grams || 0), 0);
+
+        // Prepare transfer items from manual entries
+        // For incoming transfers, id_inventory_item will be a placeholder UUID
+        // The actual inventory items will be created when the transfer is received
+        transferItemsToInsert = data.manualItems.map((item) => ({
+          id_shop: shopId,
+          id_transfer: '', // Will be set after transfer creation
+          // Generate a placeholder UUID for incoming items
+          // This will be replaced with actual inventory item ID when transfer is received
+          id_inventory_item: crypto.randomUUID(),
+          item_name: item.item_name.trim(),
+          item_sku: item.item_sku?.trim() || null,
+          weight_grams: item.weight_grams || null,
+          metal_type: item.metal_type || null,
+          metal_purity: item.metal_purity || null,
+          category_name: item.category_name || null,
+          item_value: item.item_value,
+          status: 'pending', // Incoming items start as pending until received
+          created_by: publicUser.id_user,
+        }));
+      }
 
       // Create the transfer
       const { data: transfer, error: transferError } = await supabase
@@ -818,25 +946,16 @@ export function useCreateTransfer() {
         throw new Error(`Failed to create transfer: ${transferError.message}`);
       }
 
-      // Add transfer items with denormalized data
-      const transferItems = typedInventoryItems.map((item) => ({
-        id_shop: shopId,
+      // Update transfer items with the actual transfer ID
+      const finalTransferItems = transferItemsToInsert.map((item) => ({
+        ...item,
         id_transfer: transfer.id_transfer,
-        id_inventory_item: item.id_item,
-        item_name: item.item_name,
-        item_sku: item.sku || null,
-        weight_grams: item.weight_grams || null,
-        metal_type: item.metal_type_rel?.metal_name || null,
-        metal_purity: item.metal_purity_rel?.purity_name || null,
-        category_name: categoryMap.get(item.id_item) || null,
-        item_value: item.purchase_price || 0,
-        status: 'transferred',
-        created_by: publicUser.id_user,
       }));
 
+      // Insert transfer items
       const { error: itemsError } = await supabase
         .from('shop_transfer_items')
-        .insert(transferItems);
+        .insert(finalTransferItems);
 
       if (itemsError) {
         // Rollback transfer if items fail
@@ -844,15 +963,17 @@ export function useCreateTransfer() {
         throw new Error(`Failed to add transfer items: ${itemsError.message}`);
       }
 
-      // Update inventory item status to 'transferred'
-      const { error: statusUpdateError } = await supabase
-        .from('inventory_items')
-        .update({ status: 'transferred', updated_at: new Date().toISOString() })
-        .in('id_item', data.itemIds);
+      // Update inventory item status to 'transferred' (only for outgoing transfers)
+      if (isOutgoing && itemIdsToUpdateStatus.length > 0) {
+        const { error: statusUpdateError } = await supabase
+          .from('inventory_items')
+          .update({ status: 'transferred', updated_at: new Date().toISOString() })
+          .in('id_item', itemIdsToUpdateStatus);
 
-      if (statusUpdateError) {
-        console.error('Warning: Failed to update inventory status:', statusUpdateError);
-        // Don't rollback - transfer was created successfully
+        if (statusUpdateError) {
+          console.error('Warning: Failed to update inventory status:', statusUpdateError);
+          // Don't rollback - transfer was created successfully
+        }
       }
 
       return transfer;

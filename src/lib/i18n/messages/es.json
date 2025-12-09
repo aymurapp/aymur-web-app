@@ -371,7 +371,8 @@
       "instagram": "nombre de usuario",
       "facebook": "Nombre del perfil o URL",
       "whatsapp": "+1234567890",
-      "tiktok": "nombre de usuario"
+      "tiktok": "nombre de usuario",
+      "idCard": "Ingrese el numero de documento de identidad"
     },
     "socialMedia": {
       "instagram": "Instagram",
@@ -381,6 +382,7 @@
       "hint": "Agregue cuentas de redes sociales para contactar facilmente al cliente"
     },
     "idCard": {
+      "number": "Numero de documento de identidad",
       "front": "Documento de identidad (Frente)",
       "back": "Documento de identidad (Reverso)",
       "uploadFront": "Subir frente",
@@ -1231,7 +1233,27 @@
     "transferReceived": "Transferencia recibida exitosamente",
     "transferRejected": "Transferencia rechazada",
     "validation": {
-      "selectItems": "Por favor seleccione al menos un artículo para transferir"
+      "selectItems": "Por favor seleccione al menos un artículo para transferir",
+      "addItems": "Por favor agregue al menos un artículo a la transferencia",
+      "completeItemDetails": "Por favor complete todos los campos requeridos para cada artículo (nombre y valor)"
+    },
+    "addItem": "Agregar artículo",
+    "removeItem": "Eliminar artículo",
+    "noItemsAdded": "No se han agregado artículos",
+    "addItemsToTransfer": "Haga clic en el botón de abajo para agregar artículos a esta transferencia",
+    "manualEntry": {
+      "title": "Ingresar artículos",
+      "item": "Artículo",
+      "itemName": "Nombre del artículo",
+      "itemNamePlaceholder": "Ingrese el nombre del artículo...",
+      "itemSku": "SKU",
+      "itemSkuPlaceholder": "Ingrese el SKU (opcional)...",
+      "weightGrams": "Peso (gramos)",
+      "metalType": "Tipo de metal",
+      "metalPurity": "Pureza del metal",
+      "categoryName": "Categoría",
+      "itemValue": "Valor del artículo",
+      "helpText": "Para transferencias entrantes, ingrese los detalles de los artículos que espera recibir. Los artículos se agregarán a su inventario cuando se complete la transferencia."
     },
     "filters": {
       "allStatuses": "Todos los estados",
