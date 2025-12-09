@@ -22,6 +22,7 @@ import React from 'react';
 import {
   ShoppingCartOutlined,
   UserOutlined,
+  CarOutlined,
   CreditCardOutlined,
   CheckCircleOutlined,
   LoadingOutlined,
@@ -43,6 +44,7 @@ const { Text } = Typography;
 export type CheckoutStepType =
   | 'review'
   | 'customer'
+  | 'delivery'
   | 'payment'
   | 'processing'
   | 'complete'
@@ -90,6 +92,7 @@ export interface CheckoutProgressProps {
 const STEPS = [
   { key: 'review' as const, icon: ShoppingCartOutlined },
   { key: 'customer' as const, icon: UserOutlined },
+  { key: 'delivery' as const, icon: CarOutlined },
   { key: 'payment' as const, icon: CreditCardOutlined },
   { key: 'complete' as const, icon: CheckCircleOutlined },
 ];
@@ -100,9 +103,10 @@ const STEPS = [
 const STEP_INDEX_MAP: Record<CheckoutStepType, number> = {
   review: 0,
   customer: 1,
-  payment: 2,
-  processing: 2, // Still on payment step visually
-  complete: 3,
+  delivery: 2,
+  payment: 3,
+  processing: 3, // Still on payment step visually
+  complete: 4,
   error: -1, // Error state
 };
 

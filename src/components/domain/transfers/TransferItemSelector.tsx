@@ -8,7 +8,7 @@
  *
  * Features:
  * - Search by item name, SKU, or barcode
- * - Filter by status (only "in_stock" items can be transferred)
+ * - Filter by status (only "available" items can be transferred)
  * - Multi-select with checkboxes
  * - Shows item details (name, SKU, weight, value)
  * - RTL support
@@ -65,9 +65,9 @@ export function TransferItemSelector({
   // Search state
   const [searchValue, setSearchValue] = useState('');
 
-  // Fetch inventory items that can be transferred (in_stock status)
+  // Fetch inventory items that can be transferred (available status)
   const { items, isLoading } = useInventoryItems({
-    status: ['in_stock'],
+    status: ['available'],
     search: searchValue,
     page_size: 100,
   });
@@ -96,7 +96,7 @@ export function TransferItemSelector({
     selectedRowKeys: selectedItemIds,
     onChange: handleSelectionChange,
     getCheckboxProps: (record) => ({
-      disabled: disabled || record.status !== 'in_stock',
+      disabled: disabled || record.status !== 'available',
       name: record.id_item,
     }),
   };
@@ -157,7 +157,7 @@ export function TransferItemSelector({
         dataIndex: 'status',
         width: 100,
         render: (status: string) => {
-          const color = status === 'in_stock' ? 'green' : 'default';
+          const color = status === 'available' ? 'green' : 'default';
           return <Tag color={color}>{tInventory(`status.${status}`)}</Tag>;
         },
       },

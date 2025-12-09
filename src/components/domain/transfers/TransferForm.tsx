@@ -24,7 +24,11 @@ import { useTranslations } from 'next-intl';
 
 import { TransferItemSelector } from '@/components/domain/transfers/TransferItemSelector';
 import { Button } from '@/components/ui/Button';
-import { useNeighborShops, useCreateTransfer } from '@/lib/hooks/data/useTransfers';
+import {
+  useNeighborShops,
+  useCreateTransfer,
+  getNeighborDisplayName,
+} from '@/lib/hooks/data/useTransfers';
 import { useShop } from '@/lib/hooks/shop';
 
 const { TextArea } = Input;
@@ -43,7 +47,7 @@ interface TransferFormProps {
 }
 
 interface TransferFormValues {
-  toShopId: string;
+  neighborId: string;
   itemIds: string[];
   notes?: string;
 }
@@ -116,7 +120,7 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
       }
 
       await createMutation.mutateAsync({
-        toShopId: values.toShopId,
+        neighborId: values.neighborId,
         itemIds: selectedItemIds,
         notes: values.notes?.trim() || undefined,
       });
@@ -139,8 +143,8 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
 
   // Build destination shop options
   const destinationOptions = neighborShops.map((ns) => ({
-    label: ns.neighbor_shop?.shop_name || 'Unknown Shop',
-    value: ns.neighbor_shop_id,
+    label: getNeighborDisplayName(ns),
+    value: ns.id_neighbor,
   }));
 
   return (
@@ -195,7 +199,7 @@ export function TransferForm({ open, onClose, onSuccess }: TransferFormProps): R
         </Divider>
 
         <Form.Item
-          name="toShopId"
+          name="neighborId"
           label={t('toShop')}
           rules={[{ required: true, message: tCommon('validation.required') }]}
         >

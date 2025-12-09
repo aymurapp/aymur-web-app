@@ -4,12 +4,10 @@
  * TanStack Query hooks for fetching and managing shop transfers.
  * Supports pagination, search, and filtering by direction/status/date.
  *
- * Key features:
- * - Paginated transfer list with status/direction/date filters
- * - Single transfer with items and shop details
- * - Neighbor shops list for transfer destinations
- * - CRUD mutations for transfers
- * - Status update mutations (ship, receive, reject)
+ * Database Schema:
+ * - shop_transfers: References neighbor_shops via id_neighbor, direction field indicates flow
+ * - shop_transfer_items: Denormalized item data for each transfer
+ * - neighbor_shops: Can be internal (id_neighbor_shop) or external (external_shop_name)
  *
  * @module lib/hooks/data/useTransfers
  */
@@ -21,44 +19,135 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useShop } from '@/lib/hooks/shop';
 import { queryKeys } from '@/lib/query/keys';
 import { createClient } from '@/lib/supabase/client';
-import type { Tables, TablesInsert, TablesUpdate } from '@/lib/types/database';
 
 // =============================================================================
-// TYPES
+// TYPES (Matching actual database schema)
 // =============================================================================
 
 /**
- * Shop transfer row type from the public.shop_transfers table
+ * Shop transfer row type from public.shop_transfers table
  */
-export type ShopTransfer = Tables<'shop_transfers'>;
+export interface ShopTransfer {
+  id_transfer: string;
+  id_shop: string;
+  transfer_number: string;
+  id_neighbor: string;
+  direction: 'outgoing' | 'incoming';
+  total_items_count: number | null;
+  total_items_value: number | null;
+  gold_grams: number | null;
+  gold_value: number | null;
+  money_amount: number | null;
+  total_value: number | null;
+  status: string;
+  due_date: string | null;
+  return_date: string | null;
+  notes: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  rejected_by: string | null;
+  rejected_at: string | null;
+  rejection_reason: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  updated_by: string | null;
+  deleted_at: string | null;
+  version: number;
+}
 
 /**
- * Shop transfer insert type for creating new transfers
+ * Shop transfer insert type
  */
-export type ShopTransferInsert = TablesInsert<'shop_transfers'>;
+export interface ShopTransferInsert {
+  id_transfer?: string;
+  id_shop: string;
+  transfer_number?: string;
+  id_neighbor: string;
+  direction: 'outgoing' | 'incoming';
+  total_items_count?: number | null;
+  total_items_value?: number | null;
+  gold_grams?: number | null;
+  gold_value?: number | null;
+  money_amount?: number | null;
+  total_value?: number | null;
+  status?: string;
+  due_date?: string | null;
+  return_date?: string | null;
+  notes?: string | null;
+  created_by: string;
+}
 
 /**
- * Shop transfer update type for updating transfers
+ * Shop transfer update type
  */
-export type ShopTransferUpdate = TablesUpdate<'shop_transfers'>;
+export interface ShopTransferUpdate {
+  status?: string;
+  notes?: string | null;
+  approved_by?: string | null;
+  approved_at?: string | null;
+  rejected_by?: string | null;
+  rejected_at?: string | null;
+  rejection_reason?: string | null;
+  updated_at?: string;
+  updated_by?: string | null;
+}
 
 /**
- * Shop transfer item row type
+ * Shop transfer item row type from public.shop_transfer_items table
  */
-export type ShopTransferItem = Tables<'shop_transfer_items'>;
+export interface ShopTransferItem {
+  id_transfer_item: string;
+  id_shop: string;
+  id_transfer: string;
+  id_inventory_item: string;
+  item_name: string;
+  item_sku: string | null;
+  weight_grams: number | null;
+  metal_type: string | null;
+  metal_purity: string | null;
+  category_name: string | null;
+  item_value: number;
+  status: string | null;
+  returned_at: string | null;
+  returned_by: string | null;
+  notes: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  updated_by: string | null;
+}
 
 /**
- * Shop transfer item insert type
+ * Neighbor shop row type from public.neighbor_shops table
  */
-export type ShopTransferItemInsert = TablesInsert<'shop_transfer_items'>;
+export interface NeighborShop {
+  id_neighbor: string;
+  id_shop: string;
+  neighbor_type: 'internal' | 'external';
+  id_neighbor_shop: string | null;
+  external_shop_name: string | null;
+  external_shop_phone: string | null;
+  external_shop_address: string | null;
+  status: string | null;
+  balance_items_value: number | null;
+  balance_gold_grams: number | null;
+  balance_gold_value: number | null;
+  balance_money: number | null;
+  balance_total: number | null;
+  notes: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  updated_by: string | null;
+  deleted_at: string | null;
+  version: number;
+}
 
 /**
- * Neighbor shop row type
- */
-export type NeighborShop = Tables<'neighbor_shops'>;
-
-/**
- * Shop basic info type
+ * Shop basic info type for joins
  */
 export interface ShopInfo {
   id_shop: string;
@@ -67,33 +156,33 @@ export interface ShopInfo {
 }
 
 /**
- * Inventory item basic info for transfer items
+ * Neighbor shop with expanded internal shop info
  */
-export interface TransferItemInfo {
-  id_item: string;
-  item_name: string;
-  sku?: string | null;
-  barcode?: string | null;
-  weight_grams?: number | null;
-  purchase_price?: number | null;
-  currency?: string | null;
-  status?: string | null;
+export interface NeighborShopWithDetails extends NeighborShop {
+  /** Internal shop info (if neighbor_type is 'internal') */
+  internal_shop?: ShopInfo | null;
 }
 
 /**
- * Transfer item with inventory details
+ * Transfer item with inventory reference
  */
 export interface TransferItemWithDetails extends ShopTransferItem {
-  inventory_item?: TransferItemInfo | null;
+  /** Inventory item reference (for linking back) */
+  inventory_item?: {
+    id_item: string;
+    status: string | null;
+  } | null;
 }
 
 /**
- * Transfer with shop and item details
+ * Transfer with neighbor and item details
  */
 export interface TransferWithDetails extends ShopTransfer {
-  from_shop?: ShopInfo | null;
-  to_shop?: ShopInfo | null;
+  /** Neighbor shop info (expanded via join) */
+  neighbor?: NeighborShopWithDetails | null;
+  /** Transfer items */
   items?: TransferItemWithDetails[];
+  /** Count of items (from total_items_count or computed) */
   items_count?: number;
 }
 
@@ -120,7 +209,7 @@ export interface UseTransfersOptions {
   /** Items per page (default: 20) */
   pageSize?: number;
   /** Field to sort by */
-  sortBy?: keyof ShopTransfer;
+  sortBy?: 'created_at' | 'transfer_number' | 'status' | 'total_value';
   /** Sort direction */
   sortDirection?: 'asc' | 'desc';
   /** Filter by status */
@@ -180,7 +269,7 @@ export interface UseNeighborShopsOptions {
  */
 export interface UseNeighborShopsReturn {
   /** Array of neighbor shops */
-  neighborShops: (NeighborShop & { neighbor_shop?: ShopInfo | null })[];
+  neighborShops: NeighborShopWithDetails[];
   /** Total count of neighbor shops */
   totalCount: number;
   /** True while loading */
@@ -214,6 +303,29 @@ export const transferKeys = {
 };
 
 // =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+/**
+ * Get the display name for a neighbor shop
+ */
+export function getNeighborDisplayName(neighbor?: NeighborShopWithDetails | null): string {
+  if (!neighbor) {
+    return '-';
+  }
+
+  if (neighbor.neighbor_type === 'internal' && neighbor.internal_shop) {
+    return neighbor.internal_shop.shop_name;
+  }
+
+  if (neighbor.neighbor_type === 'external' && neighbor.external_shop_name) {
+    return neighbor.external_shop_name;
+  }
+
+  return '-';
+}
+
+// =============================================================================
 // FETCH FUNCTIONS
 // =============================================================================
 
@@ -239,33 +351,32 @@ async function fetchTransfers(
   const supabase = createClient();
   const offset = (page - 1) * pageSize;
 
-  // Build the base query with shop filter based on direction
+  // Build the query - fetch transfers belonging to this shop
   let query = supabase.from('shop_transfers').select(
     `
       *,
-      from_shop:shops!shop_transfers_from_shop_fkey (
-        id_shop,
-        shop_name,
-        shop_logo
-      ),
-      to_shop:shops!shop_transfers_to_shop_fkey (
-        id_shop,
-        shop_name,
-        shop_logo
+      neighbor:neighbor_shops!shop_transfers_id_neighbor_fkey (
+        *,
+        internal_shop:shops!neighbor_shops_id_neighbor_shop_fkey (
+          id_shop,
+          shop_name,
+          shop_logo
+        )
       )
     `,
     { count: 'exact' }
   );
 
+  // Filter by shop
+  query = query.eq('id_shop', shopId);
+
   // Filter by direction
-  if (direction === 'outgoing') {
-    query = query.eq('from_shop', shopId);
-  } else if (direction === 'incoming') {
-    query = query.eq('to_shop', shopId);
-  } else {
-    // Show both incoming and outgoing
-    query = query.or(`from_shop.eq.${shopId},to_shop.eq.${shopId}`);
+  if (direction) {
+    query = query.eq('direction', direction);
   }
+
+  // Exclude soft-deleted records
+  query = query.is('deleted_at', null);
 
   // Apply search filter (transfer number)
   if (search && search.trim()) {
@@ -298,23 +409,20 @@ async function fetchTransfers(
     throw new Error(`Failed to fetch transfers: ${error.message}`);
   }
 
-  // Get items count for each transfer
-  const transfersWithCounts = await Promise.all(
-    (data ?? []).map(async (transfer) => {
-      const { count: itemsCount } = await supabase
-        .from('shop_transfer_items')
-        .select('*', { count: 'exact', head: true })
-        .eq('id_transfer', transfer.id_transfer);
+  // Type assertion needed because Supabase client doesn't know about FK relationships
+  const typedData = data as unknown as Array<
+    ShopTransfer & {
+      neighbor: NeighborShopWithDetails | null;
+    }
+  >;
 
-      return {
-        ...transfer,
-        items_count: itemsCount ?? 0,
-      } as TransferWithDetails;
-    })
-  );
+  const transfers = (typedData ?? []).map((transfer) => ({
+    ...transfer,
+    items_count: transfer.total_items_count ?? 0,
+  })) as TransferWithDetails[];
 
   return {
-    transfers: transfersWithCounts,
+    transfers,
     totalCount: count ?? 0,
   };
 }
@@ -333,20 +441,19 @@ async function fetchTransfer(
     .select(
       `
       *,
-      from_shop:shops!shop_transfers_from_shop_fkey (
-        id_shop,
-        shop_name,
-        shop_logo
-      ),
-      to_shop:shops!shop_transfers_to_shop_fkey (
-        id_shop,
-        shop_name,
-        shop_logo
+      neighbor:neighbor_shops!shop_transfers_id_neighbor_fkey (
+        *,
+        internal_shop:shops!neighbor_shops_id_neighbor_shop_fkey (
+          id_shop,
+          shop_name,
+          shop_logo
+        )
       )
     `
     )
     .eq('id_transfer', transferId)
-    .or(`from_shop.eq.${shopId},to_shop.eq.${shopId}`)
+    .eq('id_shop', shopId)
+    .is('deleted_at', null)
     .single();
 
   if (error) {
@@ -356,7 +463,7 @@ async function fetchTransfer(
     throw new Error(`Failed to fetch transfer: ${error.message}`);
   }
 
-  // Fetch transfer items with inventory details
+  // Fetch transfer items
   const { data: items, error: itemsError } = await supabase
     .from('shop_transfer_items')
     .select(
@@ -364,12 +471,6 @@ async function fetchTransfer(
       *,
       inventory_item:inventory_items (
         id_item,
-        item_name,
-        sku,
-        barcode,
-        weight_grams,
-        purchase_price,
-        currency,
         status
       )
     `
@@ -380,10 +481,16 @@ async function fetchTransfer(
     throw new Error(`Failed to fetch transfer items: ${itemsError.message}`);
   }
 
+  // Type assertions needed because Supabase client doesn't know about FK relationships
+  const typedTransfer = transfer as unknown as ShopTransfer & {
+    neighbor: NeighborShopWithDetails | null;
+  };
+  const typedItems = (items ?? []) as unknown as TransferItemWithDetails[];
+
   return {
-    ...transfer,
-    items: (items ?? []) as TransferItemWithDetails[],
-    items_count: items?.length ?? 0,
+    ...typedTransfer,
+    items: typedItems,
+    items_count: typedItems.length ?? typedTransfer.total_items_count ?? 0,
   } as TransferWithDetails;
 }
 
@@ -394,7 +501,7 @@ async function fetchNeighborShops(
   shopId: string,
   options: UseNeighborShopsOptions
 ): Promise<{
-  neighborShops: (NeighborShop & { neighbor_shop?: ShopInfo | null })[];
+  neighborShops: NeighborShopWithDetails[];
   totalCount: number;
 }> {
   const { search, page = 1, pageSize = 50 } = options;
@@ -407,7 +514,7 @@ async function fetchNeighborShops(
     .select(
       `
       *,
-      neighbor_shop:shops!neighbor_shops_neighbor_shop_id_fkey (
+      internal_shop:shops!neighbor_shops_id_neighbor_shop_fkey (
         id_shop,
         shop_name,
         shop_logo
@@ -416,12 +523,8 @@ async function fetchNeighborShops(
       { count: 'exact' }
     )
     .eq('id_shop', shopId)
-    .eq('status', 'active');
-
-  // Apply search filter
-  if (search && search.trim()) {
-    // Note: We filter after fetch since we need to search on the joined shop name
-  }
+    .eq('status', 'active')
+    .is('deleted_at', null);
 
   query = query.range(offset, offset + pageSize - 1);
 
@@ -431,14 +534,19 @@ async function fetchNeighborShops(
     throw new Error(`Failed to fetch neighbor shops: ${error.message}`);
   }
 
-  let results = (data ?? []) as (NeighborShop & { neighbor_shop?: ShopInfo | null })[];
+  // Type assertion needed because Supabase client doesn't know about FK relationships
+  let results = (data ?? []) as unknown as NeighborShopWithDetails[];
 
-  // Apply search filter on shop name
+  // Apply search filter on shop name (both internal and external)
   if (search && search.trim()) {
     const searchLower = search.trim().toLowerCase();
-    results = results.filter((ns) =>
-      ns.neighbor_shop?.shop_name?.toLowerCase().includes(searchLower)
-    );
+    results = results.filter((ns) => {
+      if (ns.neighbor_type === 'internal') {
+        return ns.internal_shop?.shop_name?.toLowerCase().includes(searchLower);
+      } else {
+        return ns.external_shop_name?.toLowerCase().includes(searchLower);
+      }
+    });
   }
 
   return {
@@ -586,7 +694,7 @@ export function useCreateTransfer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { toShopId: string; itemIds: string[]; notes?: string }) => {
+    mutationFn: async (data: { neighborId: string; itemIds: string[]; notes?: string }) => {
       if (!shopId) {
         throw new Error('No shop context available');
       }
@@ -612,12 +720,85 @@ export function useCreateTransfer() {
         throw new Error('User not found');
       }
 
-      // Create the transfer
+      // Fetch selected inventory items for denormalized data
+      // Note: metal_type and metal_purity are FKs, need to join with their tables
+      const { data: inventoryItems, error: itemsFetchError } = await supabase
+        .from('inventory_items')
+        .select(
+          `
+          id_item,
+          item_name,
+          sku,
+          weight_grams,
+          purchase_price,
+          id_metal_type,
+          id_metal_purity,
+          metal_type_rel:metal_types!inventory_items_id_metal_type_fkey(metal_name),
+          metal_purity_rel:metal_purities!inventory_items_id_metal_purity_fkey(purity_name)
+        `
+        )
+        .in('id_item', data.itemIds);
+
+      if (itemsFetchError) {
+        throw new Error(`Failed to fetch inventory items: ${itemsFetchError.message}`);
+      }
+
+      if (!inventoryItems || inventoryItems.length === 0) {
+        throw new Error('No valid inventory items selected');
+      }
+
+      // Fetch category names
+      const { data: itemCategories } = await supabase
+        .from('inventory_items')
+        .select(
+          'id_item, category:product_categories!inventory_items_id_category_fkey(category_name)'
+        )
+        .in('id_item', data.itemIds);
+
+      // Type assertion needed because Supabase client doesn't know about FK relationships
+      const typedItemCategories = itemCategories as unknown as Array<{
+        id_item: string;
+        category: { category_name: string } | null;
+      }>;
+
+      const categoryMap = new Map(
+        typedItemCategories?.map((ic) => [ic.id_item, ic.category?.category_name || null]) ?? []
+      );
+
+      // Type the inventory items result
+      const typedInventoryItems = inventoryItems as unknown as Array<{
+        id_item: string;
+        item_name: string;
+        sku: string | null;
+        weight_grams: number | null;
+        purchase_price: number | null;
+        id_metal_type: string | null;
+        id_metal_purity: string | null;
+        metal_type_rel: { metal_name: string } | null;
+        metal_purity_rel: { purity_name: string } | null;
+      }>;
+
+      // Calculate totals
+      const totalItemsCount = typedInventoryItems.length;
+      const totalItemsValue = typedInventoryItems.reduce(
+        (sum, item) => sum + (item.purchase_price || 0),
+        0
+      );
+      const goldGrams = typedInventoryItems.reduce(
+        (sum, item) => sum + (item.weight_grams || 0),
+        0
+      );
+
+      // Create the transfer (direction is always 'outgoing' when creating from a shop)
       const { data: transfer, error: transferError } = await supabase
         .from('shop_transfers')
         .insert({
-          from_shop: shopId,
-          to_shop: data.toShopId,
+          id_shop: shopId,
+          id_neighbor: data.neighborId,
+          direction: 'outgoing',
+          total_items_count: totalItemsCount,
+          total_items_value: totalItemsValue,
+          gold_grams: goldGrams,
           status: 'pending',
           notes: data.notes || null,
           created_by: publicUser.id_user,
@@ -629,10 +810,20 @@ export function useCreateTransfer() {
         throw new Error(`Failed to create transfer: ${transferError.message}`);
       }
 
-      // Add transfer items
-      const transferItems = data.itemIds.map((itemId) => ({
+      // Add transfer items with denormalized data
+      const transferItems = typedInventoryItems.map((item) => ({
+        id_shop: shopId,
         id_transfer: transfer.id_transfer,
-        id_item: itemId,
+        id_inventory_item: item.id_item,
+        item_name: item.item_name,
+        item_sku: item.sku || null,
+        weight_grams: item.weight_grams || null,
+        metal_type: item.metal_type_rel?.metal_name || null,
+        metal_purity: item.metal_purity_rel?.purity_name || null,
+        category_name: categoryMap.get(item.id_item) || null,
+        item_value: item.purchase_price || 0,
+        status: 'transferred',
+        created_by: publicUser.id_user,
       }));
 
       const { error: itemsError } = await supabase
@@ -643,6 +834,17 @@ export function useCreateTransfer() {
         // Rollback transfer if items fail
         await supabase.from('shop_transfers').delete().eq('id_transfer', transfer.id_transfer);
         throw new Error(`Failed to add transfer items: ${itemsError.message}`);
+      }
+
+      // Update inventory item status to 'transferred'
+      const { error: statusUpdateError } = await supabase
+        .from('inventory_items')
+        .update({ status: 'transferred', updated_at: new Date().toISOString() })
+        .in('id_item', data.itemIds);
+
+      if (statusUpdateError) {
+        console.error('Warning: Failed to update inventory status:', statusUpdateError);
+        // Don't rollback - transfer was created successfully
       }
 
       return transfer;
@@ -699,16 +901,13 @@ export function useUpdateTransferStatus() {
         updated_by: publicUser?.id_user,
       };
 
-      // Add date fields based on status
-      if (status === 'shipped') {
-        updateData.shipped_at = new Date().toISOString();
-        updateData.shipped_by = publicUser?.id_user;
-      } else if (status === 'received') {
-        updateData.received_at = new Date().toISOString();
-        updateData.received_by = publicUser?.id_user;
+      // Add approval/rejection fields based on status
+      if (status === 'received') {
+        updateData.approved_by = publicUser?.id_user;
+        updateData.approved_at = new Date().toISOString();
       } else if (status === 'rejected') {
-        updateData.rejected_at = new Date().toISOString();
         updateData.rejected_by = publicUser?.id_user;
+        updateData.rejected_at = new Date().toISOString();
         if (notes) {
           updateData.rejection_reason = notes;
         }
@@ -718,12 +917,28 @@ export function useUpdateTransferStatus() {
         .from('shop_transfers')
         .update(updateData)
         .eq('id_transfer', transferId)
-        .or(`from_shop.eq.${shopId},to_shop.eq.${shopId}`)
+        .eq('id_shop', shopId)
         .select()
         .single();
 
       if (error) {
         throw new Error(`Failed to update transfer status: ${error.message}`);
+      }
+
+      // If rejected, restore inventory items to 'available' status
+      if (status === 'rejected') {
+        const { data: transferItems } = await supabase
+          .from('shop_transfer_items')
+          .select('id_inventory_item')
+          .eq('id_transfer', transferId);
+
+        if (transferItems && transferItems.length > 0) {
+          const itemIds = transferItems.map((ti) => ti.id_inventory_item);
+          await supabase
+            .from('inventory_items')
+            .update({ status: 'available', updated_at: new Date().toISOString() })
+            .in('id_item', itemIds);
+        }
       }
 
       return transfer;

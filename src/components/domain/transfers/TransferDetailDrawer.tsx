@@ -6,8 +6,8 @@
  * Drawer displaying transfer details with items and status actions.
  *
  * Features:
- * - Transfer info header with shops and status
- * - Items list with details
+ * - Transfer info header with neighbor shop and direction
+ * - Items list with denormalized details
  * - Status actions (Ship, Receive, Reject)
  * - Notes display
  * - Status timeline
@@ -51,6 +51,7 @@ import {
   type TransferStatus,
   type TransferItemWithDetails,
   useUpdateTransferStatus,
+  getNeighborDisplayName,
 } from '@/lib/hooks/data/useTransfers';
 import { useShop } from '@/lib/hooks/shop';
 import { formatCurrency, formatDate, formatWeight } from '@/lib/utils/format';
@@ -109,7 +110,8 @@ export function TransferDetailDrawer({
   const t = useTranslations('transfers');
   const tCommon = useTranslations('common');
   const tInventory = useTranslations('inventory');
-  const { shopId } = useShop();
+  const { shop } = useShop();
+  const currency = shop?.currency || 'USD';
 
   // Reject modal state
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -118,12 +120,11 @@ export function TransferDetailDrawer({
   // Mutations
   const updateStatusMutation = useUpdateTransferStatus();
 
-  // Derived state
-  const isOutgoing = transfer?.from_shop === shopId;
-  const isIncoming = transfer?.to_shop === shopId;
+  // Derived state - actions depend on direction
+  const isOutgoing = transfer?.direction === 'outgoing';
   const canShip = isOutgoing && transfer?.status === 'pending';
-  const canReceive = isIncoming && transfer?.status === 'shipped';
-  const canReject = isIncoming && transfer?.status === 'shipped';
+  const canReceive = !isOutgoing && transfer?.status === 'shipped';
+  const canReject = !isOutgoing && transfer?.status === 'shipped';
 
   // ==========================================================================
   // HANDLERS
@@ -213,6 +214,7 @@ export function TransferDetailDrawer({
   // TABLE CONFIGURATION
   // ==========================================================================
 
+  // Use denormalized data from transfer items
   const itemColumns: ColumnsType<TransferItemWithDetails> = [
     {
       key: 'item_name',
@@ -222,23 +224,21 @@ export function TransferDetailDrawer({
       render: (_, record) => (
         <div>
           <Text strong className="block">
-            {record.inventory_item?.item_name || '-'}
+            {record.item_name || '-'}
           </Text>
-          {record.inventory_item?.sku && (
+          {record.item_sku && (
             <Text type="secondary" className="text-xs font-mono">
-              {record.inventory_item.sku}
+              {record.item_sku}
             </Text>
           )}
         </div>
       ),
     },
     {
-      key: 'barcode',
-      title: tInventory('barcode'),
+      key: 'category',
+      title: tInventory('category'),
       width: 120,
-      render: (_, record) => (
-        <Text className="font-mono text-xs">{record.inventory_item?.barcode || '-'}</Text>
-      ),
+      render: (_, record) => <Text>{record.category_name || '-'}</Text>,
     },
     {
       key: 'weight',
@@ -246,11 +246,7 @@ export function TransferDetailDrawer({
       width: 100,
       align: 'right',
       render: (_, record) => (
-        <Text>
-          {record.inventory_item?.weight_grams
-            ? formatWeight(record.inventory_item.weight_grams)
-            : '-'}
-        </Text>
+        <Text>{record.weight_grams ? formatWeight(record.weight_grams) : '-'}</Text>
       ),
     },
     {
@@ -259,14 +255,7 @@ export function TransferDetailDrawer({
       width: 120,
       align: 'right',
       render: (_, record) => (
-        <Text>
-          {record.inventory_item?.purchase_price
-            ? formatCurrency(
-                record.inventory_item.purchase_price,
-                record.inventory_item.currency || 'USD'
-              )
-            : '-'}
-        </Text>
+        <Text>{record.item_value ? formatCurrency(record.item_value, currency) : '-'}</Text>
       ),
     },
   ];
@@ -284,6 +273,7 @@ export function TransferDetailDrawer({
   }
 
   const statusLabel = t(transfer.status as TransferStatus);
+  const neighborDisplayName = getNeighborDisplayName(transfer.neighbor);
 
   return (
     <>
@@ -366,32 +356,43 @@ export function TransferDetailDrawer({
           </div>
         </div>
 
-        {/* Shop Information */}
+        {/* Neighbor Shop Information */}
         <Descriptions
           bordered
           size="small"
           column={1}
           className="mb-4"
-          labelStyle={{ width: '120px' }}
+          labelStyle={{ width: '140px' }}
         >
           <Descriptions.Item
             label={
               <span className="flex items-center gap-1">
-                <ShopOutlined /> {t('fromShop')}
+                <ShopOutlined /> {isOutgoing ? t('toShop') : t('fromShop')}
               </span>
             }
           >
-            <Text strong>{transfer.from_shop?.shop_name || '-'}</Text>
+            <Text strong>{neighborDisplayName}</Text>
+            {transfer.neighbor?.neighbor_type === 'external' && (
+              <Tag className="ms-2" color="default">
+                {t('externalShop')}
+              </Tag>
+            )}
           </Descriptions.Item>
-          <Descriptions.Item
-            label={
-              <span className="flex items-center gap-1">
-                <ShopOutlined /> {t('toShop')}
-              </span>
-            }
-          >
-            <Text strong>{transfer.to_shop?.shop_name || '-'}</Text>
-          </Descriptions.Item>
+          {transfer.total_items_count !== null && (
+            <Descriptions.Item label={t('itemsCount')}>
+              <Text>{transfer.total_items_count}</Text>
+            </Descriptions.Item>
+          )}
+          {transfer.total_items_value !== null && (
+            <Descriptions.Item label={t('totalValue')}>
+              <Text strong>{formatCurrency(transfer.total_items_value, currency)}</Text>
+            </Descriptions.Item>
+          )}
+          {transfer.gold_grams !== null && transfer.gold_grams > 0 && (
+            <Descriptions.Item label={t('goldWeight')}>
+              <Text>{formatWeight(transfer.gold_grams)}</Text>
+            </Descriptions.Item>
+          )}
         </Descriptions>
 
         {/* Transfer Items */}
@@ -467,23 +468,8 @@ export function TransferDetailDrawer({
                 </div>
               ),
             },
-            ...(transfer.shipped_at
-              ? [
-                  {
-                    color: 'orange' as const,
-                    children: (
-                      <div>
-                        <Text strong>{t('shipped')}</Text>
-                        <br />
-                        <Text type="secondary" className="text-xs">
-                          {formatDate(transfer.shipped_at, 'en-US', 'long')}
-                        </Text>
-                      </div>
-                    ),
-                  },
-                ]
-              : []),
-            ...(transfer.received_at
+            // Received (approved)
+            ...(transfer.approved_at
               ? [
                   {
                     color: 'green' as const,
@@ -492,13 +478,14 @@ export function TransferDetailDrawer({
                         <Text strong>{t('received')}</Text>
                         <br />
                         <Text type="secondary" className="text-xs">
-                          {formatDate(transfer.received_at, 'en-US', 'long')}
+                          {formatDate(transfer.approved_at, 'en-US', 'long')}
                         </Text>
                       </div>
                     ),
                   },
                 ]
               : []),
+            // Rejected
             ...(transfer.rejected_at
               ? [
                   {

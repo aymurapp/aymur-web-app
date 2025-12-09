@@ -45,11 +45,12 @@ import {
   type TransferWithDetails,
   type TransferStatus,
   type TransferDirection,
+  getNeighborDisplayName,
 } from '@/lib/hooks/data/useTransfers';
 import { usePermissions } from '@/lib/hooks/permissions';
 import { useShop } from '@/lib/hooks/shop';
 import { cn } from '@/lib/utils/cn';
-import { formatDate } from '@/lib/utils/format';
+import { formatCurrency, formatDate } from '@/lib/utils/format';
 
 import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
@@ -133,7 +134,8 @@ export default function TransfersPage(): React.JSX.Element {
   const t = useTranslations('transfers');
   const tCommon = useTranslations('common');
   const { can } = usePermissions();
-  const { shopId } = useShop();
+  const { shop } = useShop();
+  const currency = shop?.currency || 'USD';
 
   // ==========================================================================
   // STATE
@@ -168,8 +170,6 @@ export default function TransfersPage(): React.JSX.Element {
     status: filters.status,
     dateFrom,
     dateTo,
-    sortBy: 'created_at',
-    sortDirection: 'desc',
   });
 
   // ==========================================================================
@@ -259,14 +259,6 @@ export default function TransfersPage(): React.JSX.Element {
     },
   ];
 
-  // Determine if a transfer is outgoing from current shop
-  const isOutgoing = useCallback(
-    (transfer: TransferWithDetails) => {
-      return transfer.from_shop === shopId;
-    },
-    [shopId]
-  );
-
   // Table columns
   const columns: ColumnsType<TransferWithDetails> = [
     {
@@ -280,7 +272,7 @@ export default function TransfersPage(): React.JSX.Element {
             {value || `#${record.id_transfer.slice(0, 8).toUpperCase()}`}
           </Text>
           <div className="mt-0.5">
-            {isOutgoing(record) ? (
+            {record.direction === 'outgoing' ? (
               <Tag icon={<SendOutlined />} color="blue" className="text-xs">
                 {t('outgoing')}
               </Tag>
@@ -294,23 +286,18 @@ export default function TransfersPage(): React.JSX.Element {
       ),
     },
     {
-      key: 'from_to',
-      title: `${t('fromShop')} / ${t('toShop')}`,
-      width: 220,
+      key: 'neighbor',
+      title: t('neighborShop'),
+      width: 200,
       render: (_, record) => (
         <div className="flex items-center gap-2">
           <div className="min-w-0 flex-1">
-            <Text type="secondary" className="text-xs block">
-              {t('fromShop')}:
-            </Text>
-            <Text className="block truncate">{record.from_shop?.shop_name || '-'}</Text>
-          </div>
-          <SwapOutlined className="text-stone-400 flex-shrink-0" />
-          <div className="min-w-0 flex-1">
-            <Text type="secondary" className="text-xs block">
-              {t('toShop')}:
-            </Text>
-            <Text className="block truncate">{record.to_shop?.shop_name || '-'}</Text>
+            <Text className="block truncate">{getNeighborDisplayName(record.neighbor)}</Text>
+            {record.neighbor?.neighbor_type === 'external' && (
+              <Text type="secondary" className="text-xs">
+                {t('externalShop')}
+              </Text>
+            )}
           </div>
         </div>
       ),
@@ -318,13 +305,23 @@ export default function TransfersPage(): React.JSX.Element {
     {
       key: 'items_count',
       title: t('itemsCount'),
-      dataIndex: 'items_count',
+      dataIndex: 'total_items_count',
       width: 100,
       align: 'center',
-      render: (value: number | undefined) => (
+      render: (value: number | null) => (
         <Tag color="default">
           {value ?? 0} {t('items')}
         </Tag>
+      ),
+    },
+    {
+      key: 'total_value',
+      title: t('totalValue'),
+      dataIndex: 'total_items_value',
+      width: 120,
+      align: 'right',
+      render: (value: number | null) => (
+        <Text>{value ? formatCurrency(value, currency) : '-'}</Text>
       ),
     },
     {
