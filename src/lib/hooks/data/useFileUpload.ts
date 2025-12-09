@@ -275,6 +275,8 @@ export function useUploadFile() {
       } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(uploadData.path);
 
       // Create file_uploads record
+      // Note: chk_file_uploads_entity constraint requires both entity_type and entity_id
+      // to be either both NULL or both NOT NULL
       const { data: fileRecord, error: recordError } = await supabase
         .from('file_uploads')
         .insert({
@@ -283,7 +285,7 @@ export function useUploadFile() {
           file_path: uploadData.path,
           file_size_bytes: file.size,
           mime_type: file.type,
-          entity_type: options.entityType,
+          entity_type: options.entityId ? options.entityType : null,
           entity_id: options.entityId,
           uploaded_by: publicUser.id_user,
         })
