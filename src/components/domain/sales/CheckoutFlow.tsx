@@ -50,6 +50,7 @@ import {
 import { CheckoutProgress } from './CheckoutProgress';
 import { CheckoutReview } from './CheckoutReview';
 import { CustomerSelector } from './CustomerSelector';
+import { DeliveryStep } from './DeliveryStep';
 import { PaymentForm } from './PaymentForm';
 
 import type { Payment } from './PaymentForm';
@@ -192,6 +193,9 @@ export function CheckoutFlow({
     createSaleFromCart,
     recordPayments,
     finalizeSale,
+    setFulfillmentType,
+    setDeliveryInfo,
+    createDelivery,
     cancelCheckout,
     retryCheckout,
     clearAndComplete,
@@ -295,7 +299,14 @@ export function CheckoutFlow({
         }
         break;
       case 'customer':
-        // Customer step - just move to payment
+        // Customer step - move to delivery step
+        await nextStep();
+        break;
+      case 'delivery':
+        // Delivery step - create delivery if selected, then move to payment
+        if (state.fulfillmentType === 'delivery') {
+          await createDelivery();
+        }
         await nextStep();
         break;
       case 'payment':
@@ -305,7 +316,14 @@ export function CheckoutFlow({
       default:
         await nextStep();
     }
-  }, [state.currentStep, createSaleFromCart, nextStep, finalizeSale]);
+  }, [
+    state.currentStep,
+    state.fulfillmentType,
+    createSaleFromCart,
+    createDelivery,
+    nextStep,
+    finalizeSale,
+  ]);
 
   /**
    * Handle back navigation
@@ -495,10 +513,26 @@ export function CheckoutFlow({
                 onClick={handleNext}
                 className="flex-1"
               >
-                {t('proceedToPayment')}
+                {tCommon('actions.next')}
               </Button>
             </div>
           </div>
+        );
+
+      case 'delivery':
+        return (
+          <DeliveryStep
+            fulfillmentType={state.fulfillmentType}
+            deliveryInfo={state.deliveryInfo}
+            customer={customer}
+            onFulfillmentTypeChange={setFulfillmentType}
+            onDeliveryInfoChange={setDeliveryInfo}
+            onBack={handleBack}
+            onProceed={handleNext}
+            canProceed={canProceed}
+            isLoading={state.isProcessing}
+            currency={currency}
+          />
         );
 
       case 'payment':
@@ -575,6 +609,8 @@ export function CheckoutFlow({
         return t('steps.review');
       case 'customer':
         return t('steps.customer');
+      case 'delivery':
+        return t('steps.delivery');
       case 'payment':
         return t('steps.payment');
       case 'processing':

@@ -225,6 +225,12 @@ export type { CheckoutReviewProps } from './CheckoutReview';
 export { CheckoutComplete, CheckoutProcessing, CheckoutError } from './CheckoutComplete';
 export type { CheckoutCompleteProps, ReceiptData } from './CheckoutComplete';
 
+/**
+ * DeliveryStep - Checkout step for selecting delivery option
+ * Features: pickup/delivery toggle, courier selection, address input, delivery cost
+ */
+export { DeliveryStep } from './DeliveryStep';
+
 // =============================================================================
 // SALE DETAIL COMPONENTS
 // =============================================================================

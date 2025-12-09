@@ -12,6 +12,7 @@
  * - Line items section with add/remove
  * - Item fields: description, metal type, purity, weight, quantity, price
  * - Auto-calculate line totals and grand total
+ * - Invoice image upload (multiple files)
  * - Notes field
  * - Save as draft or submit
  *
@@ -20,7 +21,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 
-import { PlusOutlined, DeleteOutlined, SaveOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, SaveOutlined, FileImageOutlined } from '@ant-design/icons';
 import {
   Form,
   Input,
@@ -37,8 +38,10 @@ import {
 import dayjs from 'dayjs';
 import { useTranslations, useLocale } from 'next-intl';
 
+import { InvoiceImageUpload } from '@/components/domain/purchases/InvoiceImageUpload';
 import { SupplierSelect } from '@/components/domain/suppliers/SupplierSelect';
 import { Button } from '@/components/ui/Button';
+import { useLinkFilesToEntity, type FileUploadResult } from '@/lib/hooks/data/useFileUpload';
 import { useCreatePurchase, useUpdatePurchase } from '@/lib/hooks/data/usePurchases';
 import { useShop } from '@/lib/hooks/shop';
 import type { Locale } from '@/lib/i18n/routing';
@@ -312,6 +315,7 @@ export function PurchaseForm({
   // Mutations
   const createPurchase = useCreatePurchase();
   const updatePurchase = useUpdatePurchase();
+  const linkFiles = useLinkFilesToEntity();
 
   // ==========================================================================
   // STATE
@@ -325,6 +329,8 @@ export function PurchaseForm({
   const [items, setItems] = useState<PurchaseLineItem[]>(initialData?.items || [createEmptyItem()]);
   const [notes, setNotes] = useState(initialData?.notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Invoice images - stores uploaded file info for linking after purchase creation
+  const [uploadedInvoiceImages, setUploadedInvoiceImages] = useState<FileUploadResult[]>([]);
 
   // ==========================================================================
   // COMPUTED VALUES
@@ -366,6 +372,14 @@ export function PurchaseForm({
     setItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
+  /**
+   * Handles invoice image uploads for new purchases.
+   * Files are uploaded immediately but linked to the purchase after creation.
+   */
+  const handleInvoiceImagesChange = useCallback((files: FileUploadResult[]) => {
+    setUploadedInvoiceImages(files);
+  }, []);
+
   const handleSubmit = useCallback(
     async (_asDraft: boolean = false) => {
       // Validation
@@ -402,6 +416,21 @@ export function PurchaseForm({
           message.success(t('updateSuccess'));
         } else {
           const result = await createPurchase.mutateAsync(purchaseData);
+
+          // Link uploaded invoice images to the newly created purchase
+          if (uploadedInvoiceImages.length > 0) {
+            try {
+              await linkFiles.mutateAsync({
+                fileIds: uploadedInvoiceImages.map((f) => f.id_file),
+                entityType: 'purchase',
+                entityId: result.id_purchase,
+              });
+            } catch (linkError) {
+              console.error('Failed to link invoice images:', linkError);
+              // Don't fail the purchase creation, just log the error
+            }
+          }
+
           message.success(t('createSuccess'));
           onSuccess?.(result.id_purchase);
         }
@@ -424,6 +453,8 @@ export function PurchaseForm({
       purchaseId,
       createPurchase,
       updatePurchase,
+      linkFiles,
+      uploadedInvoiceImages,
       onSuccess,
       t,
     ]
@@ -523,6 +554,24 @@ export function PurchaseForm({
             </Title>
           </div>
         </div>
+      </Card>
+
+      {/* Invoice Images */}
+      <Card
+        title={
+          <div className="flex items-center gap-2">
+            <FileImageOutlined className="text-amber-500" />
+            <span>{t('invoiceImages.title')}</span>
+          </div>
+        }
+        className="border border-stone-200"
+      >
+        <InvoiceImageUpload
+          purchaseId={isEditing ? (purchaseId ?? null) : null}
+          onFilesChange={handleInvoiceImagesChange}
+          maxFiles={10}
+          disabled={isSubmitting}
+        />
       </Card>
 
       {/* Notes */}

@@ -985,3 +985,342 @@ export function useInvalidateTransfers() {
     },
   };
 }
+
+// =============================================================================
+// NEIGHBOR SHOP MUTATIONS
+// =============================================================================
+
+/**
+ * Input type for creating a neighbor shop
+ */
+export interface CreateNeighborShopInput {
+  neighborType: 'internal' | 'external';
+  /** For internal type: the shop ID of the neighbor */
+  neighborShopId?: string;
+  /** For external type: the shop name */
+  externalShopName?: string;
+  /** For external type: contact phone */
+  externalShopPhone?: string;
+  /** For external type: address */
+  externalShopAddress?: string;
+  /** Optional notes */
+  notes?: string;
+}
+
+/**
+ * Input type for updating a neighbor shop
+ */
+export interface UpdateNeighborShopInput {
+  neighborId: string;
+  /** For external type: the shop name */
+  externalShopName?: string;
+  /** For external type: contact phone */
+  externalShopPhone?: string;
+  /** For external type: address */
+  externalShopAddress?: string;
+  /** Status: active or inactive */
+  status?: 'active' | 'inactive';
+  /** Optional notes */
+  notes?: string;
+}
+
+/**
+ * Hook to create a new neighbor shop relationship
+ */
+export function useCreateNeighborShop() {
+  const { shopId } = useShop();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CreateNeighborShopInput) => {
+      if (!shopId) {
+        throw new Error('No shop context available');
+      }
+
+      const supabase = createClient();
+
+      // Get current user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      // Get public user ID
+      const { data: publicUser } = await supabase
+        .from('users')
+        .select('id_user')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (!publicUser) {
+        throw new Error('User not found');
+      }
+
+      // Validate input
+      if (data.neighborType === 'internal' && !data.neighborShopId) {
+        throw new Error('Neighbor shop ID is required for internal type');
+      }
+
+      if (data.neighborType === 'external' && !data.externalShopName) {
+        throw new Error('External shop name is required for external type');
+      }
+
+      // Check if neighbor relationship already exists
+      let existingQuery = supabase
+        .from('neighbor_shops')
+        .select('id_neighbor')
+        .eq('id_shop', shopId)
+        .is('deleted_at', null);
+
+      if (data.neighborType === 'internal') {
+        existingQuery = existingQuery.eq('id_neighbor_shop', data.neighborShopId!);
+      } else {
+        existingQuery = existingQuery
+          .eq('neighbor_type', 'external')
+          .eq('external_shop_name', data.externalShopName!);
+      }
+
+      const { data: existing } = await existingQuery;
+
+      if (existing && existing.length > 0) {
+        throw new Error('This neighbor shop relationship already exists');
+      }
+
+      // Create the neighbor shop
+      const { data: neighborShop, error } = await supabase
+        .from('neighbor_shops')
+        .insert({
+          id_shop: shopId,
+          neighbor_type: data.neighborType,
+          id_neighbor_shop: data.neighborType === 'internal' ? data.neighborShopId : null,
+          external_shop_name: data.neighborType === 'external' ? data.externalShopName : null,
+          external_shop_phone: data.neighborType === 'external' ? data.externalShopPhone : null,
+          external_shop_address: data.neighborType === 'external' ? data.externalShopAddress : null,
+          status: 'active',
+          notes: data.notes || null,
+          created_by: publicUser.id_user,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to create neighbor shop: ${error.message}`);
+      }
+
+      return neighborShop;
+    },
+    onSuccess: () => {
+      if (shopId) {
+        queryClient.invalidateQueries({ queryKey: transferKeys.neighbors(shopId) });
+      }
+    },
+  });
+}
+
+/**
+ * Hook to update a neighbor shop
+ */
+export function useUpdateNeighborShop() {
+  const { shopId } = useShop();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: UpdateNeighborShopInput) => {
+      if (!shopId) {
+        throw new Error('No shop context available');
+      }
+
+      const supabase = createClient();
+
+      // Get current user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      // Get public user ID
+      const { data: publicUser } = await supabase
+        .from('users')
+        .select('id_user')
+        .eq('auth_id', user.id)
+        .single();
+
+      // Build update data
+      const updateData: Record<string, unknown> = {
+        updated_at: new Date().toISOString(),
+        updated_by: publicUser?.id_user,
+      };
+
+      if (data.externalShopName !== undefined) {
+        updateData.external_shop_name = data.externalShopName;
+      }
+      if (data.externalShopPhone !== undefined) {
+        updateData.external_shop_phone = data.externalShopPhone;
+      }
+      if (data.externalShopAddress !== undefined) {
+        updateData.external_shop_address = data.externalShopAddress;
+      }
+      if (data.status !== undefined) {
+        updateData.status = data.status;
+      }
+      if (data.notes !== undefined) {
+        updateData.notes = data.notes;
+      }
+
+      const { data: neighborShop, error } = await supabase
+        .from('neighbor_shops')
+        .update(updateData)
+        .eq('id_neighbor', data.neighborId)
+        .eq('id_shop', shopId)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to update neighbor shop: ${error.message}`);
+      }
+
+      return neighborShop;
+    },
+    onSuccess: () => {
+      if (shopId) {
+        queryClient.invalidateQueries({ queryKey: transferKeys.neighbors(shopId) });
+      }
+    },
+  });
+}
+
+/**
+ * Hook to delete (soft delete) a neighbor shop
+ */
+export function useDeleteNeighborShop() {
+  const { shopId } = useShop();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (neighborId: string) => {
+      if (!shopId) {
+        throw new Error('No shop context available');
+      }
+
+      const supabase = createClient();
+
+      // Get current user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      // Get public user ID
+      const { data: publicUser } = await supabase
+        .from('users')
+        .select('id_user')
+        .eq('auth_id', user.id)
+        .single();
+
+      // Soft delete - set deleted_at
+      const { error } = await supabase
+        .from('neighbor_shops')
+        .update({
+          deleted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          updated_by: publicUser?.id_user,
+          status: 'inactive',
+        })
+        .eq('id_neighbor', neighborId)
+        .eq('id_shop', shopId);
+
+      if (error) {
+        throw new Error(`Failed to delete neighbor shop: ${error.message}`);
+      }
+
+      return { success: true };
+    },
+    onSuccess: () => {
+      if (shopId) {
+        queryClient.invalidateQueries({ queryKey: transferKeys.neighbors(shopId) });
+      }
+    },
+  });
+}
+
+/**
+ * Hook to fetch all neighbor shops (including inactive) for management
+ */
+export function useNeighborShopsForManagement(
+  options: UseNeighborShopsOptions = {}
+): UseNeighborShopsReturn & { isFetching: boolean } {
+  const { shopId, hasAccess } = useShop();
+  const { search, page = 1, pageSize = 50, enabled = true } = options;
+
+  const queryResult = useQuery({
+    queryKey: [...transferKeys.neighbors(shopId ?? ''), 'management', { search, page, pageSize }],
+    queryFn: async () => {
+      const supabase = createClient();
+      const offset = (page - 1) * pageSize;
+
+      let query = supabase
+        .from('neighbor_shops')
+        .select(
+          `
+          *,
+          internal_shop:shops!neighbor_shops_id_neighbor_shop_fkey (
+            id_shop,
+            shop_name,
+            shop_logo
+          )
+        `,
+          { count: 'exact' }
+        )
+        .eq('id_shop', shopId!)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false });
+
+      query = query.range(offset, offset + pageSize - 1);
+
+      const { data, error, count } = await query;
+
+      if (error) {
+        throw new Error(`Failed to fetch neighbor shops: ${error.message}`);
+      }
+
+      let results = (data ?? []) as unknown as NeighborShopWithDetails[];
+
+      // Apply search filter on shop name (both internal and external)
+      if (search && search.trim()) {
+        const searchLower = search.trim().toLowerCase();
+        results = results.filter((ns) => {
+          if (ns.neighbor_type === 'internal') {
+            return ns.internal_shop?.shop_name?.toLowerCase().includes(searchLower);
+          } else {
+            return ns.external_shop_name?.toLowerCase().includes(searchLower);
+          }
+        });
+      }
+
+      return {
+        neighborShops: results,
+        totalCount: count ?? 0,
+      };
+    },
+    enabled: !!shopId && hasAccess && enabled,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+
+  const { data, isLoading, isFetching, error, refetch } = queryResult;
+
+  return {
+    neighborShops: data?.neighborShops ?? [],
+    totalCount: data?.totalCount ?? 0,
+    isLoading,
+    isFetching,
+    error: error as Error | null,
+    refetch,
+  };
+}

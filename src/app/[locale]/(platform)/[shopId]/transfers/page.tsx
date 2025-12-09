@@ -29,13 +29,15 @@ import {
   RocketOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  ShopOutlined,
 } from '@ant-design/icons';
-import { Tag, Typography, Segmented } from 'antd';
+import { Tag, Typography, Segmented, Space } from 'antd';
 import { useTranslations } from 'next-intl';
 
 import { DataTable } from '@/components/common/data/DataTable';
 import type { ActionConfig } from '@/components/common/data/DataTable';
 import type { FilterConfig } from '@/components/common/data/FilterPanel';
+import { NeighborShopsDrawer } from '@/components/domain/transfers/NeighborShopsDrawer';
 import { TransferDetailDrawer } from '@/components/domain/transfers/TransferDetailDrawer';
 import { TransferForm } from '@/components/domain/transfers/TransferForm';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -153,6 +155,9 @@ export default function TransfersPage(): React.JSX.Element {
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedTransfer, setSelectedTransfer] = useState<TransferWithDetails | null>(null);
 
+  // Neighbor shops drawer state
+  const [neighborShopsOpen, setNeighborShopsOpen] = useState(false);
+
   // ==========================================================================
   // DATA FETCHING
   // ==========================================================================
@@ -228,6 +233,14 @@ export default function TransfersPage(): React.JSX.Element {
   const handleStatusUpdated = useCallback(() => {
     refetch();
   }, [refetch]);
+
+  const handleOpenNeighborShops = useCallback(() => {
+    setNeighborShopsOpen(true);
+  }, []);
+
+  const handleCloseNeighborShops = useCallback(() => {
+    setNeighborShopsOpen(false);
+  }, []);
 
   // ==========================================================================
   // TABLE CONFIGURATION
@@ -368,14 +381,23 @@ export default function TransfersPage(): React.JSX.Element {
     <div className="transfers-page">
       {/* Page Header */}
       <PageHeader title={t('title')}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAddTransfer}
-          permission="inventory.transfer"
-        >
-          {t('newTransfer')}
-        </Button>
+        <Space>
+          <Button
+            icon={<ShopOutlined />}
+            onClick={handleOpenNeighborShops}
+            permission="transfers.manage_neighbors"
+          >
+            {t('neighborShops.manage')}
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleAddTransfer}
+            permission="inventory.transfer"
+          >
+            {t('newTransfer')}
+          </Button>
+        </Space>
       </PageHeader>
 
       {/* Direction Toggle */}
@@ -435,6 +457,9 @@ export default function TransfersPage(): React.JSX.Element {
         onClose={handleDetailClose}
         onStatusUpdated={handleStatusUpdated}
       />
+
+      {/* Neighbor Shops Management Drawer */}
+      <NeighborShopsDrawer open={neighborShopsOpen} onClose={handleCloseNeighborShops} />
     </div>
   );
 }

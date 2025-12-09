@@ -81,6 +81,33 @@ export interface OrderDiscount {
 }
 
 /**
+ * Delivery option for checkout
+ */
+export type FulfillmentType = 'pickup' | 'delivery';
+
+/**
+ * Delivery info for checkout
+ */
+export interface DeliveryInfo {
+  /** Selected courier company ID */
+  courierId: string;
+  /** Courier company name (for display) */
+  courierName?: string;
+  /** Recipient name for delivery */
+  recipientName: string;
+  /** Delivery address */
+  deliveryAddress: string;
+  /** Cost of delivery */
+  deliveryCost: number;
+  /** Who pays for delivery */
+  costPaidBy: 'shop' | 'customer';
+  /** Estimated delivery date (optional) */
+  estimatedDate?: string;
+  /** Notes for the delivery */
+  notes?: string;
+}
+
+/**
  * Held order for later retrieval
  */
 export interface HeldOrder {
@@ -98,6 +125,10 @@ export interface HeldOrder {
   heldAt: string;
   /** Optional label/name for the held order */
   label?: string;
+  /** Fulfillment type at time of hold */
+  fulfillmentType: FulfillmentType;
+  /** Delivery info at time of hold */
+  deliveryInfo: DeliveryInfo | null;
 }
 
 /**
@@ -110,6 +141,8 @@ interface CartState {
   discount: OrderDiscount | null;
   notes: string;
   heldOrders: HeldOrder[];
+  fulfillmentType: FulfillmentType;
+  deliveryInfo: DeliveryInfo | null;
 
   // Computed (use selectors)
   // getSubtotal, getDiscountAmount, getTaxAmount, getTotal
@@ -129,6 +162,10 @@ interface CartState {
 
   // Notes Actions
   setNotes: (notes: string) => void;
+
+  // Delivery Actions
+  setFulfillmentType: (type: FulfillmentType) => void;
+  setDeliveryInfo: (info: DeliveryInfo | null) => void;
 
   // Hold/Restore Actions
   holdOrder: (label?: string) => string | null;
@@ -248,6 +285,8 @@ const initialState = {
   discount: null as OrderDiscount | null,
   notes: '',
   heldOrders: [] as HeldOrder[],
+  fulfillmentType: 'pickup' as FulfillmentType,
+  deliveryInfo: null as DeliveryInfo | null,
 };
 
 // =============================================================================
@@ -378,6 +417,23 @@ export const useCartStore = create<CartState>()(
         setNotes: (notes) => set({ notes }, false, 'cart/setNotes'),
 
         // =====================================================================
+        // DELIVERY ACTIONS
+        // =====================================================================
+
+        setFulfillmentType: (fulfillmentType) =>
+          set(
+            (state) => ({
+              fulfillmentType,
+              // Clear delivery info if switching to pickup
+              deliveryInfo: fulfillmentType === 'pickup' ? null : state.deliveryInfo,
+            }),
+            false,
+            'cart/setFulfillmentType'
+          ),
+
+        setDeliveryInfo: (deliveryInfo) => set({ deliveryInfo }, false, 'cart/setDeliveryInfo'),
+
+        // =====================================================================
         // HOLD/RESTORE ACTIONS
         // =====================================================================
 
@@ -397,6 +453,8 @@ export const useCartStore = create<CartState>()(
             notes: state.notes,
             heldAt: new Date().toISOString(),
             label,
+            fulfillmentType: state.fulfillmentType,
+            deliveryInfo: state.deliveryInfo,
           };
 
           set(
@@ -407,6 +465,8 @@ export const useCartStore = create<CartState>()(
               customer: null,
               discount: null,
               notes: '',
+              fulfillmentType: 'pickup',
+              deliveryInfo: null,
             }),
             false,
             'cart/holdOrder'
@@ -430,6 +490,8 @@ export const useCartStore = create<CartState>()(
               customer: heldOrder.customer,
               discount: heldOrder.discount,
               notes: heldOrder.notes,
+              fulfillmentType: heldOrder.fulfillmentType || 'pickup',
+              deliveryInfo: heldOrder.deliveryInfo || null,
               // Remove from held orders
               heldOrders: s.heldOrders.filter((o) => o.id !== id),
             }),
@@ -462,6 +524,8 @@ export const useCartStore = create<CartState>()(
               customer: null,
               discount: null,
               notes: '',
+              fulfillmentType: 'pickup',
+              deliveryInfo: null,
             },
             false,
             'cart/clearCart'
@@ -478,6 +542,8 @@ export const useCartStore = create<CartState>()(
           discount: state.discount,
           notes: state.notes,
           heldOrders: state.heldOrders,
+          fulfillmentType: state.fulfillmentType,
+          deliveryInfo: state.deliveryInfo,
         }),
       }
     ),

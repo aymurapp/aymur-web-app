@@ -385,6 +385,23 @@ export {
 } from './usePurchases';
 
 // ============================================
+// File Upload Hooks
+// ============================================
+
+// File uploads for purchases, inventory items, etc.
+export {
+  useEntityFiles,
+  useUploadFile,
+  useDeleteFile,
+  useLinkFilesToEntity,
+  fileUploadKeys,
+  type FileEntityType,
+  type FileUpload,
+  type FileUploadResult,
+  type UploadOptions,
+} from './useFileUpload';
+
+// ============================================
 // Budget Hooks
 // ============================================
 

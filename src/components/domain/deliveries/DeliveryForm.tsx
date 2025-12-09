@@ -28,8 +28,20 @@ import {
   UserOutlined,
   EnvironmentOutlined,
   DollarOutlined,
+  ShoppingOutlined,
 } from '@ant-design/icons';
-import { Drawer, Form, Input, Select, DatePicker, InputNumber, message, Divider } from 'antd';
+import {
+  Drawer,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  InputNumber,
+  message,
+  Divider,
+  Typography,
+  Card,
+} from 'antd';
 import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
 
@@ -45,10 +57,27 @@ import {
 import { useShop } from '@/lib/hooks/shop';
 
 const { TextArea } = Input;
+const { Text } = Typography;
 
 // =============================================================================
 // TYPES
 // =============================================================================
+
+/**
+ * Sale info for display when linked to a delivery
+ */
+export interface SaleInfo {
+  /** Sale ID */
+  id_sale: string;
+  /** Invoice number */
+  invoice_number?: string;
+  /** Sale date */
+  sale_date?: string;
+  /** Customer name */
+  customer_name?: string;
+  /** Total amount */
+  total_amount?: number;
+}
 
 interface DeliveryFormProps {
   /** Whether the modal is open */
@@ -57,6 +86,12 @@ interface DeliveryFormProps {
   delivery?: DeliveryWithCourier | null;
   /** Pre-selected sale ID (for creating from sale page) */
   saleId?: string;
+  /** Sale info for display (optional - for better UX) */
+  saleInfo?: SaleInfo | null;
+  /** Pre-filled recipient name (from customer) */
+  recipientName?: string;
+  /** Pre-filled delivery address (from customer) */
+  deliveryAddress?: string;
   /** Close handler */
   onClose: () => void;
   /** Success callback */
@@ -86,6 +121,9 @@ export function DeliveryForm({
   open,
   delivery,
   saleId,
+  saleInfo,
+  recipientName,
+  deliveryAddress,
   onClose,
   onSuccess,
 }: DeliveryFormProps): React.JSX.Element {
@@ -108,6 +146,13 @@ export function DeliveryForm({
   // Derived state
   const isEdit = !!delivery;
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
+
+  // Show sale info if available
+  const displaySaleInfo =
+    saleInfo ||
+    (delivery && {
+      id_sale: delivery.id_sale,
+    });
 
   // Cost paid by options
   const costPaidByOptions = useMemo(
@@ -152,16 +197,24 @@ export function DeliveryForm({
           notes: delivery.notes || undefined,
         });
       } else {
-        // Create mode - reset form with defaults
+        // Create mode - reset form with defaults and pre-filled values
         form.resetFields();
         if (saleId) {
           form.setFieldValue('id_sale', saleId);
+        }
+        // Pre-fill recipient name if provided (from customer)
+        if (recipientName) {
+          form.setFieldValue('recipient_name', recipientName);
+        }
+        // Pre-fill delivery address if provided (from customer)
+        if (deliveryAddress) {
+          form.setFieldValue('delivery_address', deliveryAddress);
         }
         form.setFieldValue('cost_paid_by', 'customer');
         form.setFieldValue('delivery_cost', 0);
       }
     }
-  }, [open, delivery, saleId, form]);
+  }, [open, delivery, saleId, recipientName, deliveryAddress, form]);
 
   // ==========================================================================
   // HANDLERS
@@ -262,12 +315,55 @@ export function DeliveryForm({
       }
     >
       <Form form={form} layout="vertical" requiredMark="optional" className="mt-4">
-        {/* Sale ID - Required for new deliveries */}
+        {/* Sale Info - Show when available */}
+        {displaySaleInfo && (
+          <Card
+            size="small"
+            className="mb-4 bg-amber-50 border-amber-200"
+            styles={{ body: { padding: '12px' } }}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <ShoppingOutlined className="text-amber-600" />
+              <Text strong className="text-amber-700">
+                {t('linkedSale')}
+              </Text>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              {displaySaleInfo.invoice_number && (
+                <div>
+                  <Text type="secondary">{t('invoiceNumber')}:</Text>
+                  <Text className="ml-1">{displaySaleInfo.invoice_number}</Text>
+                </div>
+              )}
+              {displaySaleInfo.sale_date && (
+                <div>
+                  <Text type="secondary">{t('saleDate')}:</Text>
+                  <Text className="ml-1">{displaySaleInfo.sale_date}</Text>
+                </div>
+              )}
+              {displaySaleInfo.customer_name && (
+                <div>
+                  <Text type="secondary">{t('customer')}:</Text>
+                  <Text className="ml-1">{displaySaleInfo.customer_name}</Text>
+                </div>
+              )}
+              {displaySaleInfo.total_amount !== undefined && (
+                <div>
+                  <Text type="secondary">{t('totalAmount')}:</Text>
+                  <Text className="ml-1">${displaySaleInfo.total_amount.toFixed(2)}</Text>
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
+
+        {/* Sale ID - Required for new deliveries (hidden input when saleId is provided) */}
         {!isEdit && (
           <Form.Item
             name="id_sale"
-            label={t('linkedSale')}
+            label={displaySaleInfo ? undefined : t('linkedSale')}
             rules={[{ required: true, message: tCommon('validation.required') }]}
+            hidden={!!saleId && !!displaySaleInfo}
           >
             <Input placeholder={t('selectSale')} disabled={!!saleId} />
           </Form.Item>

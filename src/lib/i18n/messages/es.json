@@ -89,7 +89,8 @@
       "optional": "Opcional",
       "required": "Obligatorio",
       "default": "Por defecto",
-      "custom": "Personalizado"
+      "custom": "Personalizado",
+      "addedOn": "Agregado el"
     },
     "status": {
       "pending": "Pendiente",
@@ -1128,6 +1129,42 @@
     "filters": {
       "allStatuses": "Todos los estados",
       "dateRange": "Rango de fechas"
+    },
+    "neighborShops": {
+      "title": "Tiendas asociadas",
+      "subtitle": "Administrar tiendas a las que puede transferir",
+      "manage": "Tiendas asociadas",
+      "add": "Agregar tienda asociada",
+      "edit": "Editar tienda asociada",
+      "searchPlaceholder": "Buscar tiendas asociadas...",
+      "empty": "No hay tiendas asociadas configuradas",
+      "noResults": "No se encontraron tiendas asociadas",
+      "type": "Tipo de tienda",
+      "internal": "Tienda interna",
+      "external": "Socio externo",
+      "internalDescription": "Otra tienda dentro de su negocio",
+      "externalDescription": "Una tienda asociada fuera de su negocio",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "shopName": "Nombre de la tienda",
+      "shopNamePlaceholder": "Ingrese el nombre de la tienda asociada",
+      "phone": "Número de teléfono",
+      "phonePlaceholder": "Ingrese el número de teléfono de contacto",
+      "address": "Dirección",
+      "addressPlaceholder": "Ingrese la dirección de la tienda",
+      "selectShop": "Seleccionar tienda",
+      "selectShopPlaceholder": "Elegir una tienda interna",
+      "noInternalShops": "No hay tiendas internas disponibles",
+      "notesPlaceholder": "Agregar notas sobre esta tienda asociada...",
+      "confirmDelete": "¿Eliminar tienda asociada?",
+      "confirmDeleteDescription": "Esta tienda asociada será eliminada de sus destinos de transferencia. Las transferencias existentes no se verán afectadas.",
+      "created": "Tienda asociada agregada exitosamente",
+      "updated": "Tienda asociada actualizada exitosamente",
+      "deleted": "Tienda asociada eliminada exitosamente",
+      "activated": "Tienda asociada activada",
+      "deactivated": "Tienda asociada desactivada"
     }
   }
 }

@@ -89,7 +89,8 @@
       "optional": "اختياري",
       "required": "مطلوب",
       "default": "افتراضي",
-      "custom": "مخصص"
+      "custom": "مخصص",
+      "addedOn": "أضيف في"
     },
     "status": {
       "pending": "قيد الانتظار",
@@ -1316,6 +1317,42 @@
     "filters": {
       "allStatuses": "جميع الحالات",
       "dateRange": "نطاق التاريخ"
+    },
+    "neighborShops": {
+      "title": "المتاجر الشريكة",
+      "subtitle": "إدارة المتاجر التي يمكنك التحويل إليها",
+      "manage": "المتاجر الشريكة",
+      "add": "إضافة متجر شريك",
+      "edit": "تعديل المتجر الشريك",
+      "searchPlaceholder": "البحث في المتاجر الشريكة...",
+      "empty": "لا توجد متاجر شريكة مسجلة",
+      "noResults": "لم يتم العثور على متاجر شريكة",
+      "type": "نوع المتجر",
+      "internal": "متجر داخلي",
+      "external": "شريك خارجي",
+      "internalDescription": "متجر آخر ضمن نشاطك التجاري",
+      "externalDescription": "متجر شريك خارج نشاطك التجاري",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "activate": "تفعيل",
+      "deactivate": "إلغاء التفعيل",
+      "shopName": "اسم المتجر",
+      "shopNamePlaceholder": "أدخل اسم المتجر الشريك",
+      "phone": "رقم الهاتف",
+      "phonePlaceholder": "أدخل رقم الهاتف للتواصل",
+      "address": "العنوان",
+      "addressPlaceholder": "أدخل عنوان المتجر",
+      "selectShop": "اختر المتجر",
+      "selectShopPlaceholder": "اختر متجرًا داخليًا",
+      "noInternalShops": "لا تتوفر متاجر داخلية",
+      "notesPlaceholder": "أضف أي ملاحظات حول هذا المتجر الشريك...",
+      "confirmDelete": "حذف المتجر الشريك؟",
+      "confirmDeleteDescription": "سيتم إزالة هذا المتجر الشريك من وجهات التحويل. لن تتأثر التحويلات الحالية.",
+      "created": "تمت إضافة المتجر الشريك بنجاح",
+      "updated": "تم تحديث المتجر الشريك بنجاح",
+      "deleted": "تمت إزالة المتجر الشريك بنجاح",
+      "activated": "تم تفعيل المتجر الشريك",
+      "deactivated": "تم إلغاء تفعيل المتجر الشريك"
     }
   },
   "permissions": {

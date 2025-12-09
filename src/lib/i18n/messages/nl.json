@@ -89,7 +89,8 @@
       "optional": "Optioneel",
       "required": "Verplicht",
       "default": "Standaard",
-      "custom": "Aangepast"
+      "custom": "Aangepast",
+      "addedOn": "Toegevoegd op"
     },
     "status": {
       "pending": "In afwachting",
@@ -1128,6 +1129,42 @@
     "filters": {
       "allStatuses": "Alle statussen",
       "dateRange": "Datumbereik"
+    },
+    "neighborShops": {
+      "title": "Partnerwinkels",
+      "subtitle": "Beheer winkels waarnaar u kunt overdragen",
+      "manage": "Partnerwinkels",
+      "add": "Partnerwinkel toevoegen",
+      "edit": "Partnerwinkel bewerken",
+      "searchPlaceholder": "Zoek partnerwinkels...",
+      "empty": "Geen partnerwinkels geconfigureerd",
+      "noResults": "Geen partnerwinkels gevonden",
+      "type": "Winkeltype",
+      "internal": "Interne winkel",
+      "external": "Externe partner",
+      "internalDescription": "Een andere winkel binnen uw bedrijf",
+      "externalDescription": "Een partnerwinkel buiten uw bedrijf",
+      "active": "Actief",
+      "inactive": "Inactief",
+      "activate": "Activeren",
+      "deactivate": "Deactiveren",
+      "shopName": "Winkelnaam",
+      "shopNamePlaceholder": "Voer de naam van de partnerwinkel in",
+      "phone": "Telefoonnummer",
+      "phonePlaceholder": "Voer het telefoonnummer in",
+      "address": "Adres",
+      "addressPlaceholder": "Voer het adres van de winkel in",
+      "selectShop": "Winkel selecteren",
+      "selectShopPlaceholder": "Kies een interne winkel",
+      "noInternalShops": "Geen interne winkels beschikbaar",
+      "notesPlaceholder": "Voeg opmerkingen toe over deze partnerwinkel...",
+      "confirmDelete": "Partnerwinkel verwijderen?",
+      "confirmDeleteDescription": "Deze partnerwinkel wordt verwijderd uit uw overdrachtsbestemmingen. Bestaande overdrachten worden niet beïnvloed.",
+      "created": "Partnerwinkel succesvol toegevoegd",
+      "updated": "Partnerwinkel succesvol bijgewerkt",
+      "deleted": "Partnerwinkel succesvol verwijderd",
+      "activated": "Partnerwinkel geactiveerd",
+      "deactivated": "Partnerwinkel gedeactiveerd"
     }
   }
 }

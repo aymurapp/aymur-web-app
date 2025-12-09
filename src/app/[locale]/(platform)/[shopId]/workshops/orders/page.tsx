@@ -484,15 +484,24 @@ export default function WorkshopOrdersPage(): React.JSX.Element {
   return (
     <div className="workshop-orders-page">
       {/* Page Header */}
-      <PageHeader title={t('orders.title')} showBack backUrl={`/${shopId}/workshops`}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleCreateOrder}
-          permission={PERMISSION_KEYS.WORKSHOPS_ORDERS}
-        >
-          {t('orders.newOrder')}
-        </Button>
+      <PageHeader title={t('orders.title')}>
+        <div className="flex items-center gap-2">
+          <Button
+            icon={<ShopOutlined />}
+            onClick={() => router.push(`/${shopId}/workshops/providers`)}
+            permission={PERMISSION_KEYS.WORKSHOPS_MANAGE}
+          >
+            {t('workshopProviders')}
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleCreateOrder}
+            permission={PERMISSION_KEYS.WORKSHOPS_ORDERS}
+          >
+            {t('orders.newOrder')}
+          </Button>
+        </div>
       </PageHeader>
 
       {/* Data Table */}

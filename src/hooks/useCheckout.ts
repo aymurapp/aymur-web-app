@@ -22,6 +22,7 @@ import { message } from 'antd';
 import { useTranslations } from 'next-intl';
 
 import type { Payment } from '@/components/domain/sales/PaymentForm';
+import { createDeliveryFromCheckout } from '@/lib/actions/deliveries';
 import { createSale, addSaleItem, recordPayment, completeSale } from '@/lib/actions/sales';
 import type { Sale, SalePayment } from '@/lib/actions/sales';
 import { useUser } from '@/lib/hooks/auth';
@@ -32,7 +33,12 @@ import {
   calculateOrderDiscountAmount,
   calculateGrandTotal,
   calculateTaxAmount,
+  type DeliveryInfo as CartDeliveryInfo,
+  type FulfillmentType,
 } from '@/stores/cartStore';
+
+// Re-export as DeliveryInfo for external use
+export type { CartDeliveryInfo as DeliveryInfo };
 
 // =============================================================================
 // TYPES
@@ -50,25 +56,7 @@ export type CheckoutStep =
   | 'complete'
   | 'error';
 
-/**
- * Delivery information for checkout
- */
-export interface DeliveryInfo {
-  /** Selected courier company ID */
-  courierId: string;
-  /** Courier company name (for display) */
-  courierName?: string;
-  /** Recipient name for delivery */
-  recipientName: string;
-  /** Delivery address */
-  deliveryAddress: string;
-  /** Cost of delivery */
-  deliveryCost: number;
-  /** Who pays for delivery */
-  costPaidBy: 'shop' | 'customer' | 'split';
-  /** Estimated delivery date (optional) */
-  estimatedDate?: string;
-}
+// DeliveryInfo type is re-exported from cartStore above
 
 /**
  * Checkout state interface
@@ -84,6 +72,12 @@ export interface CheckoutState {
   error: string | null;
   /** Whether checkout is in progress */
   isProcessing: boolean;
+  /** Fulfillment type (pickup or delivery) */
+  fulfillmentType: FulfillmentType;
+  /** Delivery info if delivery is selected */
+  deliveryInfo: CartDeliveryInfo | null;
+  /** Created delivery ID after delivery step */
+  deliveryId: string | null;
 }
 
 /**
@@ -148,6 +142,14 @@ export interface UseCheckoutReturn {
   /** Complete the sale and finalize */
   finalizeSale: () => Promise<boolean>;
 
+  // Delivery actions
+  /** Set fulfillment type (pickup or delivery) */
+  setFulfillmentType: (type: FulfillmentType) => void;
+  /** Set delivery info */
+  setDeliveryInfo: (info: CartDeliveryInfo | null) => void;
+  /** Create delivery record for the sale */
+  createDelivery: () => Promise<boolean>;
+
   // Checkout control
   /** Start the checkout flow */
   startCheckout: () => void;
@@ -176,7 +178,14 @@ export interface UseCheckoutReturn {
 /**
  * Step order for navigation
  */
-const STEP_ORDER: CheckoutStep[] = ['review', 'customer', 'payment', 'processing', 'complete'];
+const STEP_ORDER: CheckoutStep[] = [
+  'review',
+  'customer',
+  'delivery',
+  'payment',
+  'processing',
+  'complete',
+];
 
 /**
  * Initial state
@@ -187,6 +196,9 @@ const initialState: CheckoutState = {
   payments: [],
   error: null,
   isProcessing: false,
+  fulfillmentType: 'pickup',
+  deliveryInfo: null,
+  deliveryId: null,
 };
 
 // =============================================================================
@@ -235,7 +247,17 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
   const { user } = useUser();
 
   // Cart state
-  const { items, customer, discount, notes, clearCart } = useCartStore();
+  const {
+    items,
+    customer,
+    discount,
+    notes,
+    clearCart,
+    fulfillmentType: cartFulfillmentType,
+    deliveryInfo: cartDeliveryInfo,
+    setFulfillmentType: setCartFulfillmentType,
+    setDeliveryInfo: setCartDeliveryInfo,
+  } = useCartStore();
 
   // Local checkout state
   const [state, setState] = useState<CheckoutState>(initialState);
@@ -300,6 +322,14 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
         return items.length > 0;
       case 'customer':
         return true; // Customer is optional (walk-in allowed)
+      case 'delivery':
+        // If pickup, always can proceed
+        // If delivery, need valid delivery info
+        if (state.fulfillmentType === 'pickup') {
+          return true;
+        }
+        // Delivery requires courier and address at minimum
+        return !!(state.deliveryInfo?.courierId && state.deliveryInfo?.deliveryAddress);
       case 'payment':
         return totals.remainingBalance <= 0.01; // Allow small float tolerance
       case 'processing':
@@ -311,7 +341,13 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
       default:
         return false;
     }
-  }, [state.currentStep, items.length, totals.remainingBalance]);
+  }, [
+    state.currentStep,
+    items.length,
+    totals.remainingBalance,
+    state.fulfillmentType,
+    state.deliveryInfo,
+  ]);
 
   /**
    * Can go back to previous step
@@ -359,8 +395,13 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
       return;
     }
     setIsActive(true);
-    setState(initialState);
-  }, [items.length, t]);
+    // Initialize checkout state with cart's fulfillment settings
+    setState({
+      ...initialState,
+      fulfillmentType: cartFulfillmentType,
+      deliveryInfo: cartDeliveryInfo,
+    });
+  }, [items.length, t, cartFulfillmentType, cartDeliveryInfo]);
 
   /**
    * Cancel checkout
@@ -618,6 +659,97 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
   }, [clearCart]);
 
   // =============================================================================
+  // DELIVERY ACTIONS
+  // =============================================================================
+
+  /**
+   * Set fulfillment type (pickup or delivery)
+   */
+  const setFulfillmentType = useCallback(
+    (type: FulfillmentType) => {
+      updateState({
+        fulfillmentType: type,
+        // Clear delivery info if switching to pickup
+        deliveryInfo: type === 'pickup' ? null : state.deliveryInfo,
+      });
+      // Also update cart store to persist the selection
+      setCartFulfillmentType(type);
+    },
+    [state.deliveryInfo, updateState, setCartFulfillmentType]
+  );
+
+  /**
+   * Set delivery info
+   */
+  const setDeliveryInfo = useCallback(
+    (info: CartDeliveryInfo | null) => {
+      updateState({ deliveryInfo: info });
+      // Also update cart store to persist the selection
+      setCartDeliveryInfo(info);
+    },
+    [updateState, setCartDeliveryInfo]
+  );
+
+  /**
+   * Create delivery record for the sale
+   */
+  const createDelivery = useCallback(async (): Promise<boolean> => {
+    // Skip if pickup or no delivery info
+    if (state.fulfillmentType === 'pickup' || !state.deliveryInfo) {
+      return true;
+    }
+
+    if (!state.sale || !shopId) {
+      setError(t('errors.deliveryFailed'));
+      return false;
+    }
+
+    updateState({ isProcessing: true });
+
+    try {
+      const result = await createDeliveryFromCheckout({
+        id_shop: shopId,
+        id_sale: state.sale.id_sale,
+        id_courier: state.deliveryInfo.courierId,
+        recipient_name: state.deliveryInfo.recipientName || customer?.name || null,
+        delivery_address: state.deliveryInfo.deliveryAddress,
+        delivery_cost: state.deliveryInfo.deliveryCost,
+        cost_paid_by: state.deliveryInfo.costPaidBy,
+        estimated_delivery_date: state.deliveryInfo.estimatedDate || null,
+        notes: state.deliveryInfo.notes || null,
+        status: 'pending',
+      });
+
+      if (!result.success) {
+        throw new Error(result.error ?? t('errors.deliveryFailed'));
+      }
+
+      updateState({
+        deliveryId: result.data?.id_delivery || null,
+        isProcessing: false,
+      });
+
+      return true;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : t('errors.deliveryFailed');
+      // Don't set error state for delivery failure - just log and continue
+      console.error('[useCheckout] Delivery creation failed:', errorMessage);
+      message.warning(errorMessage);
+      updateState({ isProcessing: false });
+      return false;
+    }
+  }, [
+    state.fulfillmentType,
+    state.deliveryInfo,
+    state.sale,
+    shopId,
+    customer?.name,
+    t,
+    updateState,
+    setError,
+  ]);
+
+  // =============================================================================
   // RETURN
   // =============================================================================
 
@@ -637,6 +769,11 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
     recordPayments,
     finalizeSale,
 
+    // Delivery actions
+    setFulfillmentType,
+    setDeliveryInfo,
+    createDelivery,
+
     // Control
     startCheckout,
     cancelCheckout,
@@ -647,7 +784,7 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
     canProceed,
     canGoBack,
     stepIndex,
-    totalSteps: STEP_ORDER.length - 1, // Exclude 'complete' from count
+    totalSteps: STEP_ORDER.length - 2, // Exclude 'processing' and 'complete' from count
   };
 }
 

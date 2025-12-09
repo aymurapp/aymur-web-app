@@ -28,6 +28,7 @@ import {
   PhoneOutlined,
   MailOutlined,
   LinkOutlined,
+  SendOutlined,
 } from '@ant-design/icons';
 import { Card, Form, Input, message, Typography, Drawer, Tag, Tooltip, Space } from 'antd';
 import { useTranslations } from 'next-intl';
@@ -37,6 +38,7 @@ import {
   type CatalogAction,
   type CatalogColumn,
 } from '@/components/domain/settings/CatalogTable';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import {
   useCouriers,
@@ -49,9 +51,10 @@ import {
 } from '@/lib/hooks/data/useDeliveries';
 import { usePermissions } from '@/lib/hooks/permissions';
 import { useShop } from '@/lib/hooks/shop';
+import { Link } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
 
-const { Text, Paragraph } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 // =============================================================================
@@ -79,7 +82,7 @@ export default function CourierCompaniesSettingsPage(): React.JSX.Element {
   const tCommon = useTranslations('common');
 
   const { can } = usePermissions();
-  useShop(); // Ensure shop context is available
+  const { shopId } = useShop();
 
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -367,16 +370,16 @@ export default function CourierCompaniesSettingsPage(): React.JSX.Element {
 
   return (
     <div className="courier-companies-settings-page">
-      {/* Header with Add Button */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <Text strong className="text-lg">
-            {t('courier.title')}
-          </Text>
-          <Paragraph type="secondary" className="!mb-0 mt-1">
-            {t('courier.noCouriersDescription')}
-          </Paragraph>
-        </div>
+      {/* Page Header with Back Navigation */}
+      <PageHeader
+        title={t('courier.title')}
+        subtitle={t('courier.noCouriersDescription')}
+        showBack
+        backUrl={`/${shopId}/deliveries`}
+      >
+        <Link href={`/${shopId}/deliveries`}>
+          <Button icon={<SendOutlined />}>{t('backToDeliveries')}</Button>
+        </Link>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -385,7 +388,7 @@ export default function CourierCompaniesSettingsPage(): React.JSX.Element {
         >
           {t('courier.addCourier')}
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Couriers Table */}
       <Card bodyStyle={{ padding: 0 }}>

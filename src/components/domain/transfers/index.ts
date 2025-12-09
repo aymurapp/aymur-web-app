@@ -9,3 +9,4 @@
 export { TransferForm } from './TransferForm';
 export { TransferDetailDrawer } from './TransferDetailDrawer';
 export { TransferItemSelector } from './TransferItemSelector';
+export { NeighborShopsDrawer } from './NeighborShopsDrawer';

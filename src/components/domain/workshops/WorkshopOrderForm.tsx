@@ -6,8 +6,11 @@
  * A drawer form for creating workshop orders.
  * Features:
  * - Workshop selection dropdown
+ * - Customer selection
+ * - Item source selection (customer, inventory, supplied)
+ * - Inventory item selection (when source is inventory)
  * - Order type selector (repair, custom, resize, polish, engrave, other)
- * - Items selection from inventory
+ * - Item description and labor cost
  * - Description and notes
  * - Due date picker
  * - Estimated cost input
@@ -17,7 +20,7 @@
  * @module components/domain/workshops/WorkshopOrderForm
  */
 
-import React, { useCallback, useTransition, useMemo } from 'react';
+import React, { useCallback, useTransition, useMemo, useState } from 'react';
 
 import {
   ShopOutlined,
@@ -25,6 +28,9 @@ import {
   DollarOutlined,
   FileTextOutlined,
   TagOutlined,
+  UserOutlined,
+  InboxOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
 import {
   Drawer,
@@ -37,32 +43,46 @@ import {
   Typography,
   Tag,
   Alert,
+  Radio,
+  Spin,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
 import { z } from 'zod';
 
+import { CustomerSelect } from '@/components/domain/customers/CustomerSelect';
 import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form';
+import { useInventoryItems } from '@/lib/hooks/data/useInventoryItems';
 import { useWorkshops, useCreateWorkshopOrder } from '@/lib/hooks/data/useWorkshops';
 import { useShop } from '@/lib/hooks/shop';
+import { useDebounce } from '@/lib/hooks/utils/useDebounce';
+import { itemSourceEnum } from '@/lib/utils/schemas/workshop';
 
 import type { Dayjs } from 'dayjs';
 import type { ZodType } from 'zod';
 
 // Create a custom form schema for the order creation form
-// Simplified version that only includes fields editable in the UI
+// Includes all required fields for workshop_orders table
 const orderFormSchema = z.object({
   id_workshop: z.string().min(1, 'Workshop is required'),
+  id_customer: z.string().optional().nullable(),
+  item_source: itemSourceEnum,
+  id_inventory_item: z.string().optional().nullable(),
+  item_description: z.string().max(1000).optional().nullable(),
   order_type: z.enum(['repair', 'custom', 'resize', 'polish', 'engrave', 'other']),
   description: z.string().max(2000).optional().nullable(),
   estimated_completion_date: z.string().optional().nullable(),
   estimated_cost: z.number().min(0).optional().nullable(),
+  labor_cost: z.number().min(0).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });
 
 // Infer the form data type from the schema
 type OrderFormData = z.infer<typeof orderFormSchema>;
+
+// Item source type
+type ItemSource = 'customer' | 'inventory' | 'supplied';
 
 const { Title } = Typography;
 
@@ -160,15 +180,50 @@ export function WorkshopOrderForm({
     }));
   }, [workshops, t]);
 
+  // State for tracking item source (to show/hide inventory selector)
+  const [itemSource, setItemSource] = useState<ItemSource>('customer');
+
+  // State for inventory item search
+  const [inventorySearch, setInventorySearch] = useState('');
+  const debouncedInventorySearch = useDebounce(inventorySearch, 300);
+
+  // Fetch inventory items when item_source is 'inventory'
+  const { items: inventoryItems, isLoading: isLoadingInventory } = useInventoryItems({
+    search: debouncedInventorySearch || undefined,
+    status: ['available'],
+    page: 1,
+    page_size: 50,
+    enabled: itemSource === 'inventory',
+  });
+
+  // Build inventory item options
+  const inventoryOptions = useMemo(() => {
+    return inventoryItems.map((item) => ({
+      value: item.id_item,
+      label: (
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{item.item_name}</span>
+          {item.sku && <span className="text-stone-400 text-xs font-mono">({item.sku})</span>}
+        </div>
+      ),
+      searchLabel: `${item.item_name} ${item.sku || ''} ${item.barcode || ''}`,
+    }));
+  }, [inventoryItems]);
+
   // Default values for the form
   const defaultValues = useMemo<Partial<OrderFormData>>(
     () => ({
       id_workshop: initialWorkshopId || '',
+      id_customer: null,
+      item_source: 'customer',
+      id_inventory_item: null,
+      item_description: '',
       order_type: 'repair',
       description: '',
       notes: null,
       estimated_completion_date: null,
       estimated_cost: null,
+      labor_cost: null,
     }),
     [initialWorkshopId]
   );
@@ -191,18 +246,18 @@ export function WorkshopOrderForm({
             completed_date: null,
             delivered_date: null,
             description: data.description || null,
-            item_description: null,
-            item_source: 'customer', // Default item source
+            item_description: data.item_description || null,
+            item_source: data.item_source,
             materials_used: null,
-            labor_cost: null,
+            labor_cost: data.labor_cost || null,
             estimated_cost: data.estimated_cost || null,
             actual_cost: null,
             payment_status: 'unpaid',
             status: 'pending',
             notes: data.notes || null,
-            // Nullable fields
-            id_customer: null,
-            id_inventory_item: null,
+            id_customer: data.id_customer || null,
+            id_inventory_item:
+              data.item_source === 'inventory' ? data.id_inventory_item || null : null,
           });
           message.success(t('orders.createSuccess'));
           onSuccess?.();
@@ -258,6 +313,103 @@ export function WorkshopOrderForm({
                 suffixIcon={<ShopOutlined />}
               />
             )}
+          </Form.Item>
+        </div>
+
+        <Divider className="my-6" />
+
+        {/* Customer & Item Section */}
+        <div>
+          <Title level={5} className="mb-4 text-stone-800">
+            {t('orders.customerAndItem')}
+          </Title>
+
+          {/* Customer Selector */}
+          <Form.Item<OrderFormData> name="id_customer" label={t('orders.customer')}>
+            {({ field }) => (
+              <CustomerSelect
+                value={typeof field.value === 'string' ? field.value : null}
+                onChange={(customerId) => field.onChange(customerId)}
+                placeholder={t('orders.selectCustomer')}
+                allowClear
+              />
+            )}
+          </Form.Item>
+
+          {/* Item Source Radio Group */}
+          <Form.Item<OrderFormData> name="item_source" label={t('orders.itemSource')} required>
+            {({ field }) => (
+              <Radio.Group
+                {...field}
+                onChange={(e) => {
+                  field.onChange(e.target.value);
+                  setItemSource(e.target.value as ItemSource);
+                }}
+                className="flex flex-col gap-3"
+              >
+                <Radio value="customer" className="flex items-center">
+                  <div className="flex items-center gap-2 ms-1">
+                    <UserOutlined className="text-amber-500" />
+                    <span>{t('orders.itemSourceCustomer')}</span>
+                  </div>
+                </Radio>
+                <Radio value="inventory" className="flex items-center">
+                  <div className="flex items-center gap-2 ms-1">
+                    <InboxOutlined className="text-blue-500" />
+                    <span>{t('orders.itemSourceInventory')}</span>
+                  </div>
+                </Radio>
+                <Radio value="supplied" className="flex items-center">
+                  <div className="flex items-center gap-2 ms-1">
+                    <ToolOutlined className="text-green-500" />
+                    <span>{t('orders.itemSourceSupplied')}</span>
+                  </div>
+                </Radio>
+              </Radio.Group>
+            )}
+          </Form.Item>
+
+          {/* Inventory Item Selector - Only shown when item_source is 'inventory' */}
+          {itemSource === 'inventory' && (
+            <Form.Item<OrderFormData> name="id_inventory_item" label={t('orders.selectItem')}>
+              {({ field }) => (
+                <Select
+                  {...field}
+                  size="large"
+                  placeholder={t('orders.selectItemPlaceholder')}
+                  loading={isLoadingInventory}
+                  showSearch
+                  filterOption={false}
+                  onSearch={setInventorySearch}
+                  options={inventoryOptions}
+                  optionFilterProp="searchLabel"
+                  className="w-full"
+                  allowClear
+                  suffixIcon={<InboxOutlined />}
+                  notFoundContent={
+                    isLoadingInventory ? (
+                      <div className="py-2 text-center">
+                        <Spin size="small" />
+                      </div>
+                    ) : (
+                      <div className="py-2 text-center text-stone-400">
+                        {t('orders.noItemsFound')}
+                      </div>
+                    )
+                  }
+                />
+              )}
+            </Form.Item>
+          )}
+
+          {/* Item Description */}
+          <Form.Item<OrderFormData> name="item_description" label={t('orders.itemDescription')}>
+            <Input.TextArea
+              rows={2}
+              placeholder={t('orders.itemDescriptionPlaceholder')}
+              maxLength={1000}
+              showCount
+            />
           </Form.Item>
         </div>
 
@@ -325,6 +477,22 @@ export function WorkshopOrderForm({
                   format="YYYY-MM-DD"
                 />
               )}
+            </Form.Item>
+
+            {/* Labor Cost */}
+            <Form.Item<OrderFormData> name="labor_cost" label={t('orders.laborCost')}>
+              <InputNumber
+                size="large"
+                className="!w-full"
+                placeholder={t('orders.enterLaborCost')}
+                min={0}
+                step={0.01}
+                formatter={(value) => `${currency} ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) =>
+                  parseFloat(value?.replace(new RegExp(`${currency}\\s?|,`, 'g'), '') || '0') as 0
+                }
+                prefix={<ToolOutlined />}
+              />
             </Form.Item>
 
             {/* Estimated Cost */}

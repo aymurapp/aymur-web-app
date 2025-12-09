@@ -89,7 +89,8 @@
       "optional": "Facultatif",
       "required": "Obligatoire",
       "default": "Par defaut",
-      "custom": "Personnalise"
+      "custom": "Personnalise",
+      "addedOn": "Ajouté le"
     },
     "status": {
       "pending": "En attente",
@@ -1128,6 +1129,42 @@
     "filters": {
       "allStatuses": "Tous les statuts",
       "dateRange": "Période"
+    },
+    "neighborShops": {
+      "title": "Boutiques partenaires",
+      "subtitle": "Gérer les boutiques vers lesquelles vous pouvez transférer",
+      "manage": "Boutiques partenaires",
+      "add": "Ajouter une boutique partenaire",
+      "edit": "Modifier la boutique partenaire",
+      "searchPlaceholder": "Rechercher des boutiques partenaires...",
+      "empty": "Aucune boutique partenaire configurée",
+      "noResults": "Aucune boutique partenaire trouvée",
+      "type": "Type de boutique",
+      "internal": "Boutique interne",
+      "external": "Partenaire externe",
+      "internalDescription": "Une autre boutique de votre entreprise",
+      "externalDescription": "Une boutique partenaire externe",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "shopName": "Nom de la boutique",
+      "shopNamePlaceholder": "Entrez le nom de la boutique partenaire",
+      "phone": "Numéro de téléphone",
+      "phonePlaceholder": "Entrez le numéro de téléphone",
+      "address": "Adresse",
+      "addressPlaceholder": "Entrez l'adresse de la boutique",
+      "selectShop": "Sélectionner une boutique",
+      "selectShopPlaceholder": "Choisir une boutique interne",
+      "noInternalShops": "Aucune boutique interne disponible",
+      "notesPlaceholder": "Ajouter des notes sur cette boutique partenaire...",
+      "confirmDelete": "Supprimer la boutique partenaire ?",
+      "confirmDeleteDescription": "Cette boutique partenaire sera retirée de vos destinations de transfert. Les transferts existants ne seront pas affectés.",
+      "created": "Boutique partenaire ajoutée avec succès",
+      "updated": "Boutique partenaire mise à jour avec succès",
+      "deleted": "Boutique partenaire supprimée avec succès",
+      "activated": "Boutique partenaire activée",
+      "deactivated": "Boutique partenaire désactivée"
     }
   }
 }
