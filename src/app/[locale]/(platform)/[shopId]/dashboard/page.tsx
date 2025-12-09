@@ -19,14 +19,12 @@
 
 import React from 'react';
 
-import { Typography } from 'antd';
 import { getTranslations } from 'next-intl/server';
 
 import { DashboardWidgetsSection } from '@/components/domain/dashboard/DashboardWidgetsSection';
 import { QuickStatsSection } from '@/components/domain/dashboard/QuickStatsSection';
+import { WelcomeHeader } from '@/components/domain/dashboard/WelcomeHeader';
 import { createClient } from '@/lib/supabase/server';
-
-const { Title, Text } = Typography;
 
 // Force dynamic rendering for real-time data
 export const dynamic = 'force-dynamic';
@@ -127,34 +125,6 @@ async function getQuickStats(_shopId: string): Promise<QuickStat[]> {
       trend: { value: 3.2, direction: 'up' },
     },
   ];
-}
-
-// =============================================================================
-// COMPONENTS
-// =============================================================================
-
-/**
- * Welcome Header Section
- */
-function WelcomeHeader({
-  shopName,
-  welcomeText,
-  subtitleText,
-}: {
-  shopName: string;
-  welcomeText: string;
-  subtitleText: string;
-}) {
-  return (
-    <div className="mb-6">
-      <Title level={2} className="!mb-1 !text-stone-900 dark:!text-stone-100">
-        {welcomeText} {shopName}
-      </Title>
-      <Text type="secondary" className="text-base">
-        {subtitleText}
-      </Text>
-    </div>
-  );
 }
 
 // =============================================================================
