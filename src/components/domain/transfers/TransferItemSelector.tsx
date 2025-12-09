@@ -22,8 +22,10 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Table, Input, Typography, Tag, Empty, Spin } from 'antd';
 import { useTranslations } from 'next-intl';
 
-import { useInventoryItems } from '@/lib/hooks/data/useInventory';
-import type { InventoryItemWithDetails } from '@/lib/hooks/data/useInventory';
+import {
+  useInventoryItems,
+  type InventoryItemWithRelations,
+} from '@/lib/hooks/data/useInventoryItems';
 import { formatCurrency, formatWeight } from '@/lib/utils/format';
 
 import type { ColumnsType } from 'antd/es/table';
@@ -65,9 +67,9 @@ export function TransferItemSelector({
 
   // Fetch inventory items that can be transferred (in_stock status)
   const { items, isLoading } = useInventoryItems({
-    status: 'in_stock',
+    status: ['in_stock'],
     search: searchValue,
-    pageSize: 100,
+    page_size: 100,
   });
 
   // ==========================================================================
@@ -90,7 +92,7 @@ export function TransferItemSelector({
   // ==========================================================================
 
   // Row selection configuration
-  const rowSelection: TableRowSelection<InventoryItemWithDetails> = {
+  const rowSelection: TableRowSelection<InventoryItemWithRelations> = {
     selectedRowKeys: selectedItemIds,
     onChange: handleSelectionChange,
     getCheckboxProps: (record) => ({
@@ -100,7 +102,7 @@ export function TransferItemSelector({
   };
 
   // Table columns
-  const columns: ColumnsType<InventoryItemWithDetails> = useMemo(
+  const columns: ColumnsType<InventoryItemWithRelations> = useMemo(
     () => [
       {
         key: 'item_name',
@@ -198,7 +200,7 @@ export function TransferItemSelector({
       </div>
 
       {/* Items Table */}
-      <Table<InventoryItemWithDetails>
+      <Table<InventoryItemWithRelations>
         dataSource={items}
         columns={columns}
         rowKey="id_item"
