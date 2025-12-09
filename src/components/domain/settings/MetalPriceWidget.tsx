@@ -35,6 +35,7 @@ import { useTranslations } from 'next-intl';
 
 import { EmptyState } from '@/components/common/data/EmptyState';
 import { Button } from '@/components/ui/Button';
+import { useShop } from '@/lib/hooks/shop';
 import { Link } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
 
@@ -310,6 +311,7 @@ export function MetalPriceWidget({
   const tColumns = useTranslations('settings.metalPrices.columns');
   const tMetals = useTranslations('settings.metalPrices.metals');
   const tCommon = useTranslations('common');
+  const { shopId } = useShop();
 
   // ==========================================================================
   // STATE - Mock loading simulation
@@ -597,7 +599,7 @@ export function MetalPriceWidget({
         {/* Footer */}
         <div className="px-5 py-3 border-t border-stone-100">
           <Link
-            href="/settings/metal-prices"
+            href={shopId ? `/${shopId}/settings/metal-prices` : '/settings/metal-prices'}
             className="flex items-center justify-center gap-2 text-sm font-medium text-amber-600 hover:text-amber-700 transition-colors"
           >
             {tWidget('viewAll')}

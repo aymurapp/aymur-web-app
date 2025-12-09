@@ -29,6 +29,7 @@ import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/Button';
 import { usePermissions } from '@/lib/hooks/permissions';
+import { useShop } from '@/lib/hooks/shop';
 import { Link } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
 
@@ -148,11 +149,22 @@ export function QuickActionsWidget({
 }: QuickActionsWidgetProps): React.JSX.Element {
   const t = useTranslations('dashboard');
   const { can, isLoading: permissionsLoading } = usePermissions();
+  const { shopId } = useShop();
 
   const isLoading = loading || permissionsLoading;
 
   // Filter actions based on permissions
   const visibleActions = QUICK_ACTIONS.filter((action) => can(action.permission));
+
+  /**
+   * Build the full href with shopId prefix
+   */
+  const buildHref = (path: string): string => {
+    if (!shopId) {
+      return path;
+    }
+    return `/${shopId}${path}`;
+  };
 
   // Loading state
   if (isLoading) {
@@ -212,7 +224,7 @@ export function QuickActionsWidget({
           const colors = COLOR_CLASSES[action.color];
 
           return (
-            <Link key={action.key} href={action.href} className="block">
+            <Link key={action.key} href={buildHref(action.href)} className="block">
               <Button
                 type="text"
                 className={cn(
