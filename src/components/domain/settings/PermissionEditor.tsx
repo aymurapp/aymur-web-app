@@ -407,7 +407,7 @@ export function PermissionEditor({
       'suppliers',
       'purchases',
       'expenses',
-      'workshops',
+      'workshop',
       'deliveries',
       'payroll',
       'staff',
