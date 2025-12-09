@@ -74,7 +74,7 @@ const PERMISSION_GROUP_ORDER: Array<keyof typeof PERMISSION_GROUPS> = [
   'suppliers',
   'purchases',
   'expenses',
-  'workshops',
+  'workshop',
   'deliveries',
   'payroll',
   'staff',
