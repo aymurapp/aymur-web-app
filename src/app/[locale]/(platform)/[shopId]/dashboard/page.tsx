@@ -83,17 +83,55 @@ async function getShopDetails(shopId: string) {
 }
 
 /**
- * Fetches quick stats for the dashboard
- * These are placeholder values - will be replaced with real data
+ * Fetches quick stats for the dashboard from the database
  */
-async function getQuickStats(_shopId: string): Promise<QuickStat[]> {
-  // TODO: Replace with actual database queries using _shopId
-  // For now, return placeholder stats with mock data
+async function getQuickStats(shopId: string): Promise<QuickStat[]> {
+  const supabase = await createClient();
+
+  // Fetch all counts in parallel
+  const [inventoryResult, salesResult, ordersResult, customersResult] = await Promise.all([
+    // Count inventory items in stock
+    supabase
+      .from('inventory_items')
+      .select('id_item', { count: 'exact', head: true })
+      .eq('id_shop', shopId)
+      .eq('status', 'in_stock')
+      .is('deleted_at', null),
+
+    // Sum of today's completed sales
+    supabase
+      .from('sales')
+      .select('total_amount')
+      .eq('id_shop', shopId)
+      .eq('status', 'completed')
+      .gte('sale_date', new Date().toISOString().split('T')[0])
+      .is('deleted_at', null),
+
+    // Count pending workshop orders
+    supabase
+      .from('workshop_orders')
+      .select('id_workshop_order', { count: 'exact', head: true })
+      .eq('id_shop', shopId)
+      .eq('status', 'pending')
+      .is('deleted_at', null),
+
+    // Count total active customers
+    supabase
+      .from('customers')
+      .select('id_customer', { count: 'exact', head: true })
+      .eq('id_shop', shopId)
+      .is('deleted_at', null),
+  ]);
+
+  // Calculate today's sales total
+  const todaySalesTotal =
+    salesResult.data?.reduce((sum, sale) => sum + Number(sale.total_amount || 0), 0) || 0;
+
   return [
     {
       key: 'inventory',
       titleKey: 'inventoryItems',
-      value: 156,
+      value: inventoryResult.count ?? 0,
       iconKey: 'inventory',
       suffix: undefined,
       color: '#f59e0b', // amber-500
@@ -101,16 +139,19 @@ async function getQuickStats(_shopId: string): Promise<QuickStat[]> {
     {
       key: 'sales',
       titleKey: 'todaySales',
-      value: '$4,250',
+      value: new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+      }).format(todaySalesTotal),
       iconKey: 'sales',
       suffix: undefined,
       color: '#10b981', // emerald-500
-      trend: { value: 12.5, direction: 'up' },
     },
     {
       key: 'orders',
       titleKey: 'pendingOrders',
-      value: 8,
+      value: ordersResult.count ?? 0,
       iconKey: 'orders',
       suffix: undefined,
       color: '#3b82f6', // blue-500
@@ -118,11 +159,10 @@ async function getQuickStats(_shopId: string): Promise<QuickStat[]> {
     {
       key: 'customers',
       titleKey: 'totalCustomers',
-      value: 234,
+      value: customersResult.count ?? 0,
       iconKey: 'customers',
       suffix: undefined,
       color: '#8b5cf6', // violet-500
-      trend: { value: 3.2, direction: 'up' },
     },
   ];
 }
