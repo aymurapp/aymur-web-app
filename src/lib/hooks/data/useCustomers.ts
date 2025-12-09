@@ -286,16 +286,35 @@ export function useCreateCustomer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Omit<CustomerInsert, 'id_shop'>) => {
+    mutationFn: async (data: Omit<CustomerInsert, 'id_shop' | 'created_by'>) => {
       if (!shopId) {
         throw new Error('No shop context available');
       }
 
       const supabase = createClient();
 
+      // Get current user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      // Get public user ID
+      const { data: publicUser } = await supabase
+        .from('users')
+        .select('id_user')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (!publicUser) {
+        throw new Error('User not found');
+      }
+
       const { data: customer, error } = await supabase
         .from('customers')
-        .insert({ ...data, id_shop: shopId })
+        .insert({ ...data, id_shop: shopId, created_by: publicUser.id_user })
         .select()
         .single();
 

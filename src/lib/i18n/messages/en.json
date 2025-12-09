@@ -1239,6 +1239,15 @@
       "regenerate": "Regenerate Barcode",
       "generated": "Auto-generated barcode for this item"
     },
+    "itemImages": {
+      "title": "Item Photos",
+      "add": "Add",
+      "preview": "Preview",
+      "remove": "Remove",
+      "maxReached": "Maximum 3 images per item allowed",
+      "invalidType": "Please upload an image file",
+      "fileTooLarge": "Image must be smaller than 5MB"
+    },
     "printBarcode": "Print Barcode"
   },
   "workshops": {

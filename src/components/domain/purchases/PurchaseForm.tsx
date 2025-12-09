@@ -30,6 +30,7 @@ import {
   FileImageOutlined,
   PrinterOutlined,
   BarcodeOutlined,
+  CameraOutlined,
 } from '@ant-design/icons';
 import {
   Form,
@@ -44,6 +45,8 @@ import {
   Col,
   message,
   Tooltip,
+  Upload,
+  Image,
 } from 'antd';
 import dayjs from 'dayjs';
 import JsBarcode from 'jsbarcode';
@@ -59,12 +62,24 @@ import { useShop } from '@/lib/hooks/shop';
 import type { Locale } from '@/lib/i18n/routing';
 import { formatCurrency, formatNumber, formatDecimal } from '@/lib/utils/format';
 
+import type { RcFile } from 'antd/es/upload';
+
 const { TextArea } = Input;
 const { Title, Text } = Typography;
 
 // =============================================================================
 // TYPES
 // =============================================================================
+
+/** Item image for line items */
+export interface ItemImage {
+  uid: string;
+  name: string;
+  url?: string;
+  thumbUrl?: string;
+  status: 'done' | 'uploading' | 'error';
+  file?: RcFile;
+}
 
 export interface PurchaseLineItem {
   id: string;
@@ -76,6 +91,8 @@ export interface PurchaseLineItem {
   unitPrice: number;
   lineTotal: number;
   barcode: string;
+  /** Item images (max 3 per item) */
+  images: ItemImage[];
 }
 
 export interface PurchaseFormData {
@@ -171,6 +188,7 @@ function createEmptyItem(shopName: string): PurchaseLineItem {
     unitPrice: 0,
     lineTotal: 0,
     barcode: generateBarcode(shopName),
+    images: [],
   };
 }
 
@@ -241,6 +259,7 @@ interface LineItemRowProps {
   onRemove: (id: string) => void;
   onPrintBarcode: (item: PurchaseLineItem) => void;
   onRegenerateBarcode: (id: string) => void;
+  onImageChange: (id: string, images: ItemImage[]) => void;
   canRemove: boolean;
   t: ReturnType<typeof useTranslations>;
   tInventory: ReturnType<typeof useTranslations>;
@@ -255,11 +274,73 @@ function LineItemRow({
   onRemove,
   onPrintBarcode,
   onRegenerateBarcode,
+  onImageChange,
   canRemove,
   t,
   tInventory,
 }: LineItemRowProps): React.JSX.Element {
   const purityOptions = PURITY_OPTIONS[item.metalType as keyof typeof PURITY_OPTIONS] || [];
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+
+  // Handle image upload for this item
+  const handleImageUpload = useCallback(
+    (file: RcFile): boolean => {
+      if (item.images.length >= 3) {
+        message.warning(t('itemImages.maxReached'));
+        return false;
+      }
+
+      // Validate file type
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        message.error(t('itemImages.invalidType'));
+        return false;
+      }
+
+      // Validate file size (5MB max)
+      const isLt5M = file.size / 1024 / 1024 < 5;
+      if (!isLt5M) {
+        message.error(t('itemImages.fileTooLarge'));
+        return false;
+      }
+
+      // Create preview URL
+      const url = URL.createObjectURL(file);
+      const newImage: ItemImage = {
+        uid: `${item.id}-${Date.now()}`,
+        name: file.name,
+        url,
+        thumbUrl: url,
+        status: 'done',
+        file,
+      };
+
+      onImageChange(item.id, [...item.images, newImage]);
+      return false; // Prevent default upload
+    },
+    [item.id, item.images, onImageChange, t]
+  );
+
+  // Handle image removal
+  const handleImageRemove = useCallback(
+    (uid: string) => {
+      const newImages = item.images.filter((img) => img.uid !== uid);
+      // Revoke the object URL to free memory
+      const removedImg = item.images.find((img) => img.uid === uid);
+      if (removedImg?.url && removedImg.url.startsWith('blob:')) {
+        URL.revokeObjectURL(removedImg.url);
+      }
+      onImageChange(item.id, newImages);
+    },
+    [item.id, item.images, onImageChange]
+  );
+
+  // Handle preview
+  const handlePreview = useCallback((url: string) => {
+    setPreviewImage(url);
+    setPreviewOpen(true);
+  }, []);
 
   return (
     <Card
@@ -400,7 +481,88 @@ function LineItemRow({
             <BarcodeDisplay barcode={item.barcode} onPrint={() => onPrintBarcode(item)} t={t} />
           </Form.Item>
         </Col>
+
+        {/* Item Images (max 3) */}
+        <Col xs={24}>
+          <Form.Item
+            label={
+              <div className="flex items-center gap-2">
+                <CameraOutlined className="text-amber-500" />
+                <span>
+                  {t('itemImages.title')} ({item.images.length}/3)
+                </span>
+              </div>
+            }
+            className="mb-0"
+          >
+            <div className="flex flex-wrap gap-2">
+              {/* Existing images */}
+              {item.images.map((img) => (
+                <div
+                  key={img.uid}
+                  className="relative w-20 h-20 border border-stone-200 rounded-lg overflow-hidden group"
+                >
+                  <Image
+                    src={img.url || img.thumbUrl}
+                    alt={img.name}
+                    className="w-full h-full object-cover"
+                    preview={{
+                      visible: false,
+                      mask: null,
+                    }}
+                    onClick={() => img.url && handlePreview(img.url)}
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                    <Tooltip title={t('itemImages.preview')}>
+                      <button
+                        type="button"
+                        className="p-1 text-white hover:text-amber-400"
+                        onClick={() => img.url && handlePreview(img.url)}
+                      >
+                        <CameraOutlined />
+                      </button>
+                    </Tooltip>
+                    <Tooltip title={t('itemImages.remove')}>
+                      <button
+                        type="button"
+                        className="p-1 text-white hover:text-red-400"
+                        onClick={() => handleImageRemove(img.uid)}
+                      >
+                        <DeleteOutlined />
+                      </button>
+                    </Tooltip>
+                  </div>
+                </div>
+              ))}
+
+              {/* Upload button */}
+              {item.images.length < 3 && (
+                <Upload
+                  accept="image/*"
+                  showUploadList={false}
+                  beforeUpload={handleImageUpload}
+                  multiple={false}
+                >
+                  <div className="w-20 h-20 border-2 border-dashed border-stone-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-amber-500 hover:bg-amber-50/50 transition-colors">
+                    <PlusOutlined className="text-stone-400" />
+                    <span className="text-xs text-stone-400 mt-1">{t('itemImages.add')}</span>
+                  </div>
+                </Upload>
+              )}
+            </div>
+          </Form.Item>
+        </Col>
       </Row>
+
+      {/* Image Preview Modal */}
+      <Image
+        style={{ display: 'none' }}
+        preview={{
+          visible: previewOpen,
+          src: previewImage,
+          onVisibleChange: (visible) => setPreviewOpen(visible),
+        }}
+      />
     </Card>
   );
 }
@@ -561,6 +723,20 @@ export function PurchaseForm({
   );
 
   /**
+   * Handles image changes for a specific item
+   */
+  const handleItemImageChange = useCallback((id: string, images: ItemImage[]) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) {
+          return item;
+        }
+        return { ...item, images };
+      })
+    );
+  }, []);
+
+  /**
    * Handles invoice image uploads for new purchases.
    * Files are uploaded immediately but linked to the purchase after creation.
    */
@@ -714,19 +890,7 @@ export function PurchaseForm({
             </Form.Item>
           </Col>
 
-          {/* Purchase Date */}
-          <Col xs={24} sm={12}>
-            <Form.Item label={t('purchaseDate')} required>
-              <DatePicker
-                value={purchaseDate ? dayjs(purchaseDate) : null}
-                onChange={(date) => setPurchaseDate(date?.format('YYYY-MM-DD') || '')}
-                format="YYYY-MM-DD"
-                className="w-full"
-              />
-            </Form.Item>
-          </Col>
-
-          {/* Invoice Images - Moved to Purchase Details section */}
+          {/* Invoice Images - Moved BEFORE Purchase Date */}
           <Col xs={24}>
             <Form.Item
               label={
@@ -741,6 +905,18 @@ export function PurchaseForm({
                 onFilesChange={handleInvoiceImagesChange}
                 maxFiles={10}
                 disabled={isSubmitting}
+              />
+            </Form.Item>
+          </Col>
+
+          {/* Purchase Date */}
+          <Col xs={24} sm={12}>
+            <Form.Item label={t('purchaseDate')} required>
+              <DatePicker
+                value={purchaseDate ? dayjs(purchaseDate) : null}
+                onChange={(date) => setPurchaseDate(date?.format('YYYY-MM-DD') || '')}
+                format="YYYY-MM-DD"
+                className="w-full"
               />
             </Form.Item>
           </Col>
@@ -787,6 +963,7 @@ export function PurchaseForm({
             onRemove={handleRemoveItem}
             onPrintBarcode={handlePrintItemBarcode}
             onRegenerateBarcode={handleRegenerateBarcode}
+            onImageChange={handleItemImageChange}
             canRemove={items.length > 1}
             t={t}
             tInventory={tInventory}
