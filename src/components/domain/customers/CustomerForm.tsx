@@ -35,8 +35,6 @@ import {
   message,
   Spin,
   Divider,
-  Space,
-  Checkbox,
   InputNumber,
   Radio,
   Typography,
@@ -72,24 +70,11 @@ import type { RcFile, UploadProps } from 'antd/es/upload';
 const { Text, Title } = Typography;
 
 /**
- * Extended Customer type with optional fields that may not be in DB yet
- * This allows the form to work with both current and future DB schemas
+ * Extended Customer type with credit_limit field for future use
+ * Most fields are now in the base Customer type from database.ts
  */
 interface ExtendedCustomer extends Customer {
-  tax_id?: string | null;
-  is_vip?: boolean;
   credit_limit?: number;
-  // Social media fields
-  instagram?: string | null;
-  facebook?: string | null;
-  whatsapp?: string | null;
-  tiktok?: string | null;
-  // Address component fields
-  postal_code?: string | null;
-  city?: string | null;
-  area?: string | null;
-  // ID Card number
-  id_card?: string | null;
 }
 
 // =============================================================================
@@ -164,7 +149,7 @@ const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
  * Client type options - matches database constraint
  */
 const CLIENT_TYPE_OPTIONS: { value: ClientType; labelKey: string; icon: React.ReactNode }[] = [
-  { value: 'walk-in', labelKey: 'clientTypes.walkIn', icon: <UserOutlined /> },
+  { value: 'walk-in', labelKey: 'clientTypes.walk-in', icon: <UserOutlined /> },
   { value: 'regular', labelKey: 'clientTypes.regular', icon: <UserOutlined /> },
   { value: 'vip', labelKey: 'clientTypes.vip', icon: <CrownOutlined /> },
   { value: 'collaboration', labelKey: 'clientTypes.collaboration', icon: <BankOutlined /> },
@@ -229,7 +214,6 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
   // Permissions
   const { can } = usePermissions();
   const canManageCredit = can(PERMISSION_KEYS.CUSTOMERS_CREDIT);
-  const canManageVip = can(PERMISSION_KEYS.CUSTOMERS_MANAGE);
 
   // Mutations
   const createCustomer = useCreateCustomer();
@@ -341,14 +325,13 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
             id_card: data.id_card || null,
           };
 
-          // Add optional fields if user has permission
+          // Add optional fields
           // tax_id can be added for any client type (collaboration businesses may need it)
           if (data.tax_id) {
             customerData.tax_id = data.tax_id;
           }
-          if (canManageVip && data.is_vip !== undefined) {
-            customerData.is_vip = data.is_vip;
-          }
+          // Auto-sync is_vip with client_type for backward compatibility
+          customerData.is_vip = data.client_type === 'vip';
 
           let result: Customer;
 
@@ -374,7 +357,7 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
         }
       });
     },
-    [isEditMode, customer, createCustomer, updateCustomer, canManageVip, onSuccess, t]
+    [isEditMode, customer, createCustomer, updateCustomer, onSuccess, t]
   );
 
   /**
@@ -626,23 +609,6 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
         {clientType === 'collaboration' && (
           <Form.Item<CustomerFormValues> name="tax_id" label={t('taxId')}>
             <Input size="large" placeholder={t('placeholders.taxId')} maxLength={50} dir="ltr" />
-          </Form.Item>
-        )}
-
-        {/* VIP Status - Permission-based */}
-        {canManageVip && (
-          <Form.Item<CustomerFormValues> name="is_vip" valuePropName="checked">
-            {({ field }) => (
-              <Checkbox {...field} checked={Boolean(field.value)} className="flex items-center">
-                <Space>
-                  <CrownOutlined className="text-amber-500" />
-                  <span>{t('segments.vip')}</span>
-                  <Text type="secondary" className="text-xs">
-                    ({t('vipDescription')})
-                  </Text>
-                </Space>
-              </Checkbox>
-            )}
           </Form.Item>
         )}
       </div>

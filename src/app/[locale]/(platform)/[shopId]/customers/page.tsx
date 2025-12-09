@@ -21,6 +21,8 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 
+import { useParams } from 'next/navigation';
+
 import {
   PlusOutlined,
   SearchOutlined,
@@ -40,6 +42,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { useCustomers, type Customer } from '@/lib/hooks/data/useCustomers';
 import { usePermissions } from '@/lib/hooks/permissions';
+import { useRouter } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
 
 // =============================================================================
@@ -205,6 +208,8 @@ export default function CustomersPage(): React.JSX.Element {
   const t = useTranslations('customers');
   const tCommon = useTranslations('common');
   const { can } = usePermissions();
+  const router = useRouter();
+  const params = useParams();
 
   // ==========================================================================
   // STATE
@@ -221,9 +226,8 @@ export default function CustomersPage(): React.JSX.Element {
     hasBalance: false,
   });
 
-  // Drawer state for add/edit customer
+  // Drawer state for adding new customer only
   const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   // ==========================================================================
   // DEBOUNCED SEARCH
@@ -283,13 +287,15 @@ export default function CustomersPage(): React.JSX.Element {
   // HANDLERS
   // ==========================================================================
 
-  const handleCustomerClick = useCallback((customer: Customer) => {
-    setSelectedCustomer(customer);
-    setIsFormDrawerOpen(true);
-  }, []);
+  const handleCustomerClick = useCallback(
+    (customer: Customer) => {
+      // Navigate to customer detail page
+      router.push(`/${params.locale}/${params.shopId}/customers/${customer.id_customer}`);
+    },
+    [router, params]
+  );
 
   const handleAddCustomer = useCallback(() => {
-    setSelectedCustomer(null);
     setIsFormDrawerOpen(true);
   }, []);
 
@@ -562,20 +568,16 @@ export default function CustomersPage(): React.JSX.Element {
         </>
       )}
 
-      {/* Add/Edit Customer Drawer */}
+      {/* Add Customer Drawer */}
       <Drawer
         open={isFormDrawerOpen}
         onClose={handleDrawerClose}
-        title={selectedCustomer ? t('editCustomer') : t('addCustomer')}
+        title={t('addCustomer')}
         width={600}
         placement="right"
         destroyOnClose
       >
-        <CustomerForm
-          customer={selectedCustomer ?? undefined}
-          onSuccess={handleFormSuccess}
-          onCancel={handleDrawerClose}
-        />
+        <CustomerForm onSuccess={handleFormSuccess} onCancel={handleDrawerClose} />
       </Drawer>
     </div>
   );

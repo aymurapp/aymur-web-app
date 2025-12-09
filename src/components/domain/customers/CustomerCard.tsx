@@ -51,12 +51,10 @@ import { formatCurrency, formatPhone } from '@/lib/utils/format';
 const { Text } = Typography;
 
 /**
- * Extended Customer type with optional VIP field
- * This allows flexibility until is_vip is added to the database
+ * Customer type alias for components that need VIP info
+ * is_vip is now part of the base Customer type in the database
  */
-export interface CustomerWithVip extends Customer {
-  is_vip?: boolean;
-}
+export type CustomerWithVip = Customer;
 
 /**
  * Props for the CustomerCard component

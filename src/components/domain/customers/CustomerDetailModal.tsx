@@ -119,15 +119,14 @@ export interface CustomerDetailModalProps {
 }
 
 /**
- * Extended customer type with optional VIP and ID card fields
+ * Extended customer type with additional UI fields not in database
+ * is_vip and tax_id are now in the base Customer type
  */
 interface ExtendedCustomer extends CustomerWithDetails {
-  is_vip?: boolean;
   is_active?: boolean;
   credit_limit?: number;
   id_card_front?: string | null;
   id_card_back?: string | null;
-  tax_id?: string | null;
 }
 
 /**
