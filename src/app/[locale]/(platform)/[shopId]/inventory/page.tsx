@@ -27,12 +27,14 @@ import {
   SearchOutlined,
   AppstoreOutlined,
   CloseOutlined,
+  ScanOutlined,
 } from '@ant-design/icons';
 import { Input, Badge, Spin, FloatButton, Tooltip, Typography, Space } from 'antd';
 import { useTranslations, useLocale } from 'next-intl';
 
 import { EmptyState } from '@/components/common/data/EmptyState';
 import { FilterPanel, type FilterConfig } from '@/components/common/data/FilterPanel';
+import { BarcodeScannerModal } from '@/components/domain/inventory/BarcodeScannerModal';
 import { ItemCard, ItemCardSkeleton } from '@/components/domain/inventory/ItemCard';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
@@ -254,7 +256,30 @@ function MobileAddFAB({ onClick }: { onClick: () => void }) {
       style={{
         [isRtl ? 'left' : 'right']: 24,
         [isRtl ? 'right' : 'left']: 'auto',
-        bottom: 90, // Above the main FAB
+        bottom: 90, // Above the scanner FAB
+      }}
+      className="shadow-lg md:hidden"
+    />
+  );
+}
+
+/**
+ * Mobile FAB for Barcode Scanner
+ */
+function MobileScannerFAB({ onClick }: { onClick: () => void }) {
+  const t = useTranslations('inventory');
+  const locale = useLocale() as Locale;
+  const isRtl = isRtlLocale(locale);
+
+  return (
+    <FloatButton
+      icon={<ScanOutlined />}
+      tooltip={t('scanBarcode')}
+      onClick={onClick}
+      style={{
+        [isRtl ? 'left' : 'right']: 24,
+        [isRtl ? 'right' : 'left']: 'auto',
+        bottom: 24,
       }}
       className="shadow-lg md:hidden"
     />
@@ -293,6 +318,9 @@ export default function InventoryPage(): JSX.Element {
 
   // Filter panel visibility
   const [showFilters, setShowFilters] = useState(false);
+
+  // Barcode scanner modal visibility
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   // Selection mode
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -476,6 +504,12 @@ export default function InventoryPage(): JSX.Element {
     setIsSelectionMode(false);
   }, []);
 
+  // Handle barcode scan result
+  const handleBarcodeScan = useCallback((barcode: string) => {
+    setSearchInput(barcode);
+    setIsScannerOpen(false);
+  }, []);
+
   // ==========================================================================
   // RENDER
   // ==========================================================================
@@ -527,6 +561,17 @@ export default function InventoryPage(): JSX.Element {
                 onClick={() => setShowFilters(!showFilters)}
               />
             </Badge>
+          </Tooltip>
+
+          {/* Barcode Scanner Button */}
+          <Tooltip title={t('scanBarcode')}>
+            <Button
+              icon={<ScanOutlined />}
+              onClick={() => setIsScannerOpen(true)}
+              className="hidden sm:inline-flex"
+            >
+              {t('scan')}
+            </Button>
           </Tooltip>
 
           {/* Add Item Button - Desktop only */}
@@ -646,8 +691,23 @@ export default function InventoryPage(): JSX.Element {
         </>
       )}
 
-      {/* Mobile FAB for Quick Add */}
-      {can('inventory.create') && isMobile && <MobileAddFAB onClick={handleAddItem} />}
+      {/* Mobile FABs */}
+      {isMobile && (
+        <>
+          {/* Scanner FAB - always visible on mobile */}
+          <MobileScannerFAB onClick={() => setIsScannerOpen(true)} />
+          {/* Add FAB - requires permission */}
+          {can('inventory.create') && <MobileAddFAB onClick={handleAddItem} />}
+        </>
+      )}
+
+      {/* Barcode Scanner Modal */}
+      <BarcodeScannerModal
+        open={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScan={handleBarcodeScan}
+        closeOnScan
+      />
     </div>
   );
 }

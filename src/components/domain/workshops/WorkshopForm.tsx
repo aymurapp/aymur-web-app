@@ -3,7 +3,7 @@
 /**
  * WorkshopForm Component
  *
- * A modal/drawer form for creating and editing workshop information.
+ * A drawer form for creating and editing workshop information.
  * Features:
  * - Workshop name and contact information
  * - Internal/external toggle
@@ -24,7 +24,7 @@ import {
   PhoneOutlined,
   MailOutlined,
 } from '@ant-design/icons';
-import { Modal, Input, Switch, message, Divider, Typography } from 'antd';
+import { Drawer, Input, Switch, message, Divider, Typography } from 'antd';
 import { useTranslations } from 'next-intl';
 import { z } from 'zod';
 
@@ -86,7 +86,7 @@ export interface WorkshopFormProps {
 /**
  * WorkshopForm Component
  *
- * Provides a modal form for creating and editing workshops
+ * Provides a drawer form for creating and editing workshops
  * with support for all workshop fields and validation.
  */
 export function WorkshopForm({
@@ -178,7 +178,7 @@ export function WorkshopForm({
   );
 
   return (
-    <Modal
+    <Drawer
       open={open}
       title={
         <div className="flex items-center gap-2">
@@ -186,8 +186,8 @@ export function WorkshopForm({
           <span>{isEditMode ? t('editWorkshop') : t('addWorkshop')}</span>
         </div>
       }
-      onCancel={onCancel}
-      footer={null}
+      onClose={onCancel}
+      placement="right"
       width={600}
       destroyOnClose
       maskClosable={!isSubmitting}
@@ -341,7 +341,7 @@ export function WorkshopForm({
           </Form.Submit>
         </div>
       </Form>
-    </Modal>
+    </Drawer>
   );
 }
 

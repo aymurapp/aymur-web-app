@@ -14,6 +14,7 @@
  * - Loading skeletons for cards
  * - Empty state when no customers
  * - Quick add customer button with permission check
+ * - Add/Edit customer drawer with CustomerForm
  *
  * @module app/(platform)/[locale]/[shopId]/customers/page
  */
@@ -29,10 +30,11 @@ import {
   CrownOutlined,
   DollarOutlined,
 } from '@ant-design/icons';
-import { Input, Segmented, Switch, Pagination, Badge, Skeleton, Card } from 'antd';
+import { Input, Segmented, Switch, Pagination, Badge, Skeleton, Card, Drawer } from 'antd';
 import { useTranslations } from 'next-intl';
 
 import { EmptyState } from '@/components/common/data/EmptyState';
+import { CustomerForm } from '@/components/domain/customers';
 import { CustomerCard } from '@/components/domain/customers/CustomerCard';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
@@ -219,8 +221,9 @@ export default function CustomersPage(): React.JSX.Element {
     hasBalance: false,
   });
 
-  // Selected customer for modal (future implementation)
-  const [_selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  // Drawer state for add/edit customer
+  const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   // ==========================================================================
   // DEBOUNCED SEARCH
@@ -244,15 +247,17 @@ export default function CustomersPage(): React.JSX.Element {
   // DATA FETCHING
   // ==========================================================================
 
-  const { customers, totalCount, totalPages, isInitialLoading, isFetching } = useCustomers({
-    search: debouncedSearch,
-    page,
-    pageSize: PAGE_SIZE,
-    sortBy: 'full_name',
-    sortDirection: 'asc',
-    clientType: filters.clientType === 'all' ? undefined : filters.clientType,
-    financialStatus: filters.financialStatus === 'all' ? undefined : filters.financialStatus,
-  });
+  const { customers, totalCount, totalPages, isInitialLoading, isFetching, refetch } = useCustomers(
+    {
+      search: debouncedSearch,
+      page,
+      pageSize: PAGE_SIZE,
+      sortBy: 'full_name',
+      sortDirection: 'asc',
+      clientType: filters.clientType === 'all' ? undefined : filters.clientType,
+      financialStatus: filters.financialStatus === 'all' ? undefined : filters.financialStatus,
+    }
+  );
 
   // ==========================================================================
   // FILTERED CUSTOMERS (Client-side filtering for VIP and hasBalance)
@@ -280,12 +285,22 @@ export default function CustomersPage(): React.JSX.Element {
 
   const handleCustomerClick = useCallback((customer: Customer) => {
     setSelectedCustomer(customer);
-    // TODO: Open customer detail modal - will be implemented in future task
+    setIsFormDrawerOpen(true);
   }, []);
 
   const handleAddCustomer = useCallback(() => {
-    // TODO: Open add customer modal - will be implemented in future task
+    setSelectedCustomer(null);
+    setIsFormDrawerOpen(true);
   }, []);
+
+  const handleDrawerClose = useCallback(() => {
+    setIsFormDrawerOpen(false);
+  }, []);
+
+  const handleFormSuccess = useCallback(() => {
+    setIsFormDrawerOpen(false);
+    refetch();
+  }, [refetch]);
 
   const handlePageChange = useCallback((newPage: number) => {
     setPage(newPage);
@@ -546,6 +561,22 @@ export default function CustomersPage(): React.JSX.Element {
           )}
         </>
       )}
+
+      {/* Add/Edit Customer Drawer */}
+      <Drawer
+        open={isFormDrawerOpen}
+        onClose={handleDrawerClose}
+        title={selectedCustomer ? t('editCustomer') : t('addCustomer')}
+        width={600}
+        placement="right"
+        destroyOnClose
+      >
+        <CustomerForm
+          customer={selectedCustomer ?? undefined}
+          onSuccess={handleFormSuccess}
+          onCancel={handleDrawerClose}
+        />
+      </Drawer>
     </div>
   );
 }

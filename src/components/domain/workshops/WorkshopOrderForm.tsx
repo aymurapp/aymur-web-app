@@ -3,7 +3,7 @@
 /**
  * WorkshopOrderForm Component
  *
- * A modal/drawer form for creating workshop orders.
+ * A drawer form for creating workshop orders.
  * Features:
  * - Workshop selection dropdown
  * - Order type selector (repair, custom, resize, polish, engrave, other)
@@ -27,7 +27,7 @@ import {
   TagOutlined,
 } from '@ant-design/icons';
 import {
-  Modal,
+  Drawer,
   Input,
   Select,
   DatePicker,
@@ -115,7 +115,7 @@ const ORDER_TYPE_OPTIONS = [
 /**
  * WorkshopOrderForm Component
  *
- * Provides a modal form for creating workshop orders
+ * Provides a drawer form for creating workshop orders
  * with support for all order fields and validation.
  */
 export function WorkshopOrderForm({
@@ -216,7 +216,7 @@ export function WorkshopOrderForm({
   );
 
   return (
-    <Modal
+    <Drawer
       open={open}
       title={
         <div className="flex items-center gap-2">
@@ -224,8 +224,8 @@ export function WorkshopOrderForm({
           <span>{t('orders.newOrder')}</span>
         </div>
       }
-      onCancel={onCancel}
-      footer={null}
+      onClose={onCancel}
+      placement="right"
       width={700}
       destroyOnClose
       maskClosable={!isSubmitting}
@@ -378,7 +378,7 @@ export function WorkshopOrderForm({
           </Form.Submit>
         </div>
       </Form>
-    </Modal>
+    </Drawer>
   );
 }
 

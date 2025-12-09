@@ -535,7 +535,7 @@ export default function WorkshopOrdersPage(): React.JSX.Element {
         })}
       />
 
-      {/* Order Form Modal */}
+      {/* Order Form Drawer */}
       <WorkshopOrderForm
         open={isFormOpen}
         onSuccess={handleFormSuccess}

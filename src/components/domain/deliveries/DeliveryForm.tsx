@@ -29,7 +29,7 @@ import {
   EnvironmentOutlined,
   DollarOutlined,
 } from '@ant-design/icons';
-import { Modal, Form, Input, Select, DatePicker, InputNumber, message, Divider } from 'antd';
+import { Drawer, Form, Input, Select, DatePicker, InputNumber, message, Divider } from 'antd';
 import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
 
@@ -231,7 +231,7 @@ export function DeliveryForm({
   // ==========================================================================
 
   return (
-    <Modal
+    <Drawer
       open={open}
       title={
         <div className="flex items-center gap-2">
@@ -239,7 +239,8 @@ export function DeliveryForm({
           <span>{isEdit ? t('editDelivery') : t('newDelivery')}</span>
         </div>
       }
-      onCancel={handleClose}
+      onClose={handleClose}
+      placement="right"
       width={600}
       destroyOnClose
       maskClosable={!isSubmitting}
@@ -376,7 +377,7 @@ export function DeliveryForm({
           <TextArea rows={3} placeholder={t('notes')} showCount maxLength={2000} />
         </Form.Item>
       </Form>
-    </Modal>
+    </Drawer>
   );
 }
 

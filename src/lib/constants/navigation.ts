@@ -28,6 +28,7 @@ import {
   TruckOutlined,
   LineChartOutlined,
   SafetyOutlined,
+  SwapOutlined,
 } from '@ant-design/icons';
 
 import { PERMISSION_KEYS } from './permissions';
@@ -174,6 +175,13 @@ export const navigationConfig: NavGroup[] = [
         icon: WalletOutlined,
         path: '/expenses',
         permission: PERMISSION_KEYS.EXPENSES_VIEW,
+      },
+      {
+        key: 'transfers',
+        labelKey: 'navigation.transfers',
+        icon: SwapOutlined,
+        path: '/transfers',
+        permission: PERMISSION_KEYS.INVENTORY_VIEW,
       },
     ],
   },

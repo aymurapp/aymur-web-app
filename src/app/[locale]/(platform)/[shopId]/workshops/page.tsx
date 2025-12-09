@@ -472,7 +472,7 @@ export default function WorkshopsPage(): React.JSX.Element {
         }
       />
 
-      {/* Workshop Form Modal */}
+      {/* Workshop Form Drawer */}
       <WorkshopForm
         open={isFormOpen}
         workshop={editingWorkshop}

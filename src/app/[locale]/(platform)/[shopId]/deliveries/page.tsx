@@ -26,6 +26,7 @@ import {
   EyeOutlined,
   EnvironmentOutlined,
   LinkOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import { Tag, message, Typography } from 'antd';
 import { useTranslations } from 'next-intl';
@@ -44,6 +45,8 @@ import {
   type DeliveryStatus,
 } from '@/lib/hooks/data/useDeliveries';
 import { usePermissions } from '@/lib/hooks/permissions';
+import { useShop } from '@/lib/hooks/shop';
+import { Link } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
 import { formatDate } from '@/lib/utils/format';
 
@@ -120,6 +123,7 @@ export default function DeliveriesPage(): React.JSX.Element {
   const t = useTranslations('deliveries');
   const tCommon = useTranslations('common');
   const { can } = usePermissions();
+  const { shopId } = useShop();
 
   // ==========================================================================
   // STATE
@@ -409,14 +413,19 @@ export default function DeliveriesPage(): React.JSX.Element {
     <div className="deliveries-page">
       {/* Page Header */}
       <PageHeader title={t('title')}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAddDelivery}
-          permission="deliveries.create"
-        >
-          {t('newDelivery')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link href={`/${shopId}/settings/couriers`}>
+            <Button icon={<SettingOutlined />}>{t('manageCouriers')}</Button>
+          </Link>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleAddDelivery}
+            permission="deliveries.create"
+          >
+            {t('newDelivery')}
+          </Button>
+        </div>
       </PageHeader>
 
       {/* Data Table */}

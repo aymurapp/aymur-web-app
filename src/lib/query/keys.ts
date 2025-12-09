@@ -238,6 +238,25 @@ export const queryKeys = {
     ['couriers', shopId, courierId, 'balance'] as const,
 
   // ============================================
+  // Shop Transfers
+  // ============================================
+
+  /** All transfers for a shop */
+  transfers: (shopId: string) => ['transfers', shopId] as const,
+
+  /** Single transfer details */
+  transfer: (shopId: string, transferId: string) => ['transfers', shopId, transferId] as const,
+
+  /** Outgoing transfers */
+  outgoingTransfers: (shopId: string) => ['transfers', shopId, 'outgoing'] as const,
+
+  /** Incoming transfers */
+  incomingTransfers: (shopId: string) => ['transfers', shopId, 'incoming'] as const,
+
+  /** Neighbor shops for transfer destinations */
+  neighborShops: (shopId: string) => ['neighbor-shops', shopId] as const,
+
+  // ============================================
   // Expenses & Budgets
   // ============================================
 
@@ -571,6 +590,12 @@ export const invalidateScope = {
 
   /** Invalidate all courier transaction queries for a shop */
   courierTransactions: (shopId: string) => ['courier-transactions', shopId] as const,
+
+  /** Invalidate all transfer queries for a shop */
+  transfers: (shopId: string) => ['transfers', shopId] as const,
+
+  /** Invalidate all neighbor shop queries for a shop */
+  neighborShops: (shopId: string) => ['neighbor-shops', shopId] as const,
 
   /** Invalidate all expense queries for a shop */
   expenses: (shopId: string) => ['expenses', shopId] as const,

@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * RecordPaymentModal Component
+ * RecordPaymentDrawer Component
  *
- * A modal for recording workshop order payments.
+ * A drawer for recording workshop order payments.
  * Creates workshop_transaction records when payments are made.
  *
  * Features:
@@ -28,7 +28,7 @@ import {
   FileTextOutlined,
   BankOutlined,
 } from '@ant-design/icons';
-import { Modal, Input, Select, InputNumber, message, Typography, Alert, Divider } from 'antd';
+import { Drawer, Input, Select, InputNumber, message, Typography, Alert, Divider } from 'antd';
 import { useTranslations, useLocale } from 'next-intl';
 import { z } from 'zod';
 
@@ -112,7 +112,7 @@ const PAYMENT_METHOD_OPTIONS = [
 /**
  * RecordPaymentModal Component
  *
- * Provides a modal form for recording payments to workshop orders.
+ * Provides a drawer form for recording payments to workshop orders.
  * Creates workshop_transaction records for payment tracking.
  */
 export function RecordPaymentModal({
@@ -176,7 +176,7 @@ export function RecordPaymentModal({
   );
 
   return (
-    <Modal
+    <Drawer
       open={open}
       title={
         <div className="flex items-center gap-2">
@@ -184,8 +184,8 @@ export function RecordPaymentModal({
           <span>{t('orders.recordPayment')}</span>
         </div>
       }
-      onCancel={onCancel}
-      footer={null}
+      onClose={onCancel}
+      placement="right"
       width={500}
       destroyOnClose
       maskClosable={!isSubmitting}
@@ -347,7 +347,7 @@ export function RecordPaymentModal({
           </div>
         </Form>
       )}
-    </Modal>
+    </Drawer>
   );
 }
 

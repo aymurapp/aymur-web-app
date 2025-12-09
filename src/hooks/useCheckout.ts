@@ -41,7 +41,34 @@ import {
 /**
  * Checkout step identifiers
  */
-export type CheckoutStep = 'review' | 'customer' | 'payment' | 'processing' | 'complete' | 'error';
+export type CheckoutStep =
+  | 'review'
+  | 'customer'
+  | 'delivery'
+  | 'payment'
+  | 'processing'
+  | 'complete'
+  | 'error';
+
+/**
+ * Delivery information for checkout
+ */
+export interface DeliveryInfo {
+  /** Selected courier company ID */
+  courierId: string;
+  /** Courier company name (for display) */
+  courierName?: string;
+  /** Recipient name for delivery */
+  recipientName: string;
+  /** Delivery address */
+  deliveryAddress: string;
+  /** Cost of delivery */
+  deliveryCost: number;
+  /** Who pays for delivery */
+  costPaidBy: 'shop' | 'customer' | 'split';
+  /** Estimated delivery date (optional) */
+  estimatedDate?: string;
+}
 
 /**
  * Checkout state interface

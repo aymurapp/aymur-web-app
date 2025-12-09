@@ -49,6 +49,7 @@ import {
   Empty,
   message,
   Popconfirm,
+  Drawer,
 } from 'antd';
 import { useTranslations } from 'next-intl';
 
@@ -56,7 +57,6 @@ import { EmptyState } from '@/components/common/data/EmptyState';
 import { SupplierForm } from '@/components/domain/suppliers';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
 import { Table, type ColumnsType } from '@/components/ui/Table';
 import {
   useSupplier,
@@ -583,13 +583,13 @@ export default function SupplierDetailPage(): React.JSX.Element {
         className="supplier-detail-tabs"
       />
 
-      {/* Edit Modal */}
-      <Modal
+      {/* Edit Drawer */}
+      <Drawer
         open={isEditModalOpen}
-        onCancel={() => setIsEditModalOpen(false)}
+        onClose={() => setIsEditModalOpen(false)}
         title={t('editSupplier')}
-        width={720}
-        hideFooter
+        width={600}
+        placement="right"
         destroyOnClose
       >
         <SupplierForm
@@ -597,7 +597,7 @@ export default function SupplierDetailPage(): React.JSX.Element {
           onSuccess={handleEditSuccess}
           onCancel={() => setIsEditModalOpen(false)}
         />
-      </Modal>
+      </Drawer>
     </div>
   );
 }

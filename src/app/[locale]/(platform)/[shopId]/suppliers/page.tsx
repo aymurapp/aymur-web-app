@@ -33,14 +33,13 @@ import {
   CloseCircleOutlined,
   DollarOutlined,
 } from '@ant-design/icons';
-import { Input, Segmented, Switch, Pagination, Badge, Skeleton, Card, Select } from 'antd';
+import { Input, Segmented, Switch, Pagination, Badge, Skeleton, Card, Select, Drawer } from 'antd';
 import { useTranslations } from 'next-intl';
 
 import { EmptyState } from '@/components/common/data/EmptyState';
 import { SupplierCard, SupplierForm } from '@/components/domain/suppliers';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
 import { useSuppliers, useSupplierCategories, type Supplier } from '@/lib/hooks/data/useSuppliers';
 import { usePermissions } from '@/lib/hooks/permissions';
 import { useRouter } from '@/lib/i18n/navigation';
@@ -527,13 +526,13 @@ export default function SuppliersPage(): React.JSX.Element {
         </>
       )}
 
-      {/* Add/Edit Supplier Modal */}
-      <Modal
+      {/* Add/Edit Supplier Drawer */}
+      <Drawer
         open={isFormModalOpen}
-        onCancel={handleFormCancel}
+        onClose={handleFormCancel}
         title={selectedSupplier ? t('editSupplier') : t('addSupplier')}
-        width={720}
-        hideFooter
+        width={600}
+        placement="right"
         destroyOnClose
       >
         <SupplierForm
@@ -541,7 +540,7 @@ export default function SuppliersPage(): React.JSX.Element {
           onSuccess={handleFormSuccess}
           onCancel={handleFormCancel}
         />
-      </Modal>
+      </Drawer>
     </div>
   );
 }
