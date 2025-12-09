@@ -265,7 +265,7 @@ async function fetchSupplierCategories(shopId: string): Promise<SupplierCategory
     .from('supplier_categories')
     .select('*')
     .eq('id_shop', shopId)
-    .eq('is_active', true)
+    .is('deleted_at', null)
     .order('category_name', { ascending: true });
 
   if (error) {
