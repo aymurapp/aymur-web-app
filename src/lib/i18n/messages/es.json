@@ -410,6 +410,12 @@
       "wholesale": "Mayorista",
       "retail": "Minorista"
     },
+    "clientTypes": {
+      "walk-in": "Visitante",
+      "regular": "Regular",
+      "vip": "VIP",
+      "collaboration": "Colaboracion"
+    },
     "creditAccount": {
       "title": "Cuenta de credito",
       "balance": "Saldo",

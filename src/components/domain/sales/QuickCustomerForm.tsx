@@ -85,7 +85,7 @@ export function QuickCustomerForm({
             full_name: data.full_name.trim(),
             phone: data.phone.trim(),
             email: data.email?.trim() || null,
-            client_type: data.client_type || 'individual',
+            client_type: data.client_type || 'walk-in',
           });
 
           message.success(t('messages.createSuccess'));
@@ -126,7 +126,7 @@ export function QuickCustomerForm({
           full_name: '',
           phone: '',
           email: '',
-          client_type: 'individual',
+          client_type: 'walk-in',
         }}
         className="space-y-3"
       >

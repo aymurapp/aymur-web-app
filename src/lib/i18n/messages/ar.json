@@ -506,6 +506,12 @@
       "wholesale": "جملة",
       "retail": "تجزئة"
     },
+    "clientTypes": {
+      "walk-in": "زائر",
+      "regular": "عادي",
+      "vip": "مميز",
+      "collaboration": "تعاون"
+    },
     "creditAccount": {
       "title": "حساب الائتمان",
       "balance": "الرصيد",

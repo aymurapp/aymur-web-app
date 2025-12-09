@@ -410,6 +410,12 @@
       "wholesale": "Grossiste",
       "retail": "Detail"
     },
+    "clientTypes": {
+      "walk-in": "Passant",
+      "regular": "Regulier",
+      "vip": "VIP",
+      "collaboration": "Collaboration"
+    },
     "creditAccount": {
       "title": "Compte de credit",
       "balance": "Solde",

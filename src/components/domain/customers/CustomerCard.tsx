@@ -162,7 +162,6 @@ export function CustomerCard({
   className,
 }: CustomerCardProps) {
   const t = useTranslations('customers');
-  const tCommon = useTranslations('common');
   const { shop } = useShop();
 
   // Memoize derived values
@@ -222,10 +221,22 @@ export function CustomerCard({
         {/* Avatar */}
         <Avatar
           size="small"
-          icon={customer.client_type === 'company' ? <BankOutlined /> : <UserOutlined />}
+          icon={
+            customer.client_type === 'collaboration' ? (
+              <BankOutlined />
+            ) : customer.client_type === 'vip' ? (
+              <CrownOutlined />
+            ) : (
+              <UserOutlined />
+            )
+          }
           className={cn(
             'flex-shrink-0',
-            customer.client_type === 'company' ? 'bg-blue-500' : 'bg-amber-500'
+            customer.client_type === 'collaboration'
+              ? 'bg-blue-500'
+              : customer.client_type === 'vip'
+                ? 'bg-amber-500'
+                : 'bg-stone-400'
           )}
         >
           {initials}
@@ -284,10 +295,22 @@ export function CustomerCard({
         <div className="flex-shrink-0">
           <Avatar
             size={64}
-            icon={customer.client_type === 'company' ? <BankOutlined /> : <UserOutlined />}
+            icon={
+              customer.client_type === 'collaboration' ? (
+                <BankOutlined />
+              ) : customer.client_type === 'vip' ? (
+                <CrownOutlined />
+              ) : (
+                <UserOutlined />
+              )
+            }
             className={cn(
               'text-lg',
-              customer.client_type === 'company' ? 'bg-blue-500' : 'bg-amber-500'
+              customer.client_type === 'collaboration'
+                ? 'bg-blue-500'
+                : customer.client_type === 'vip'
+                  ? 'bg-amber-500'
+                  : 'bg-stone-400'
             )}
           >
             {initials}
@@ -322,13 +345,25 @@ export function CustomerCard({
           <div className="flex flex-wrap items-center gap-2">
             {/* Client Type Badge */}
             <Tag
-              icon={customer.client_type === 'company' ? <BankOutlined /> : <UserOutlined />}
-              color={customer.client_type === 'company' ? 'blue' : 'default'}
+              icon={
+                customer.client_type === 'collaboration' ? (
+                  <BankOutlined />
+                ) : customer.client_type === 'vip' ? (
+                  <CrownOutlined />
+                ) : (
+                  <UserOutlined />
+                )
+              }
+              color={
+                customer.client_type === 'collaboration'
+                  ? 'blue'
+                  : customer.client_type === 'vip'
+                    ? 'gold'
+                    : 'default'
+              }
               className="m-0"
             >
-              {customer.client_type === 'company'
-                ? tCommon('labels.type') + ': ' + t('segments.wholesale')
-                : tCommon('labels.type') + ': ' + t('segments.retail')}
+              {t(`clientTypes.${customer.client_type || 'walk-in'}`)}
             </Tag>
 
             {/* Financial Status Indicator */}

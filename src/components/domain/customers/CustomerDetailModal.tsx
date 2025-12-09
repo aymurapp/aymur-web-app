@@ -299,7 +299,7 @@ function OverviewTab({ customer, currency }: OverviewTabProps) {
   );
 
   const isVip = customer.is_vip ?? false;
-  const isCompany = customer.client_type === 'company';
+  const isCollaboration = customer.client_type === 'collaboration';
 
   return (
     <div className="space-y-6">
@@ -307,8 +307,23 @@ function OverviewTab({ customer, currency }: OverviewTabProps) {
       <div className="flex items-start gap-4">
         <Avatar
           size={80}
-          icon={isCompany ? <BankOutlined /> : <UserOutlined />}
-          className={cn('flex-shrink-0 text-2xl', isCompany ? 'bg-blue-500' : 'bg-amber-500')}
+          icon={
+            isCollaboration ? (
+              <BankOutlined />
+            ) : customer.client_type === 'vip' ? (
+              <CrownOutlined />
+            ) : (
+              <UserOutlined />
+            )
+          }
+          className={cn(
+            'flex-shrink-0 text-2xl',
+            isCollaboration
+              ? 'bg-blue-500'
+              : customer.client_type === 'vip'
+                ? 'bg-amber-500'
+                : 'bg-stone-400'
+          )}
         >
           {getInitials(customer.full_name)}
         </Avatar>
@@ -328,10 +343,18 @@ function OverviewTab({ customer, currency }: OverviewTabProps) {
           <div className="flex items-center gap-4 mt-2 flex-wrap">
             {/* Client Type */}
             <Tag
-              icon={isCompany ? <BankOutlined /> : <UserOutlined />}
-              color={isCompany ? 'blue' : 'default'}
+              icon={
+                isCollaboration ? (
+                  <BankOutlined />
+                ) : customer.client_type === 'vip' ? (
+                  <CrownOutlined />
+                ) : (
+                  <UserOutlined />
+                )
+              }
+              color={isCollaboration ? 'blue' : customer.client_type === 'vip' ? 'gold' : 'default'}
             >
-              {isCompany ? t('segments.wholesale') : t('segments.retail')}
+              {t(`clientTypes.${customer.client_type || 'walk-in'}`)}
             </Tag>
 
             {/* Financial Status */}
@@ -428,7 +451,7 @@ function OverviewTab({ customer, currency }: OverviewTabProps) {
           )}
         </Descriptions.Item>
 
-        {isCompany && customer.tax_id && (
+        {customer.tax_id && (
           <Descriptions.Item label={t('taxId')}>
             <Text code>{customer.tax_id}</Text>
           </Descriptions.Item>

@@ -127,8 +127,8 @@ export function CustomerSelectorItem({
   // Check if customer is VIP
   const isVip = customer.is_vip ?? false;
 
-  // Check if customer is a company
-  const isCompany = customer.client_type === 'company';
+  // Check if customer is a collaboration (business partner)
+  const isCollaboration = customer.client_type === 'collaboration';
 
   // Handle click
   const handleClick = useCallback(() => {
@@ -179,8 +179,23 @@ export function CustomerSelectorItem({
       {/* Avatar */}
       <Avatar
         size={40}
-        icon={isCompany ? <BankOutlined /> : <UserOutlined />}
-        className={cn('flex-shrink-0 text-sm', isCompany ? 'bg-blue-500' : 'bg-amber-500')}
+        icon={
+          isCollaboration ? (
+            <BankOutlined />
+          ) : customer.client_type === 'vip' ? (
+            <CrownOutlined />
+          ) : (
+            <UserOutlined />
+          )
+        }
+        className={cn(
+          'flex-shrink-0 text-sm',
+          isCollaboration
+            ? 'bg-blue-500'
+            : customer.client_type === 'vip'
+              ? 'bg-amber-500'
+              : 'bg-stone-400'
+        )}
       >
         {initials}
       </Avatar>
@@ -204,10 +219,10 @@ export function CustomerSelectorItem({
             />
           )}
 
-          {/* Company Badge */}
-          {isCompany && (
+          {/* Collaboration Badge */}
+          {isCollaboration && (
             <Tag color="blue" className="m-0 text-xs px-1.5 py-0 leading-tight flex-shrink-0">
-              {t('segments.wholesale')}
+              {t('clientTypes.collaboration')}
             </Tag>
           )}
         </div>

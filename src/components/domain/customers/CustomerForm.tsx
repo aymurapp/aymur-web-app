@@ -161,11 +161,13 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 /**
- * Client type options
+ * Client type options - matches database constraint
  */
 const CLIENT_TYPE_OPTIONS: { value: ClientType; labelKey: string; icon: React.ReactNode }[] = [
-  { value: 'individual', labelKey: 'segments.retail', icon: <UserOutlined /> },
-  { value: 'company', labelKey: 'segments.wholesale', icon: <BankOutlined /> },
+  { value: 'walk-in', labelKey: 'clientTypes.walkIn', icon: <UserOutlined /> },
+  { value: 'regular', labelKey: 'clientTypes.regular', icon: <UserOutlined /> },
+  { value: 'vip', labelKey: 'clientTypes.vip', icon: <CrownOutlined /> },
+  { value: 'collaboration', labelKey: 'clientTypes.collaboration', icon: <BankOutlined /> },
 ];
 
 // =============================================================================
@@ -247,7 +249,7 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
 
   // Client type state for conditional tax_id visibility
   const [clientType, setClientType] = useState<ClientType>(
-    (customer?.client_type as ClientType) || 'individual'
+    (customer?.client_type as ClientType) || 'walk-in'
   );
 
   /**
@@ -340,7 +342,8 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
           };
 
           // Add optional fields if user has permission
-          if (data.client_type === 'company' && data.tax_id) {
+          // tax_id can be added for any client type (collaboration businesses may need it)
+          if (data.tax_id) {
             customerData.tax_id = data.tax_id;
           }
           if (canManageVip && data.is_vip !== undefined) {
@@ -408,7 +411,7 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
         phone: customer?.phone || '',
         email: customer?.email || '',
         address: customer?.address || '',
-        client_type: (customer?.client_type as ClientType) || 'individual',
+        client_type: (customer?.client_type as ClientType) || 'walk-in',
         tax_id: customer?.tax_id || '',
         is_vip: customer?.is_vip || false,
         notes: customer?.notes || '',
@@ -619,8 +622,8 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
           )}
         </Form.Item>
 
-        {/* Tax ID - Only visible for company type */}
-        {clientType === 'company' && (
+        {/* Tax ID - Visible for collaboration type (business partners) */}
+        {clientType === 'collaboration' && (
           <Form.Item<CustomerFormValues> name="tax_id" label={t('taxId')}>
             <Input size="large" placeholder={t('placeholders.taxId')} maxLength={50} dir="ltr" />
           </Form.Item>

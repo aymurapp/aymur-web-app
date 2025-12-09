@@ -11,7 +11,7 @@
  * - phone (optional, E.164 format)
  * - email (optional, valid email format)
  * - address (optional, text)
- * - client_type (enum: individual, company)
+ * - client_type (enum: walk-in, regular, vip, collaboration)
  * - financial_status (enum: good, warning, critical)
  * - notes (optional, text)
  */
@@ -26,10 +26,16 @@ import { uuidSchema, phoneSchema, phoneRequiredSchema, dateStringSchema } from '
 
 /**
  * Client type enum - matches customers.client_type in database
- * Distinguishes between individual customers and company/business customers
+ * Categorizes customers by their relationship with the shop:
+ * - walk-in: Casual/first-time customers
+ * - regular: Returning customers
+ * - vip: High-value/priority customers
+ * - collaboration: Business partners/collaborators
  */
-export const clientTypeEnum = z.enum(['individual', 'company'], {
-  errorMap: () => ({ message: 'Client type must be either individual or company' }),
+export const clientTypeEnum = z.enum(['walk-in', 'regular', 'vip', 'collaboration'], {
+  errorMap: () => ({
+    message: 'Client type must be walk-in, regular, vip, or collaboration',
+  }),
 });
 
 /**
@@ -277,7 +283,7 @@ const customerBaseSchema = z.object({
   tiktok: tiktokSchema,
 
   // Customer classification
-  client_type: clientTypeEnum.default('individual'),
+  client_type: clientTypeEnum.default('walk-in'),
 
   // Financial fields (credit_limit may require permission)
   financial_status: financialStatusEnum.optional().nullable(),
@@ -482,7 +488,7 @@ export const customerQuickAddSchema = z.object({
   full_name: customerNameSchema,
   phone: phonePrimarySchema,
   email: customerEmailSchema,
-  client_type: clientTypeEnum.default('individual'),
+  client_type: clientTypeEnum.default('walk-in'),
 });
 
 // =============================================================================

@@ -974,6 +974,12 @@
       "wholesale": "Wholesale",
       "retail": "Retail"
     },
+    "clientTypes": {
+      "walk-in": "Walk-in",
+      "regular": "Regular",
+      "vip": "VIP",
+      "collaboration": "Collaboration"
+    },
     "creditAccount": {
       "title": "Credit Account",
       "balance": "Balance",

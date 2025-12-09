@@ -410,6 +410,12 @@
       "wholesale": "Groothandel",
       "retail": "Detailhandel"
     },
+    "clientTypes": {
+      "walk-in": "Bezoeker",
+      "regular": "Regulier",
+      "vip": "VIP",
+      "collaboration": "Samenwerking"
+    },
     "creditAccount": {
       "title": "Kredietrekening",
       "balance": "Saldo",
