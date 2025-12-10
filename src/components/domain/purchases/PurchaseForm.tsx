@@ -56,10 +56,16 @@ import { useReactToPrint } from 'react-to-print';
 import { InvoiceImageUpload } from '@/components/domain/purchases/InvoiceImageUpload';
 import { SupplierSelect } from '@/components/domain/suppliers/SupplierSelect';
 import { Button } from '@/components/ui/Button';
-import { useLinkFilesToEntity, type FileUploadResult } from '@/lib/hooks/data/useFileUpload';
+import {
+  useLinkFilesToEntity,
+  useUploadFile,
+  type FileUploadResult,
+} from '@/lib/hooks/data/useFileUpload';
+import { useMetalTypes, useMetalPurities } from '@/lib/hooks/data/useMetals';
 import { useCreatePurchase, useUpdatePurchase } from '@/lib/hooks/data/usePurchases';
 import { useShop } from '@/lib/hooks/shop';
 import type { Locale } from '@/lib/i18n/routing';
+import { createClient } from '@/lib/supabase/client';
 import { formatCurrency, formatNumber, formatDecimal } from '@/lib/utils/format';
 
 import type { RcFile } from 'antd/es/upload';
@@ -84,8 +90,10 @@ export interface ItemImage {
 export interface PurchaseLineItem {
   id: string;
   description: string;
-  metalType: string;
-  purity: string;
+  /** UUID of the metal type from database */
+  idMetalType: string | null;
+  /** UUID of the metal purity from database */
+  idMetalPurity: string | null;
   weightGrams: number;
   quantity: number;
   unitPrice: number;
@@ -115,36 +123,6 @@ export interface PurchaseFormProps {
   /** Whether the form is in edit mode */
   isEditing?: boolean;
 }
-
-// =============================================================================
-// CONSTANTS
-// =============================================================================
-
-const METAL_TYPES = [
-  { value: 'gold', label: 'Gold' },
-  { value: 'silver', label: 'Silver' },
-  { value: 'platinum', label: 'Platinum' },
-  { value: 'palladium', label: 'Palladium' },
-];
-
-const PURITY_OPTIONS = {
-  gold: [
-    { value: '24k', label: '24K (999)' },
-    { value: '22k', label: '22K (916)' },
-    { value: '21k', label: '21K (875)' },
-    { value: '18k', label: '18K (750)' },
-    { value: '14k', label: '14K (585)' },
-  ],
-  silver: [
-    { value: '999', label: 'Fine Silver (999)' },
-    { value: '925', label: 'Sterling (925)' },
-  ],
-  platinum: [
-    { value: '950', label: '950 Platinum' },
-    { value: '900', label: '900 Platinum' },
-  ],
-  palladium: [{ value: '950', label: '950 Palladium' }],
-};
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -177,12 +155,16 @@ function generateBarcode(shopName: string): string {
   return `${prefix}-${sequence}`;
 }
 
-function createEmptyItem(shopName: string): PurchaseLineItem {
+function createEmptyItem(
+  shopName: string,
+  defaultMetalTypeId?: string | null,
+  defaultPurityId?: string | null
+): PurchaseLineItem {
   return {
     id: generateItemId(),
     description: '',
-    metalType: 'gold',
-    purity: '21k',
+    idMetalType: defaultMetalTypeId ?? null,
+    idMetalPurity: defaultPurityId ?? null,
     weightGrams: 0,
     quantity: 1,
     unitPrice: 0,
@@ -250,11 +232,24 @@ function BarcodeDisplay({ barcode, onPrint, t }: BarcodeDisplayProps): React.JSX
 // LINE ITEM COMPONENT
 // =============================================================================
 
+interface MetalTypeOption {
+  id_metal_type: string;
+  metal_name: string;
+}
+
+interface MetalPurityOption {
+  id_purity: string;
+  id_metal_type: string;
+  purity_name: string;
+}
+
 interface LineItemRowProps {
   item: PurchaseLineItem;
   index: number;
   currency: string;
   locale: Locale;
+  metalTypes: MetalTypeOption[];
+  metalPurities: MetalPurityOption[];
   onChange: (id: string, field: keyof PurchaseLineItem, value: unknown) => void;
   onRemove: (id: string) => void;
   onPrintBarcode: (item: PurchaseLineItem) => void;
@@ -270,6 +265,8 @@ function LineItemRow({
   index,
   currency,
   locale,
+  metalTypes,
+  metalPurities,
   onChange,
   onRemove,
   onPrintBarcode,
@@ -279,7 +276,10 @@ function LineItemRow({
   t,
   tInventory,
 }: LineItemRowProps): React.JSX.Element {
-  const purityOptions = PURITY_OPTIONS[item.metalType as keyof typeof PURITY_OPTIONS] || [];
+  // Filter purities based on selected metal type
+  const filteredPurities = item.idMetalType
+    ? metalPurities.filter((p) => p.id_metal_type === item.idMetalType)
+    : metalPurities;
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
 
@@ -392,20 +392,24 @@ function LineItemRow({
         <Col xs={12} sm={6}>
           <Form.Item label={tInventory('metals.title')} className="mb-0">
             <Select
-              value={item.metalType}
+              value={item.idMetalType}
               onChange={(value) => {
-                onChange(item.id, 'metalType', value);
+                onChange(item.id, 'idMetalType', value);
                 // Reset purity when metal type changes
-                const newPurityOptions = PURITY_OPTIONS[value as keyof typeof PURITY_OPTIONS] || [];
+                const newPurityOptions = metalPurities.filter((p) => p.id_metal_type === value);
                 const firstPurity = newPurityOptions[0];
                 if (firstPurity) {
-                  onChange(item.id, 'purity', firstPurity.value);
+                  onChange(item.id, 'idMetalPurity', firstPurity.id_purity);
+                } else {
+                  onChange(item.id, 'idMetalPurity', null);
                 }
               }}
-              options={METAL_TYPES.map((m) => ({
-                value: m.value,
-                label: tInventory(`metals.${m.value}`),
+              options={metalTypes.map((m) => ({
+                value: m.id_metal_type,
+                label: m.metal_name,
               }))}
+              placeholder={t('selectMetalType')}
+              allowClear
             />
           </Form.Item>
         </Col>
@@ -414,9 +418,15 @@ function LineItemRow({
         <Col xs={12} sm={6}>
           <Form.Item label={tInventory('metals.purity')} className="mb-0">
             <Select
-              value={item.purity}
-              onChange={(value) => onChange(item.id, 'purity', value)}
-              options={purityOptions}
+              value={item.idMetalPurity}
+              onChange={(value) => onChange(item.id, 'idMetalPurity', value)}
+              options={filteredPurities.map((p) => ({
+                value: p.id_purity,
+                label: p.purity_name,
+              }))}
+              placeholder={t('selectPurity')}
+              allowClear
+              disabled={!item.idMetalType}
             />
           </Form.Item>
         </Col>
@@ -574,13 +584,20 @@ function LineItemRow({
 interface PrintableBarcodeLabelProps {
   item: PurchaseLineItem;
   shopName: string;
+  metalTypeName?: string;
+  purityName?: string;
 }
 
 /**
  * Printable barcode label for use in print views
  * Renders a CODE128 barcode with item details
  */
-function PrintableBarcodeLabel({ item, shopName }: PrintableBarcodeLabelProps): React.JSX.Element {
+function PrintableBarcodeLabel({
+  item,
+  shopName,
+  metalTypeName,
+  purityName,
+}: PrintableBarcodeLabelProps): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -613,7 +630,7 @@ function PrintableBarcodeLabel({ item, shopName }: PrintableBarcodeLabelProps): 
       </div>
       <svg ref={svgRef} className="mx-auto" />
       <div className="text-xs text-stone-600 mt-2">
-        {item.metalType.toUpperCase()} | {item.purity} | {item.weightGrams}g
+        {metalTypeName || '-'} | {purityName || '-'} | {item.weightGrams}g
       </div>
     </div>
   );
@@ -634,14 +651,29 @@ export function PurchaseForm({
   const tCommon = useTranslations('common');
   const tInventory = useTranslations('inventory');
   const locale = useLocale() as Locale;
-  const { shop } = useShop();
+  const { shop, shopId } = useShop();
   const currency = shop?.currency || 'USD';
   const shopName = shop?.shop_name || 'SHOP';
+
+  // Fetch metal types and purities from database
+  const { data: metalTypes = [] } = useMetalTypes();
+  const { data: metalPurities = [] } = useMetalPurities();
+
+  // Get default metal type (first one, usually Gold)
+  const defaultMetalTypeId = metalTypes[0]?.id_metal_type ?? null;
+  const defaultPurityId = useMemo(() => {
+    if (!defaultMetalTypeId || metalPurities.length === 0) {
+      return null;
+    }
+    const firstPurity = metalPurities.find((p) => p.id_metal_type === defaultMetalTypeId);
+    return firstPurity?.id_purity ?? null;
+  }, [defaultMetalTypeId, metalPurities]);
 
   // Mutations
   const createPurchase = useCreatePurchase();
   const updatePurchase = useUpdatePurchase();
   const linkFiles = useLinkFilesToEntity();
+  const { uploadFileAsync } = useUploadFile();
 
   // Print refs
   const singlePrintRef = useRef<HTMLDivElement>(null);
@@ -698,8 +730,8 @@ export function PurchaseForm({
   );
 
   const handleAddItem = useCallback(() => {
-    setItems((prev) => [...prev, createEmptyItem(shopName)]);
-  }, [shopName]);
+    setItems((prev) => [...prev, createEmptyItem(shopName, defaultMetalTypeId, defaultPurityId)]);
+  }, [shopName, defaultMetalTypeId, defaultPurityId]);
 
   const handleRemoveItem = useCallback((id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
@@ -783,6 +815,11 @@ export function PurchaseForm({
         return;
       }
 
+      if (!shopId) {
+        message.error(t('validation.shopRequired'));
+        return;
+      }
+
       if (items.length === 0 || items.every((item) => !item.description)) {
         message.error(t('validation.itemsRequired'));
         return;
@@ -811,6 +848,7 @@ export function PurchaseForm({
           message.success(t('updateSuccess'));
         } else {
           const result = await createPurchase.mutateAsync(purchaseData);
+          const newPurchaseId = result.id_purchase;
 
           // Link uploaded invoice images to the newly created purchase
           if (uploadedInvoiceImages.length > 0) {
@@ -818,16 +856,127 @@ export function PurchaseForm({
               await linkFiles.mutateAsync({
                 fileIds: uploadedInvoiceImages.map((f) => f.id_file),
                 entityType: 'purchases',
-                entityId: result.id_purchase,
+                entityId: newPurchaseId,
               });
             } catch (linkError) {
               console.error('Failed to link invoice images:', linkError);
-              // Don't fail the purchase creation, just log the error
             }
           }
 
-          message.success(t('createSuccess'));
-          onSuccess?.(result.id_purchase);
+          // Create inventory items for each line item
+          const supabase = createClient();
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+
+          if (user) {
+            // Get public user ID
+            const { data: publicUser } = await supabase
+              .from('users')
+              .select('id_user')
+              .eq('auth_id', user.id)
+              .single();
+
+            if (publicUser) {
+              let createdItemsCount = 0;
+
+              for (const item of items) {
+                if (!item.description) {
+                  continue;
+                }
+
+                // Create quantity number of inventory items
+                for (let i = 0; i < item.quantity; i++) {
+                  try {
+                    // Upload item images to storage (if any)
+                    const uploadedImageIds: string[] = [];
+                    for (const img of item.images) {
+                      if (img.file) {
+                        try {
+                          const uploadResult = await uploadFileAsync({
+                            file: img.file,
+                            options: {
+                              entityType: 'inventory_items',
+                              entityId: null, // Will link after item creation
+                            },
+                          });
+                          uploadedImageIds.push(uploadResult.id_file);
+                        } catch (imgError) {
+                          console.error('Failed to upload item image:', imgError);
+                        }
+                      }
+                    }
+
+                    // Generate a unique barcode for each individual item
+                    const itemBarcode =
+                      item.quantity === 1
+                        ? item.barcode
+                        : `${item.barcode}-${String(i + 1).padStart(2, '0')}`;
+
+                    // Create inventory item
+                    const { data: newItem, error: itemError } = await supabase
+                      .from('inventory_items')
+                      .insert({
+                        id_shop: shopId,
+                        item_name: item.description,
+                        description: item.description,
+                        barcode: itemBarcode,
+                        source_type: 'purchase',
+                        id_purchase: newPurchaseId,
+                        item_type: 'finished',
+                        ownership_type: 'owned',
+                        status: 'available',
+                        weight_grams: item.weightGrams,
+                        purchase_price: item.unitPrice,
+                        currency,
+                        id_metal_type: item.idMetalType,
+                        id_metal_purity: item.idMetalPurity,
+                        created_by: publicUser.id_user,
+                      })
+                      .select('id_item')
+                      .single();
+
+                    if (itemError) {
+                      console.error('Failed to create inventory item:', itemError);
+                    } else {
+                      createdItemsCount++;
+
+                      // Link uploaded images to the new item
+                      if (uploadedImageIds.length > 0 && newItem) {
+                        try {
+                          await linkFiles.mutateAsync({
+                            fileIds: uploadedImageIds,
+                            entityType: 'inventory_items',
+                            entityId: newItem.id_item,
+                          });
+                        } catch (linkError) {
+                          console.error('Failed to link item images:', linkError);
+                        }
+                      }
+                    }
+                  } catch (itemCreateError) {
+                    console.error('Error creating inventory item:', itemCreateError);
+                  }
+                }
+              }
+
+              if (createdItemsCount > 0) {
+                message.success(
+                  t('createSuccessWithItems', {
+                    itemCount: createdItemsCount,
+                  })
+                );
+              } else {
+                message.success(t('createSuccess'));
+              }
+            } else {
+              message.success(t('createSuccess'));
+            }
+          } else {
+            message.success(t('createSuccess'));
+          }
+
+          onSuccess?.(newPurchaseId);
         }
       } catch (error) {
         console.error('Failed to save purchase:', error);
@@ -838,6 +987,7 @@ export function PurchaseForm({
     },
     [
       supplierId,
+      shopId,
       invoiceNumber,
       purchaseDate,
       items,
@@ -849,6 +999,7 @@ export function PurchaseForm({
       createPurchase,
       updatePurchase,
       linkFiles,
+      uploadFileAsync,
       uploadedInvoiceImages,
       onSuccess,
       t,
@@ -959,6 +1110,8 @@ export function PurchaseForm({
             index={index}
             currency={currency}
             locale={locale}
+            metalTypes={metalTypes}
+            metalPurities={metalPurities}
             onChange={handleItemChange}
             onRemove={handleRemoveItem}
             onPrintBarcode={handlePrintItemBarcode}
@@ -1041,7 +1194,18 @@ export function PurchaseForm({
       {/* Single barcode print area */}
       <div className="hidden">
         <div ref={singlePrintRef} className="p-4">
-          {printingItem && <PrintableBarcodeLabel item={printingItem} shopName={shopName} />}
+          {printingItem && (
+            <PrintableBarcodeLabel
+              item={printingItem}
+              shopName={shopName}
+              metalTypeName={
+                metalTypes.find((m) => m.id_metal_type === printingItem.idMetalType)?.metal_name
+              }
+              purityName={
+                metalPurities.find((p) => p.id_purity === printingItem.idMetalPurity)?.purity_name
+              }
+            />
+          )}
         </div>
       </div>
 
@@ -1050,7 +1214,17 @@ export function PurchaseForm({
         <div ref={bulkPrintRef} className="p-4">
           <div className="grid grid-cols-3 gap-4">
             {items.map((item) => (
-              <PrintableBarcodeLabel key={item.id} item={item} shopName={shopName} />
+              <PrintableBarcodeLabel
+                key={item.id}
+                item={item}
+                shopName={shopName}
+                metalTypeName={
+                  metalTypes.find((m) => m.id_metal_type === item.idMetalType)?.metal_name
+                }
+                purityName={
+                  metalPurities.find((p) => p.id_purity === item.idMetalPurity)?.purity_name
+                }
+              />
             ))}
           </div>
         </div>

@@ -54,8 +54,6 @@ export interface PurchaseDetailProps {
   onEdit?: () => void;
   /** Handler for record payment action */
   onRecordPayment?: () => void;
-  /** Handler for receive action */
-  onReceive?: () => void;
   /** Handler for cancel action */
   onCancel?: () => void;
   /** Whether data is loading */
@@ -137,7 +135,6 @@ export function PurchaseDetail({
   purchase,
   onEdit,
   onRecordPayment,
-  onReceive,
   onCancel,
   isLoading = false,
 }: PurchaseDetailProps): React.JSX.Element {
@@ -151,7 +148,6 @@ export function PurchaseDetail({
   // Permissions
   const canEdit = can('purchases.edit');
   const canRecordPayment = can('suppliers.payments');
-  const canReceive = can('inventory.manage');
   const canCancelPurchase = can('purchases.delete');
 
   // Calculate values
@@ -193,11 +189,6 @@ export function PurchaseDetail({
             {canRecordPayment && !isPaid && onRecordPayment && (
               <Button type="primary" icon={<DollarOutlined />} onClick={onRecordPayment}>
                 {t('recordPayment')}
-              </Button>
-            )}
-            {canReceive && onReceive && (
-              <Button icon={<CheckCircleOutlined />} onClick={onReceive}>
-                {t('receive')}
               </Button>
             )}
             {canCancelPurchase && !isPaid && onCancel && (

@@ -31,6 +31,3 @@ export {
 
 // Detail Components
 export { PurchaseDetail, PurchaseDetailSkeleton, type PurchaseDetailProps } from './PurchaseDetail';
-
-// Modal Components
-export { ReceivePurchaseModal, type ReceivePurchaseModalProps } from './ReceivePurchaseModal';

@@ -7,9 +7,8 @@
  *
  * Features:
  * - Full purchase details display
- * - Actions: Edit, Record Payment, Receive, Cancel
+ * - Actions: Edit, Record Payment, Cancel
  * - Payment modal integration
- * - Receive modal integration
  * - Cancel confirmation
  *
  * @module app/(platform)/[locale]/[shopId]/purchases/[purchaseId]/page
@@ -25,7 +24,6 @@ import {
   PurchaseDetail,
   PurchaseDetailSkeleton,
 } from '@/components/domain/purchases/PurchaseDetail';
-import { ReceivePurchaseModal } from '@/components/domain/purchases/ReceivePurchaseModal';
 import { RecordPaymentModal } from '@/components/domain/suppliers/RecordPaymentModal';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { usePurchase, useCancelPurchase } from '@/lib/hooks/data/usePurchases';
@@ -59,7 +57,6 @@ export default function PurchaseDetailPage({ params }: PurchaseDetailPageProps):
   // ==========================================================================
 
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [receiveModalOpen, setReceiveModalOpen] = useState(false);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
 
   // ==========================================================================
@@ -83,10 +80,6 @@ export default function PurchaseDetailPage({ params }: PurchaseDetailPageProps):
     setPaymentModalOpen(true);
   }, []);
 
-  const handleReceive = useCallback(() => {
-    setReceiveModalOpen(true);
-  }, []);
-
   const handleCancel = useCallback(() => {
     setCancelModalOpen(true);
   }, []);
@@ -95,12 +88,6 @@ export default function PurchaseDetailPage({ params }: PurchaseDetailPageProps):
     setPaymentModalOpen(false);
     refetch();
     message.success(t('paymentRecorded'));
-  }, [refetch, t]);
-
-  const handleReceiveSuccess = useCallback(() => {
-    setReceiveModalOpen(false);
-    refetch();
-    message.success(t('itemsReceived'));
   }, [refetch, t]);
 
   const handleCancelConfirm = useCallback(async () => {
@@ -193,7 +180,6 @@ export default function PurchaseDetailPage({ params }: PurchaseDetailPageProps):
         purchase={purchase}
         onEdit={can('purchases.edit') ? handleEdit : undefined}
         onRecordPayment={can('suppliers.payments') ? handleRecordPayment : undefined}
-        onReceive={can('inventory.manage') ? handleReceive : undefined}
         onCancel={can('purchases.delete') ? handleCancel : undefined}
       />
 
@@ -202,14 +188,6 @@ export default function PurchaseDetailPage({ params }: PurchaseDetailPageProps):
         open={paymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
         onSuccess={handlePaymentSuccess}
-        purchase={purchase}
-      />
-
-      {/* Receive Purchase Modal */}
-      <ReceivePurchaseModal
-        open={receiveModalOpen}
-        onClose={() => setReceiveModalOpen(false)}
-        onSuccess={handleReceiveSuccess}
         purchase={purchase}
       />
 

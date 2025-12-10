@@ -9,7 +9,7 @@
  * Features:
  * - DataTable with purchases
  * - Filters: date range, status, supplier, payment status
- * - Quick actions: view, receive, pay
+ * - Quick actions: view, pay
  * - Add new purchase button
  * - Mobile responsive with card view
  *
@@ -30,7 +30,6 @@ import {
 } from '@/components/domain/purchases/PurchasesFilters';
 import { PurchasesList } from '@/components/domain/purchases/PurchasesList';
 import { PurchasesStats } from '@/components/domain/purchases/PurchasesStats';
-import { ReceivePurchaseModal } from '@/components/domain/purchases/ReceivePurchaseModal';
 import { RecordPaymentModal } from '@/components/domain/suppliers/RecordPaymentModal';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
@@ -71,7 +70,6 @@ export default function PurchasesPage({ params }: PurchasesPageProps): React.JSX
 
   // Modal states
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [receiveModalOpen, setReceiveModalOpen] = useState(false);
   const [selectedPurchaseId, setSelectedPurchaseId] = useState<string | null>(null);
 
   // ==========================================================================
@@ -92,7 +90,7 @@ export default function PurchasesPage({ params }: PurchasesPageProps): React.JSX
 
   // Fetch selected purchase for modals
   const { purchase: selectedPurchase } = usePurchase(selectedPurchaseId, {
-    enabled: !!selectedPurchaseId && (paymentModalOpen || receiveModalOpen),
+    enabled: !!selectedPurchaseId && paymentModalOpen,
   });
 
   // ==========================================================================
@@ -101,7 +99,6 @@ export default function PurchasesPage({ params }: PurchasesPageProps): React.JSX
 
   const canCreatePurchase = can('purchases.create');
   const canRecordPayment = can('suppliers.payments');
-  const canReceive = can('inventory.manage');
 
   // ==========================================================================
   // HANDLERS
@@ -136,18 +133,8 @@ export default function PurchasesPage({ params }: PurchasesPageProps): React.JSX
     setPaymentModalOpen(true);
   }, []);
 
-  const handleReceive = useCallback((purchaseId: string) => {
-    setSelectedPurchaseId(purchaseId);
-    setReceiveModalOpen(true);
-  }, []);
-
   const handlePaymentModalClose = useCallback(() => {
     setPaymentModalOpen(false);
-    setSelectedPurchaseId(null);
-  }, []);
-
-  const handleReceiveModalClose = useCallback(() => {
-    setReceiveModalOpen(false);
     setSelectedPurchaseId(null);
   }, []);
 
@@ -155,11 +142,6 @@ export default function PurchasesPage({ params }: PurchasesPageProps): React.JSX
     handlePaymentModalClose();
     refetch();
   }, [handlePaymentModalClose, refetch]);
-
-  const handleReceiveSuccess = useCallback(() => {
-    handleReceiveModalClose();
-    refetch();
-  }, [handleReceiveModalClose, refetch]);
 
   // Pagination handlers
   const handlePageChange = useCallback((newPage: number) => {
@@ -253,7 +235,6 @@ export default function PurchasesPage({ params }: PurchasesPageProps): React.JSX
             isLoading={isLoading}
             onPurchaseClick={handlePurchaseClick}
             onRecordPayment={canRecordPayment ? handleRecordPayment : undefined}
-            onReceive={canReceive ? handleReceive : undefined}
             isMobile={isMobile}
           />
 
@@ -285,16 +266,6 @@ export default function PurchasesPage({ params }: PurchasesPageProps): React.JSX
           open={paymentModalOpen}
           onClose={handlePaymentModalClose}
           onSuccess={handlePaymentSuccess}
-          purchase={selectedPurchase}
-        />
-      )}
-
-      {/* Receive Purchase Modal */}
-      {selectedPurchase && (
-        <ReceivePurchaseModal
-          open={receiveModalOpen}
-          onClose={handleReceiveModalClose}
-          onSuccess={handleReceiveSuccess}
           purchase={selectedPurchase}
         />
       )}

@@ -2261,6 +2261,7 @@ export type Database = {
           reference_id: string | null;
           reference_type: string | null;
           sequence_number: number;
+          transaction_date: string;
           transaction_type: string;
         };
         Insert: {
@@ -2276,6 +2277,7 @@ export type Database = {
           reference_id?: string | null;
           reference_type?: string | null;
           sequence_number?: number;
+          transaction_date?: string;
           transaction_type: string;
         };
         Update: {
@@ -2291,6 +2293,7 @@ export type Database = {
           reference_id?: string | null;
           reference_type?: string | null;
           sequence_number?: number;
+          transaction_date?: string;
           transaction_type?: string;
         };
         Relationships: [];

@@ -56,6 +56,21 @@ export type SupplierCategoryUpdate = TablesUpdate<'supplier_categories'>;
 export type SupplierTransaction = Tables<'supplier_transactions'>;
 
 /**
+ * Supplier payment row type
+ */
+export type SupplierPayment = Tables<'supplier_payments'>;
+
+/**
+ * Supplier payment with optional purchase relation
+ */
+export interface SupplierPaymentWithPurchase extends SupplierPayment {
+  purchase?: {
+    id_purchase: string;
+    purchase_number: string;
+  } | null;
+}
+
+/**
  * Supplier with category details
  */
 export interface SupplierWithCategory extends Supplier {
@@ -139,6 +154,44 @@ export interface UseSupplierTransactionsReturn {
   /** Array of transactions */
   transactions: SupplierTransaction[];
   /** Total count of matching transactions */
+  totalCount: number;
+  /** Current page number */
+  page: number;
+  /** Total number of pages */
+  totalPages: number;
+  /** True while loading */
+  isLoading: boolean;
+  /** Error if query failed */
+  error: Error | null;
+  /** Refetch the data */
+  refetch: () => void;
+}
+
+/**
+ * Options for supplier payment queries
+ */
+export interface UseSupplierPaymentsOptions {
+  /** Page number (1-indexed) */
+  page?: number;
+  /** Items per page (default: 20) */
+  pageSize?: number;
+  /** Filter by payment type */
+  paymentType?: string;
+  /** Start date for date range filter */
+  startDate?: string;
+  /** End date for date range filter */
+  endDate?: string;
+  /** Whether to enable the query */
+  enabled?: boolean;
+}
+
+/**
+ * Return type for supplier payments
+ */
+export interface UseSupplierPaymentsReturn {
+  /** Array of payments */
+  payments: SupplierPaymentWithPurchase[];
+  /** Total count of matching payments */
   totalCount: number;
   /** Current page number */
   page: number;
@@ -321,6 +374,65 @@ async function fetchSupplierTransactions(
 
   return {
     transactions: data ?? [],
+    totalCount: count ?? 0,
+  };
+}
+
+/**
+ * Fetches supplier payments
+ */
+async function fetchSupplierPayments(
+  shopId: string,
+  supplierId: string,
+  options: UseSupplierPaymentsOptions
+): Promise<{ payments: SupplierPaymentWithPurchase[]; totalCount: number }> {
+  const { page = 1, pageSize = 20, paymentType, startDate, endDate } = options;
+
+  const supabase = createClient();
+  const offset = (page - 1) * pageSize;
+
+  let query = supabase
+    .from('supplier_payments')
+    .select(
+      `
+      *,
+      purchase:purchases!supplier_payments_id_purchase_fkey (
+        id_purchase,
+        purchase_number
+      )
+    `,
+      { count: 'exact' }
+    )
+    .eq('id_shop', shopId)
+    .eq('id_supplier', supplierId);
+
+  // Apply payment type filter
+  if (paymentType) {
+    query = query.eq('payment_type', paymentType);
+  }
+
+  // Apply date range filter
+  if (startDate) {
+    query = query.gte('payment_date', startDate);
+  }
+  if (endDate) {
+    query = query.lte('payment_date', endDate);
+  }
+
+  // Order by most recent first
+  query = query.order('payment_date', { ascending: false });
+
+  // Apply pagination
+  query = query.range(offset, offset + pageSize - 1);
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    throw new Error(`Failed to fetch supplier payments: ${error.message}`);
+  }
+
+  return {
+    payments: (data ?? []) as unknown as SupplierPaymentWithPurchase[],
     totalCount: count ?? 0,
   };
 }
@@ -538,6 +650,69 @@ export function useSupplierTransactions(
 
   return {
     transactions,
+    totalCount,
+    page,
+    totalPages,
+    isLoading,
+    error: error as Error | null,
+    refetch,
+  };
+}
+
+/**
+ * Hook to fetch supplier payments
+ *
+ * @param supplierId - The supplier ID to fetch payments for
+ * @param options - Query options for filtering and pagination
+ * @returns Paginated payment list
+ *
+ * @example
+ * ```tsx
+ * const {
+ *   payments,
+ *   totalCount,
+ *   isLoading
+ * } = useSupplierPayments('supplier-uuid', {
+ *   page: 1,
+ *   pageSize: 20
+ * });
+ * ```
+ */
+export function useSupplierPayments(
+  supplierId: string,
+  options: UseSupplierPaymentsOptions = {}
+): UseSupplierPaymentsReturn {
+  const { shopId, hasAccess } = useShop();
+  const { page = 1, pageSize = 20, paymentType, startDate, endDate, enabled = true } = options;
+
+  const queryResult = useQuery({
+    queryKey: [
+      'supplier-payments',
+      shopId ?? '',
+      supplierId,
+      { page, pageSize, paymentType, startDate, endDate },
+    ],
+    queryFn: () =>
+      fetchSupplierPayments(shopId!, supplierId, {
+        page,
+        pageSize,
+        paymentType,
+        startDate,
+        endDate,
+      }),
+    enabled: !!shopId && !!supplierId && hasAccess && enabled,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+
+  const { data, isLoading, error, refetch } = queryResult;
+
+  const payments = data?.payments ?? [];
+  const totalCount = data?.totalCount ?? 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  return {
+    payments,
     totalCount,
     page,
     totalPages,

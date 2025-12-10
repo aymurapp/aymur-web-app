@@ -747,20 +747,47 @@ export async function recordSupplierPayment(
 
     // 4. Calculate new balance (payment reduces what we owe)
     const newBalance = Number(supplier.current_balance) - amount;
+    const paymentDate = transaction_date.slice(0, 10); // Ensure YYYY-MM-DD format
 
-    // 5. Create supplier transaction (immutable ledger entry)
+    // 5. Create supplier_payments record (actual payment details)
+    const { data: paymentRecord, error: paymentError } = await supabase
+      .from('supplier_payments')
+      .insert({
+        id_shop: supplier.id_shop,
+        id_supplier,
+        id_purchase: reference_type === 'purchase' ? reference_id : null,
+        payment_type: 'cash', // Default to cash, can be enhanced with payment method selection
+        amount,
+        payment_date: paymentDate,
+        notes: notes?.trim() || null,
+        created_by: authData.publicUser.id_user,
+      })
+      .select('id_payment')
+      .single();
+
+    if (paymentError || !paymentRecord) {
+      console.error('[recordSupplierPayment] Payment record error:', paymentError);
+      return {
+        success: false,
+        error: 'Failed to create payment record',
+        code: 'database_error',
+      };
+    }
+
+    // 6. Create supplier_transactions ledger entry (referencing the payment)
     const { data: transaction, error: transactionError } = await supabase
       .from('supplier_transactions')
       .insert({
         id_shop: supplier.id_shop,
         id_supplier,
         transaction_type: 'payment',
-        amount: amount, // Positive amount for payment
+        debit_amount: 0,
+        credit_amount: amount, // Payment reduces what we owe
         balance_after: newBalance,
-        reference_type: reference_type || 'payment',
-        reference_id: reference_id || null,
-        notes: notes?.trim() || null,
-        transaction_date,
+        reference_type: 'supplier_payment',
+        reference_id: paymentRecord.id_payment,
+        description: notes?.trim() || `Payment on ${paymentDate}`,
+        transaction_date: paymentDate,
         created_by: authData.publicUser.id_user,
       })
       .select()
@@ -770,17 +797,32 @@ export async function recordSupplierPayment(
       console.error('[recordSupplierPayment] Transaction error:', transactionError);
       return {
         success: false,
-        error: 'Failed to record payment',
+        error: 'Failed to record payment in ledger',
         code: 'database_error',
       };
     }
 
-    // 6. Note: In a proper implementation, the balance update should be handled by a database trigger
-    // on supplier_transactions table. For now, we log a warning if this code path is reached
-    // because the transaction has already been recorded in the immutable ledger.
-    // The trigger should automatically update suppliers.current_balance and suppliers.total_payments.
+    // 7. Update supplier's current_balance
+    // Note: This should ideally be handled by a database trigger (sync_supplier_balance)
+    // but we update it manually as a fallback
+    const { error: updateSupplierError } = await supabase
+      .from('suppliers')
+      .update({
+        current_balance: newBalance,
+        updated_at: new Date().toISOString(),
+        updated_by: authData.publicUser.id_user,
+      })
+      .eq('id_supplier', id_supplier);
 
-    // 7. Revalidate paths
+    if (updateSupplierError) {
+      console.error(
+        '[recordSupplierPayment] Failed to update supplier balance:',
+        updateSupplierError
+      );
+      // Transaction was created but balance update failed - log for investigation
+    }
+
+    // 8. Revalidate paths
     revalidateSupplierPaths(supplier.id_shop);
 
     return {

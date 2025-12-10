@@ -1041,6 +1041,22 @@
     "noTransactions": "No transactions recorded",
     "runningBalance": "Running Balance",
     "paymentsComingSoon": "Payment management coming soon",
+    "debit": "Debit",
+    "paymentType": "Payment Type",
+    "paymentTypes": {
+      "cash": "Cash",
+      "card": "Card",
+      "transfer": "Transfer",
+      "cheque": "Cheque",
+      "gold": "Gold"
+    },
+    "relatedPurchase": "Related Purchase",
+    "paymentBreakdown": "Breakdown",
+    "noPurchasesYet": "No purchases from this supplier yet",
+    "noPaymentsYet": "No payments recorded yet",
+    "recordPayment": "Record Payment",
+    "recordPaymentComingSoon": "Record payment functionality coming soon",
+    "paymentDate": "Payment Date",
     "days": "days",
     "addressLine1": "Address Line 1",
     "addressLine2": "Address Line 2",
@@ -1085,7 +1101,15 @@
       "bankSwift": "Enter SWIFT/BIC code",
       "creditLimit": "Enter credit limit",
       "paymentTermsDays": "Enter payment terms",
-      "notes": "Enter notes about this supplier..."
+      "notes": "Enter notes about this supplier...",
+      "enterAmount": "Enter payment amount",
+      "paymentNotes": "Optional notes about this payment..."
+    },
+    "validation": {
+      "amountRequired": "Please enter the payment amount",
+      "amountPositive": "Amount must be greater than zero",
+      "amountExceedsBalance": "Amount cannot exceed the outstanding balance",
+      "dateRequired": "Please select the payment date"
     },
     "messages": {
       "createSuccess": "Supplier created successfully",
@@ -1096,7 +1120,9 @@
       "deleteError": "Failed to delete supplier",
       "loadError": "Failed to load supplier details",
       "notFound": "Supplier Not Found",
-      "notFoundDescription": "The supplier you are looking for could not be found."
+      "notFoundDescription": "The supplier you are looking for could not be found.",
+      "paymentRecorded": "Payment recorded successfully",
+      "paymentError": "Failed to record payment"
     },
     "select": {
       "placeholder": "Search suppliers..."
@@ -1276,7 +1302,9 @@
       "invalidType": "Please upload an image file",
       "fileTooLarge": "Image must be smaller than 5MB"
     },
-    "printBarcode": "Print Barcode"
+    "printBarcode": "Print Barcode",
+    "selectMetalType": "Select metal type",
+    "selectPurity": "Select purity"
   },
   "workshops": {
     "title": "Workshops",

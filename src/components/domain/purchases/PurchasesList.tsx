@@ -11,14 +11,14 @@
  * - Payment status badges with semantic colors
  * - Supplier info display
  * - Total amount with currency
- * - Quick actions: View, Record Payment, Receive
+ * - Quick actions: View, Record Payment
  *
  * @module components/domain/purchases/PurchasesList
  */
 
 import React, { useCallback } from 'react';
 
-import { EyeOutlined, DollarOutlined, CheckCircleOutlined, ShopOutlined } from '@ant-design/icons';
+import { EyeOutlined, DollarOutlined, ShopOutlined } from '@ant-design/icons';
 import { Table, Tag, Tooltip, Space, Skeleton, Typography } from 'antd';
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -50,8 +50,6 @@ export interface PurchasesListProps {
   onPurchaseClick: (purchaseId: string) => void;
   /** Callback when record payment is clicked */
   onRecordPayment?: (purchaseId: string) => void;
-  /** Callback when receive is clicked */
-  onReceive?: (purchaseId: string) => void;
   /** Whether to show mobile card view */
   isMobile: boolean;
 }
@@ -139,7 +137,6 @@ export function PurchasesList({
   isLoading,
   onPurchaseClick,
   onRecordPayment,
-  onReceive,
   isMobile,
 }: PurchasesListProps): React.JSX.Element {
   const t = useTranslations('purchases');
@@ -152,7 +149,6 @@ export function PurchasesList({
   const currency = shop?.currency || 'USD';
 
   const canRecordPayment = can('suppliers.payments');
-  const canReceive = can('inventory.manage');
 
   // ==========================================================================
   // HANDLERS
@@ -171,14 +167,6 @@ export function PurchasesList({
       onRecordPayment?.(purchaseId);
     },
     [onRecordPayment]
-  );
-
-  const handleReceive = useCallback(
-    (purchaseId: string, e: React.MouseEvent) => {
-      e.stopPropagation();
-      onReceive?.(purchaseId);
-    },
-    [onReceive]
   );
 
   // ==========================================================================
@@ -286,16 +274,6 @@ export function PurchasesList({
                 />
               </Tooltip>
             )}
-            {canReceive && onReceive && (
-              <Tooltip title={t('receive')}>
-                <Button
-                  type="text"
-                  size="small"
-                  icon={<CheckCircleOutlined />}
-                  onClick={(e) => handleReceive(record.id_purchase, e)}
-                />
-              </Tooltip>
-            )}
           </Space>
         );
       },
@@ -325,9 +303,6 @@ export function PurchasesList({
               canRecordPayment && purchase.payment_status !== 'paid' && onRecordPayment
                 ? (e) => handleRecordPayment(purchase.id_purchase, e)
                 : undefined
-            }
-            onReceive={
-              canReceive && onReceive ? (e) => handleReceive(purchase.id_purchase, e) : undefined
             }
           />
         ))}

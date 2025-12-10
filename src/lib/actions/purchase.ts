@@ -354,7 +354,27 @@ export async function createPurchase(
     // 5. Determine payment status
     const paymentStatus = determinePurchasePaymentStatus(paid_amount, total_amount);
 
-    // 6. Create purchase
+    // 6. Get supplier's current balance for ledger entry
+    const { data: supplierData, error: supplierBalanceError } = (await db
+      .from('suppliers')
+      .select('current_balance')
+      .eq('id_supplier', id_supplier)
+      .single()) as DbResult<{ current_balance: number }>;
+
+    if (supplierBalanceError || !supplierData) {
+      console.error('[createPurchase] Failed to get supplier balance:', supplierBalanceError);
+      return {
+        success: false,
+        error: 'Failed to get supplier balance',
+        code: 'database_error',
+      };
+    }
+
+    const currentSupplierBalance = Number(supplierData.current_balance) || 0;
+    // Purchase creates a debit (we owe the supplier)
+    const newSupplierBalance = currentSupplierBalance + total_amount;
+
+    // 7. Create purchase
     const { data, error } = (await db
       .from('purchases')
       .insert({
@@ -384,7 +404,42 @@ export async function createPurchase(
       };
     }
 
-    // 7. Revalidate paths
+    // 8. Create supplier transaction (ledger entry for the purchase)
+    const { error: transactionError } = (await db.from('supplier_transactions').insert({
+      id_shop,
+      id_supplier,
+      transaction_type: 'purchase',
+      debit_amount: total_amount,
+      credit_amount: 0,
+      balance_after: newSupplierBalance,
+      reference_type: 'purchase',
+      reference_id: data!.id_purchase,
+      description: `Purchase ${purchaseNumberResult.data}${invoice_number ? ` (Invoice: ${invoice_number})` : ''}`,
+      transaction_date: purchase_date,
+      created_by: authData.publicUser.id_user,
+    })) as DbMutationResult;
+
+    if (transactionError) {
+      console.error('[createPurchase] Failed to create supplier transaction:', transactionError);
+      // Note: Purchase was created, but transaction failed. Log this for investigation.
+    }
+
+    // 9. Update supplier's current_balance
+    const { error: updateSupplierError } = (await db
+      .from('suppliers')
+      .update({
+        current_balance: newSupplierBalance,
+        updated_at: new Date().toISOString(),
+        updated_by: authData.publicUser.id_user,
+      })
+      .eq('id_supplier', id_supplier)) as DbMutationResult;
+
+    if (updateSupplierError) {
+      console.error('[createPurchase] Failed to update supplier balance:', updateSupplierError);
+      // Note: Purchase was created, but supplier balance update failed.
+    }
+
+    // 10. Revalidate paths
     revalidatePurchasePaths(id_shop);
 
     return {
@@ -531,6 +586,8 @@ export async function updatePurchase(
  * 1. Validates the payment amount
  * 2. Updates the purchase paid_amount
  * 3. Automatically updates payment_status
+ * 4. Creates a supplier_transaction ledger entry (credit)
+ * 5. Updates supplier's current_balance
  *
  * @param input - The payment data
  * @returns ActionResult with the updated purchase on success
@@ -558,17 +615,18 @@ export async function recordPurchasePayment(
       };
     }
 
-    const { id_purchase, amount, notes } = validationResult.data;
+    const { id_purchase, amount, payment_date, notes } = validationResult.data;
 
     // 3. Get existing purchase
     const { data: purchase, error: fetchError } = (await db
       .from('purchases')
-      .select('id_shop, id_supplier, total_amount, paid_amount, notes, version')
+      .select('id_shop, id_supplier, purchase_number, total_amount, paid_amount, notes, version')
       .eq('id_purchase', id_purchase)
       .is('deleted_at', null)
       .single()) as DbResult<{
       id_shop: string;
       id_supplier: string;
+      purchase_number: string;
       total_amount: number;
       paid_amount: number;
       notes: string | null;
@@ -583,18 +641,41 @@ export async function recordPurchasePayment(
       };
     }
 
-    // 4. Calculate new amounts
+    // 4. Get supplier's current balance for ledger entry
+    const { data: supplierData, error: supplierBalanceError } = (await db
+      .from('suppliers')
+      .select('current_balance')
+      .eq('id_supplier', purchase.id_supplier)
+      .single()) as DbResult<{ current_balance: number }>;
+
+    if (supplierBalanceError || !supplierData) {
+      console.error(
+        '[recordPurchasePayment] Failed to get supplier balance:',
+        supplierBalanceError
+      );
+      return {
+        success: false,
+        error: 'Failed to get supplier balance',
+        code: 'database_error',
+      };
+    }
+
+    const currentSupplierBalance = Number(supplierData.current_balance) || 0;
+    // Payment creates a credit (we paid the supplier, reducing what we owe)
+    const newSupplierBalance = currentSupplierBalance - amount;
+
+    // 5. Calculate new amounts
     const newPaidAmount = Number(purchase.paid_amount) + amount;
     const paymentStatus = determinePurchasePaymentStatus(
       newPaidAmount,
       Number(purchase.total_amount)
     );
 
-    // 5. Append payment note
+    // 6. Append payment note
     const paymentNote = `[Payment: ${amount} on ${new Date().toISOString().slice(0, 10)}]${notes ? ` - ${notes}` : ''}`;
     const updatedNotes = purchase.notes ? `${purchase.notes}\n${paymentNote}` : paymentNote;
 
-    // 6. Update purchase
+    // 7. Update purchase
     const { data, error } = (await db
       .from('purchases')
       .update({
@@ -619,7 +700,70 @@ export async function recordPurchasePayment(
       };
     }
 
-    // 7. Revalidate paths
+    // 8. Create supplier_payments record (actual payment details)
+    const transactionDate = payment_date || new Date().toISOString().slice(0, 10);
+    const { data: paymentRecord, error: paymentError } = (await db
+      .from('supplier_payments')
+      .insert({
+        id_shop: purchase.id_shop,
+        id_supplier: purchase.id_supplier,
+        id_purchase,
+        payment_type: 'cash', // Default to cash, can be enhanced later
+        amount,
+        payment_date: transactionDate,
+        notes: notes || null,
+        created_by: authData.publicUser.id_user,
+      })
+      .select('id_payment')
+      .single()) as DbResult<{ id_payment: string }>;
+
+    if (paymentError || !paymentRecord) {
+      console.error('[recordPurchasePayment] Failed to create supplier payment:', paymentError);
+      // Purchase was updated, but payment record failed. Continue to try ledger entry.
+    }
+
+    // 9. Create supplier_transactions ledger entry (referencing the payment)
+    const { error: transactionError } = (await db.from('supplier_transactions').insert({
+      id_shop: purchase.id_shop,
+      id_supplier: purchase.id_supplier,
+      transaction_type: 'payment',
+      debit_amount: 0,
+      credit_amount: amount,
+      balance_after: newSupplierBalance,
+      reference_type: 'supplier_payment',
+      reference_id: paymentRecord?.id_payment || null,
+      description: `Payment for ${purchase.purchase_number}${notes ? ` - ${notes}` : ''}`,
+      transaction_date: transactionDate,
+      created_by: authData.publicUser.id_user,
+    })) as DbMutationResult;
+
+    if (transactionError) {
+      console.error(
+        '[recordPurchasePayment] Failed to create supplier transaction:',
+        transactionError
+      );
+      // Note: Purchase was updated, but transaction failed. Log this for investigation.
+    }
+
+    // 10. Update supplier's current_balance
+    const { error: updateSupplierError } = (await db
+      .from('suppliers')
+      .update({
+        current_balance: newSupplierBalance,
+        updated_at: new Date().toISOString(),
+        updated_by: authData.publicUser.id_user,
+      })
+      .eq('id_supplier', purchase.id_supplier)) as DbMutationResult;
+
+    if (updateSupplierError) {
+      console.error(
+        '[recordPurchasePayment] Failed to update supplier balance:',
+        updateSupplierError
+      );
+      // Note: Purchase was updated, but supplier balance update failed.
+    }
+
+    // 11. Revalidate paths
     revalidatePurchasePaths(purchase.id_shop);
 
     return {

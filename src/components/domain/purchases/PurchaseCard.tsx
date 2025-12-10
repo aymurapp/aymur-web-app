@@ -17,13 +17,7 @@
 
 import React from 'react';
 
-import {
-  EyeOutlined,
-  DollarOutlined,
-  CheckCircleOutlined,
-  ShopOutlined,
-  CalendarOutlined,
-} from '@ant-design/icons';
+import { EyeOutlined, DollarOutlined, ShopOutlined, CalendarOutlined } from '@ant-design/icons';
 import { Card, Tag, Skeleton, Typography } from 'antd';
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -48,8 +42,6 @@ export interface PurchaseCardProps {
   onClick: () => void;
   /** Record payment handler */
   onRecordPayment?: (e: React.MouseEvent) => void;
-  /** Receive items handler */
-  onReceive?: (e: React.MouseEvent) => void;
 }
 
 // =============================================================================
@@ -115,7 +107,6 @@ export function PurchaseCard({
   currency,
   onClick,
   onRecordPayment,
-  onReceive,
 }: PurchaseCardProps): React.JSX.Element {
   const t = useTranslations('purchases');
   const tCommon = useTranslations('common');
@@ -184,11 +175,6 @@ export function PurchaseCard({
           {!isPaid && onRecordPayment && (
             <Button type="text" size="small" icon={<DollarOutlined />} onClick={onRecordPayment}>
               {t('recordPayment')}
-            </Button>
-          )}
-          {onReceive && (
-            <Button type="text" size="small" icon={<CheckCircleOutlined />} onClick={onReceive}>
-              {t('receive')}
             </Button>
           )}
         </div>
