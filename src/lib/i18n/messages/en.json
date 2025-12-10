@@ -151,6 +151,17 @@
       "invalidFormat": "Invalid format",
       "uniqueValue": "This value already exists"
     },
+    "fileUpload": {
+      "upload": "Upload",
+      "uploadSuccess": "File uploaded successfully",
+      "uploadError": "Failed to upload file",
+      "deleteSuccess": "File deleted successfully",
+      "deleteError": "Failed to delete file",
+      "fileTooLarge": "File size exceeds {maxSize}",
+      "invalidType": "File type not allowed",
+      "maxFilesReached": "Maximum {max} files allowed",
+      "fileCount": "{count} of {max} files"
+    },
     "time": {
       "today": "Today",
       "yesterday": "Yesterday",
@@ -447,6 +458,8 @@
     "sku": "SKU",
     "barcode": "Barcode",
     "productName": "Product Name",
+    "images": "Images",
+    "imagesHint": "Upload up to 5 product images. Supported formats: JPEG, PNG, WebP, GIF. Max 10MB per file.",
     "select": {
       "placeholder": "Search products..."
     },
@@ -1022,6 +1035,7 @@
     },
     "idCard": {
       "number": "ID Card Number",
+      "images": "ID Card Images",
       "front": "ID Card (Front)",
       "back": "ID Card (Back)",
       "uploadFront": "Upload front side",
@@ -1030,7 +1044,7 @@
       "uploadSuccess": "ID card uploaded successfully",
       "uploadError": "Failed to upload ID card",
       "removeSuccess": "ID card removed",
-      "hint": "Accepted formats: JPG, PNG, WebP. Max size: 5MB"
+      "hint": "Upload front and back of ID card. Accepted formats: JPG, PNG, WebP. Max size: 10MB"
     },
     "messages": {
       "createSuccess": "Customer created successfully",

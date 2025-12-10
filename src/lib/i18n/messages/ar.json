@@ -144,6 +144,17 @@
       "invalidFormat": "صيغة غير صالحة",
       "uniqueValue": "هذه القيمة موجودة بالفعل"
     },
+    "fileUpload": {
+      "upload": "رفع",
+      "uploadSuccess": "تم رفع الملف بنجاح",
+      "uploadError": "فشل رفع الملف",
+      "deleteSuccess": "تم حذف الملف بنجاح",
+      "deleteError": "فشل حذف الملف",
+      "fileTooLarge": "حجم الملف يتجاوز {maxSize}",
+      "invalidType": "نوع الملف غير مسموح",
+      "maxFilesReached": "الحد الاقصى {max} ملفات",
+      "fileCount": "{count} من {max} ملفات"
+    },
     "time": {
       "today": "اليوم",
       "yesterday": "امس",
@@ -244,6 +255,8 @@
     "sku": "رمز المنتج",
     "barcode": "الباركود",
     "productName": "اسم المنتج",
+    "images": "الصور",
+    "imagesHint": "ارفع حتى 5 صور للمنتج. الصيغ المدعومة: JPEG, PNG, WebP, GIF. الحد الاقصى 10 ميجابايت لكل ملف.",
     "category": "الفئة",
     "inStock": "متوفر",
     "lowStock": "مخزون منخفض",
@@ -600,6 +613,7 @@
     },
     "idCard": {
       "number": "رقم بطاقة الهوية",
+      "images": "صور بطاقة الهوية",
       "front": "بطاقة الهوية (الوجه)",
       "back": "بطاقة الهوية (الخلف)",
       "uploadFront": "رفع الوجه الامامي",
@@ -608,7 +622,7 @@
       "uploadSuccess": "تم رفع بطاقة الهوية بنجاح",
       "uploadError": "فشل رفع بطاقة الهوية",
       "removeSuccess": "تم ازالة بطاقة الهوية",
-      "hint": "الصيغ المقبولة: JPG، PNG، WebP. الحد الاقصى: 5 ميجابايت"
+      "hint": "ارفع الوجه الامامي والخلفي لبطاقة الهوية. الصيغ المقبولة: JPG، PNG، WebP. الحد الاقصى: 10 ميجابايت"
     },
     "messages": {
       "createSuccess": "تم انشاء العميل بنجاح",

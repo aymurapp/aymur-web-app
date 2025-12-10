@@ -16,33 +16,22 @@
  * @module components/domain/customers/CustomerForm
  */
 
-import React, { useCallback, useState, useTransition, useMemo } from 'react';
+import React, { useCallback, useTransition, useMemo, useState } from 'react';
 
 import {
   UserOutlined,
   BankOutlined,
   IdcardOutlined,
-  DeleteOutlined,
-  LoadingOutlined,
   CrownOutlined,
   InstagramOutlined,
   FacebookOutlined,
   WhatsAppOutlined,
 } from '@ant-design/icons';
-import {
-  Input,
-  Upload,
-  message,
-  Spin,
-  Divider,
-  InputNumber,
-  Radio,
-  Typography,
-  Collapse,
-} from 'antd';
+import { Input, Divider, InputNumber, Radio, Typography, Collapse, message } from 'antd';
 import { useTranslations } from 'next-intl';
 import { z } from 'zod';
 
+import { EntityImageUpload } from '@/components/common/data/EntityImageUpload';
 import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form';
 import { PERMISSION_KEYS } from '@/lib/constants/permissions';
@@ -64,8 +53,6 @@ import {
   idCardSchema,
   type ClientType,
 } from '@/lib/utils/schemas/customer';
-
-import type { RcFile, UploadProps } from 'antd/es/upload';
 
 const { Text, Title } = Typography;
 
@@ -134,16 +121,6 @@ export interface CustomerFormProps {
 // =============================================================================
 // CONSTANTS
 // =============================================================================
-
-/**
- * Maximum file size for ID card images (5MB)
- */
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
-/**
- * Allowed file types for ID card images
- */
-const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 /**
  * Client type options - matches database constraint
@@ -225,68 +202,9 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
   // Parse existing address for edit mode
   const parsedAddress = useMemo(() => parseAddress(customer?.address ?? null), [customer?.address]);
 
-  // ID card image states
-  const [idCardFront, setIdCardFront] = useState<string | null>(null);
-  const [idCardBack, setIdCardBack] = useState<string | null>(null);
-  const [isUploadingFront, setIsUploadingFront] = useState(false);
-  const [isUploadingBack, setIsUploadingBack] = useState(false);
-
   // Client type state for conditional tax_id visibility
   const [clientType, setClientType] = useState<ClientType>(
     (customer?.client_type as ClientType) || 'walk-in'
-  );
-
-  /**
-   * Handle ID card image upload
-   */
-  const handleIdCardUpload = useCallback(
-    async (file: RcFile, side: 'front' | 'back'): Promise<boolean> => {
-      // Validate file type
-      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-        message.error(tCommon('validation.invalidFormat'));
-        return false;
-      }
-
-      // Validate file size
-      if (file.size > MAX_FILE_SIZE) {
-        message.error(t('idCard.fileTooLarge'));
-        return false;
-      }
-
-      const setUploading = side === 'front' ? setIsUploadingFront : setIsUploadingBack;
-      const setImage = side === 'front' ? setIdCardFront : setIdCardBack;
-
-      setUploading(true);
-
-      try {
-        // For now, create a local URL preview
-        // In production, this would upload to Supabase Storage
-        const previewUrl = URL.createObjectURL(file);
-        setImage(previewUrl);
-        message.success(t('idCard.uploadSuccess'));
-      } catch (error) {
-        console.error('[CustomerForm] ID card upload error:', error);
-        message.error(t('idCard.uploadError'));
-      } finally {
-        setUploading(false);
-      }
-
-      // Return false to prevent default upload behavior
-      return false;
-    },
-    [t, tCommon]
-  );
-
-  /**
-   * Handle ID card image removal
-   */
-  const handleIdCardRemove = useCallback(
-    (side: 'front' | 'back') => {
-      const setImage = side === 'front' ? setIdCardFront : setIdCardBack;
-      setImage(null);
-      message.success(t('idCard.removeSuccess'));
-    },
-    [t]
   );
 
   /**
@@ -359,28 +277,6 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
     },
     [isEditMode, customer, createCustomer, updateCustomer, onSuccess, t]
   );
-
-  /**
-   * Upload component props for front ID card
-   */
-  const uploadPropsFront: UploadProps = {
-    name: 'id_card_front',
-    showUploadList: false,
-    accept: ALLOWED_FILE_TYPES.join(','),
-    beforeUpload: (file) => handleIdCardUpload(file as RcFile, 'front'),
-    disabled: isUploadingFront || isUploadingBack,
-  };
-
-  /**
-   * Upload component props for back ID card
-   */
-  const uploadPropsBack: UploadProps = {
-    name: 'id_card_back',
-    showUploadList: false,
-    accept: ALLOWED_FILE_TYPES.join(','),
-    beforeUpload: (file) => handleIdCardUpload(file as RcFile, 'back'),
-    disabled: isUploadingFront || isUploadingBack,
-  };
 
   // Check if form is currently submitting
   const isSubmitting = isPending || createCustomer.isPending || updateCustomer.isPending;
@@ -661,97 +557,19 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
           />
         </Form.Item>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* ID Card Front */}
-          <div className="flex flex-col gap-2">
-            <Text strong>{t('idCard.front')}</Text>
-            <div
-              className={cn(
-                'relative border-2 border-dashed rounded-lg p-4 text-center',
-                'transition-colors hover:border-amber-400',
-                idCardFront ? 'border-amber-300 bg-amber-50/50' : 'border-stone-200'
-              )}
-            >
-              {idCardFront ? (
-                <div className="relative">
-                  <img
-                    src={idCardFront}
-                    alt={t('idCard.front')}
-                    className="w-full h-32 object-cover rounded"
-                  />
-                  <Button
-                    size="small"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleIdCardRemove('front')}
-                    className="absolute top-2 end-2"
-                    aria-label={tCommon('actions.delete')}
-                  />
-                </div>
-              ) : (
-                <Upload {...uploadPropsFront}>
-                  <div className="flex flex-col items-center gap-2 py-4 cursor-pointer">
-                    {isUploadingFront ? (
-                      <Spin indicator={<LoadingOutlined spin />} />
-                    ) : (
-                      <>
-                        <IdcardOutlined className="text-3xl text-stone-400" />
-                        <Text type="secondary">{t('idCard.uploadFront')}</Text>
-                      </>
-                    )}
-                  </div>
-                </Upload>
-              )}
-            </div>
-          </div>
-
-          {/* ID Card Back */}
-          <div className="flex flex-col gap-2">
-            <Text strong>{t('idCard.back')}</Text>
-            <div
-              className={cn(
-                'relative border-2 border-dashed rounded-lg p-4 text-center',
-                'transition-colors hover:border-amber-400',
-                idCardBack ? 'border-amber-300 bg-amber-50/50' : 'border-stone-200'
-              )}
-            >
-              {idCardBack ? (
-                <div className="relative">
-                  <img
-                    src={idCardBack}
-                    alt={t('idCard.back')}
-                    className="w-full h-32 object-cover rounded"
-                  />
-                  <Button
-                    size="small"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleIdCardRemove('back')}
-                    className="absolute top-2 end-2"
-                    aria-label={tCommon('actions.delete')}
-                  />
-                </div>
-              ) : (
-                <Upload {...uploadPropsBack}>
-                  <div className="flex flex-col items-center gap-2 py-4 cursor-pointer">
-                    {isUploadingBack ? (
-                      <Spin indicator={<LoadingOutlined spin />} />
-                    ) : (
-                      <>
-                        <IdcardOutlined className="text-3xl text-stone-400" />
-                        <Text type="secondary">{t('idCard.uploadBack')}</Text>
-                      </>
-                    )}
-                  </div>
-                </Upload>
-              )}
-            </div>
-          </div>
+        {/* ID Card Images */}
+        <div className="mt-4">
+          <Text strong className="block mb-2">
+            {t('idCard.images')}
+          </Text>
+          <EntityImageUpload
+            entityType="customers"
+            entityId={customer?.id_customer ?? null}
+            maxFiles={2}
+            allowedTypes={['image/jpeg', 'image/png', 'image/webp']}
+            hintText={t('idCard.hint')}
+          />
         </div>
-
-        <Text type="secondary" className="text-xs mt-2 block">
-          {t('idCard.hint')}
-        </Text>
       </div>
 
       <Divider className="my-6" />
