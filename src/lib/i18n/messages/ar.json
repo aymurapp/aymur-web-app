@@ -636,6 +636,11 @@
       "vip": "مميز",
       "collaboration": "تعاون"
     },
+    "financialStatuses": {
+      "good": "مدفوع",
+      "warning": "معلق",
+      "critical": "متأخر"
+    },
     "creditAccount": {
       "title": "حساب الائتمان",
       "balance": "الرصيد",

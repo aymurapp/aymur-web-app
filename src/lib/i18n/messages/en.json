@@ -1058,6 +1058,11 @@
       "vip": "VIP",
       "collaboration": "Collaboration"
     },
+    "financialStatuses": {
+      "good": "Paid",
+      "warning": "Pending",
+      "critical": "Overdue"
+    },
     "creditAccount": {
       "title": "Credit Account",
       "balance": "Balance",

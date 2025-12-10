@@ -109,36 +109,68 @@ function getBalanceColor(balance: number): 'green' | 'red' | 'gray' {
 }
 
 /**
- * Gets financial status configuration
+ * Gets client type tag configuration for Ant Design Tag component
  */
-function getFinancialStatusConfig(status: string | null): {
-  color: string;
-  bgColor: string;
+function getClientTypeTagConfig(clientType: string | null): {
+  color: 'default' | 'success' | 'gold' | 'blue';
+  icon: React.ReactNode;
+  avatarBg: string;
+} {
+  switch (clientType) {
+    case 'regular':
+      return {
+        color: 'success',
+        icon: <UserOutlined />,
+        avatarBg: 'bg-emerald-500',
+      };
+    case 'vip':
+      return {
+        color: 'gold',
+        icon: <CrownOutlined />,
+        avatarBg: 'bg-amber-500',
+      };
+    case 'collaboration':
+      return {
+        color: 'blue',
+        icon: <BankOutlined />,
+        avatarBg: 'bg-blue-500',
+      };
+    case 'walk-in':
+    default:
+      return {
+        color: 'default',
+        icon: <UserOutlined />,
+        avatarBg: 'bg-stone-400',
+      };
+  }
+}
+
+/**
+ * Gets financial status tag configuration for Ant Design Tag component
+ */
+function getFinancialStatusTagConfig(status: string | null): {
+  color: 'success' | 'warning' | 'error' | 'default';
   icon: React.ReactNode;
 } {
   switch (status) {
     case 'good':
       return {
-        color: 'text-emerald-600',
-        bgColor: 'bg-emerald-50',
-        icon: <CheckCircleOutlined className="text-emerald-600" />,
+        color: 'success',
+        icon: <CheckCircleOutlined />,
       };
     case 'warning':
       return {
-        color: 'text-amber-600',
-        bgColor: 'bg-amber-50',
-        icon: <WarningOutlined className="text-amber-600" />,
+        color: 'warning',
+        icon: <WarningOutlined />,
       };
     case 'critical':
       return {
-        color: 'text-red-600',
-        bgColor: 'bg-red-50',
-        icon: <ExclamationCircleOutlined className="text-red-600" />,
+        color: 'error',
+        icon: <ExclamationCircleOutlined />,
       };
     default:
       return {
-        color: 'text-stone-500',
-        bgColor: 'bg-stone-50',
+        color: 'default',
         icon: null,
       };
   }
@@ -168,9 +200,13 @@ export function CustomerCard({
     () => getBalanceColor(customer.current_balance),
     [customer.current_balance]
   );
-  const financialStatus = useMemo(
-    () => getFinancialStatusConfig(customer.financial_status),
+  const financialStatusTag = useMemo(
+    () => getFinancialStatusTagConfig(customer.financial_status),
     [customer.financial_status]
+  );
+  const clientTypeTag = useMemo(
+    () => getClientTypeTagConfig(customer.client_type),
+    [customer.client_type]
   );
 
   // Format balance with shop currency
@@ -219,23 +255,8 @@ export function CustomerCard({
         {/* Avatar */}
         <Avatar
           size="small"
-          icon={
-            customer.client_type === 'collaboration' ? (
-              <BankOutlined />
-            ) : customer.client_type === 'vip' ? (
-              <CrownOutlined />
-            ) : (
-              <UserOutlined />
-            )
-          }
-          className={cn(
-            'flex-shrink-0',
-            customer.client_type === 'collaboration'
-              ? 'bg-blue-500'
-              : customer.client_type === 'vip'
-                ? 'bg-amber-500'
-                : 'bg-stone-400'
-          )}
+          icon={clientTypeTag.icon}
+          className={cn('flex-shrink-0', clientTypeTag.avatarBg)}
         >
           {initials}
         </Avatar>
@@ -293,23 +314,8 @@ export function CustomerCard({
         <div className="flex-shrink-0">
           <Avatar
             size={64}
-            icon={
-              customer.client_type === 'collaboration' ? (
-                <BankOutlined />
-              ) : customer.client_type === 'vip' ? (
-                <CrownOutlined />
-              ) : (
-                <UserOutlined />
-              )
-            }
-            className={cn(
-              'text-lg',
-              customer.client_type === 'collaboration'
-                ? 'bg-blue-500'
-                : customer.client_type === 'vip'
-                  ? 'bg-amber-500'
-                  : 'bg-stone-400'
-            )}
+            icon={clientTypeTag.icon}
+            className={cn('text-lg', clientTypeTag.avatarBg)}
           >
             {initials}
           </Avatar>
@@ -342,40 +348,15 @@ export function CustomerCard({
           {/* Tags Row */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Client Type Badge */}
-            <Tag
-              icon={
-                customer.client_type === 'collaboration' ? (
-                  <BankOutlined />
-                ) : customer.client_type === 'vip' ? (
-                  <CrownOutlined />
-                ) : (
-                  <UserOutlined />
-                )
-              }
-              color={
-                customer.client_type === 'collaboration'
-                  ? 'blue'
-                  : customer.client_type === 'vip'
-                    ? 'gold'
-                    : 'default'
-              }
-              className="m-0"
-            >
+            <Tag icon={clientTypeTag.icon} color={clientTypeTag.color} className="m-0">
               {t(`clientTypes.${customer.client_type || 'walk-in'}`)}
             </Tag>
 
             {/* Financial Status Indicator */}
             {customer.financial_status && (
-              <div
-                className={cn(
-                  'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
-                  financialStatus.bgColor,
-                  financialStatus.color
-                )}
-              >
-                {financialStatus.icon}
-                <span className="capitalize">{customer.financial_status}</span>
-              </div>
+              <Tag icon={financialStatusTag.icon} color={financialStatusTag.color} className="m-0">
+                {t(`financialStatuses.${customer.financial_status}`)}
+              </Tag>
             )}
           </div>
         </div>

@@ -57,6 +57,7 @@ import {
   useStoneTypes,
   useSizes,
 } from '@/lib/hooks/data';
+import { useShop } from '@/lib/hooks/shop';
 import { cn } from '@/lib/utils/cn';
 import {
   inventoryItemSimpleSchema,
@@ -170,6 +171,7 @@ const GOLD_COLOR_OPTIONS: { value: GoldColor; labelKey: string }[] = [
 
 /**
  * Default form values
+ * Note: currency is set dynamically from shop
  */
 const DEFAULT_VALUES: Partial<ItemFormValues> = {
   item_name: '',
@@ -178,7 +180,6 @@ const DEFAULT_VALUES: Partial<ItemFormValues> = {
   barcode: '',
   item_type: 'finished',
   ownership_type: 'owned',
-  currency: 'USD',
   weight_grams: 0,
   purchase_price: 0,
 };
@@ -248,6 +249,7 @@ export function ItemForm({
 }: ItemFormProps): JSX.Element {
   const t = useTranslations('inventory');
   const tCommon = useTranslations('common');
+  const { shop } = useShop();
 
   // ==========================================================================
   // FORM SETUP
@@ -256,7 +258,10 @@ export function ItemForm({
   // Convert initial data to form values
   const defaultValues = useMemo<Partial<ItemFormValues>>(() => {
     if (!initialData) {
-      return DEFAULT_VALUES;
+      return {
+        ...DEFAULT_VALUES,
+        currency: shop?.currency,
+      };
     }
 
     return {
@@ -277,7 +282,7 @@ export function ItemForm({
       purchase_price: initialData.purchase_price,
       currency: initialData.currency,
     };
-  }, [initialData]);
+  }, [initialData, shop?.currency]);
 
   // Initialize react-hook-form
   const {
@@ -500,8 +505,9 @@ export function ItemForm({
                     <Input
                       {...field}
                       value={field.value ?? ''}
-                      placeholder={t('sku')}
+                      placeholder={mode === 'edit' ? '' : t('sku')}
                       maxLength={100}
+                      disabled={mode === 'edit'}
                     />
                   )}
                 />
@@ -521,8 +527,9 @@ export function ItemForm({
                     <Input
                       {...field}
                       value={field.value ?? ''}
-                      placeholder={t('barcode')}
+                      placeholder={mode === 'edit' ? '' : t('barcode')}
                       maxLength={100}
+                      disabled={mode === 'edit'}
                     />
                   )}
                 />
@@ -854,7 +861,7 @@ export function ItemForm({
             <Col xs={24} sm={12}>
               <Form.Item
                 label={t('pricing.costPrice')}
-                required
+                required={mode === 'create'}
                 validateStatus={errors.purchase_price ? 'error' : undefined}
                 help={errors.purchase_price?.message}
               >
@@ -868,6 +875,7 @@ export function ItemForm({
                       min={0}
                       precision={2}
                       className="w-full"
+                      disabled={mode === 'edit'}
                       formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number}
                     />
@@ -876,33 +884,8 @@ export function ItemForm({
               </Form.Item>
             </Col>
 
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Currency"
-                required
-                validateStatus={errors.currency ? 'error' : undefined}
-                help={errors.currency?.message}
-              >
-                <Controller
-                  name="currency"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      options={[
-                        { value: 'USD', label: 'USD - US Dollar' },
-                        { value: 'EUR', label: 'EUR - Euro' },
-                        { value: 'GBP', label: 'GBP - British Pound' },
-                        { value: 'AED', label: 'AED - UAE Dirham' },
-                        { value: 'SAR', label: 'SAR - Saudi Riyal' },
-                        { value: 'KWD', label: 'KWD - Kuwaiti Dinar' },
-                      ]}
-                      className="w-full"
-                    />
-                  )}
-                />
-              </Form.Item>
-            </Col>
+            {/* Currency field - hidden, uses shop default */}
+            <Controller name="currency" control={control} render={() => <input type="hidden" />} />
           </Row>
         </FormSection>
 
