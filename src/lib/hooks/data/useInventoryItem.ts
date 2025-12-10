@@ -326,7 +326,7 @@ async function fetchInventoryItem(
 
   const item = data as unknown as InventoryItemFull;
 
-  // Fetch images from file_uploads
+  // Fetch images from file_uploads for this inventory item
   const { data: fileData } = await supabase
     .from('file_uploads')
     .select('id_file, file_path, file_name')
@@ -337,7 +337,7 @@ async function fetchInventoryItem(
     .order('created_at', { ascending: true });
 
   if (fileData && fileData.length > 0) {
-    // Map all images with URLs
+    // Map all images with URLs from public bucket
     item.images = fileData.map((file) => {
       const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(file.file_path);
       return {

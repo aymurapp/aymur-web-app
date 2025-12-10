@@ -485,6 +485,7 @@
     },
     "metals": {
       "title": "Metal Types",
+      "metalType": "Metal Type",
       "gold": "Gold",
       "silver": "Silver",
       "platinum": "Platinum",
@@ -509,11 +510,20 @@
       "grams": "Grams",
       "ounces": "Ounces",
       "tola": "Tola",
-      "mithqal": "Mithqal"
+      "mithqal": "Mithqal",
+      "color": "Color",
+      "colors": {
+        "yellow": "Yellow Gold",
+        "white": "White Gold",
+        "rose": "Rose Gold",
+        "two_tone": "Two-Tone",
+        "tri_color": "Tri-Color"
+      }
     },
     "stones": {
       "title": "Gemstones",
       "type": "Stone Type",
+      "stoneType": "Stone Type",
       "diamond": "Diamond",
       "ruby": "Ruby",
       "sapphire": "Sapphire",
@@ -524,13 +534,39 @@
       "topaz": "Topaz",
       "turquoise": "Turquoise",
       "carat": "Carat",
+      "caratWeight": "Carat Weight",
       "cut": "Cut",
       "color": "Color",
       "clarity": "Clarity",
       "certificate": "Certificate",
       "lab": "Lab",
       "natural": "Natural",
-      "synthetic": "Synthetic"
+      "synthetic": "Synthetic",
+      "quantity": "Quantity",
+      "setting": "Setting",
+      "primaryStone": "Primary Stone",
+      "totalCarats": "Total Carats",
+      "noStones": "No stones added to this item",
+      "settings": {
+        "prong": "Prong",
+        "bezel": "Bezel",
+        "channel": "Channel",
+        "pave": "Pavé",
+        "flush": "Flush",
+        "tension": "Tension",
+        "bar": "Bar",
+        "invisible": "Invisible"
+      }
+    },
+    "certifications": {
+      "title": "Certifications",
+      "type": "Certification Type",
+      "number": "Certificate Number",
+      "authority": "Issuing Authority",
+      "issueDate": "Issue Date",
+      "expiryDate": "Expiry Date",
+      "appraisedValue": "Appraised Value",
+      "noCertifications": "No certifications for this item"
     },
     "pricing": {
       "title": "Pricing",
@@ -599,6 +635,44 @@
     "labels": {
       "untitled": "Untitled Item",
       "noBarcode": "No Barcode"
+    },
+    "itemNotFound": "Item Not Found",
+    "itemNotFoundDescription": "The item you are looking for does not exist or has been deleted.",
+    "backToInventory": "Back to Inventory",
+    "status": "Status",
+    "itemType": "Item Type",
+    "ownershipType": "Ownership Type",
+    "purchasePrice": "Purchase Price",
+    "printLabel": "Print Label",
+    "additionalInfo": "Additional Information",
+    "size": "Size",
+    "createdAt": "Created At",
+    "purchaseInfo": "Purchase Information",
+    "purchaseNumber": "Purchase Number",
+    "purchaseDate": "Purchase Date",
+    "supplier": "Supplier",
+    "available": "Available",
+    "workshop": "In Workshop",
+    "types": {
+      "finished": "Finished Piece",
+      "raw": "Raw Material",
+      "component": "Component",
+      "set": "Set",
+      "loose_stone": "Loose Stone"
+    },
+    "ownership": {
+      "owned": "Owned",
+      "consignment": "Consignment",
+      "customer": "Customer Item"
+    },
+    "source": {
+      "_label": "Source",
+      "purchase": "Purchase",
+      "transfer": "Transfer",
+      "production": "Production",
+      "return": "Return",
+      "consignment": "Consignment",
+      "customer": "Customer"
     }
   },
   "sales": {

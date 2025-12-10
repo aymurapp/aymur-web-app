@@ -572,7 +572,7 @@ export default function InventoryItemDetailPage(): React.JSX.Element {
                   <Descriptions.Item label={t('size')}>
                     {item.size?.size_value || '-'}
                   </Descriptions.Item>
-                  <Descriptions.Item label={t('source')}>
+                  <Descriptions.Item label={t('source._label')}>
                     {item.source_type
                       ? t(`source.${item.source_type}` as Parameters<typeof t>[0])
                       : '-'}
