@@ -22,7 +22,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
-  PlusOutlined,
   FilterOutlined,
   SearchOutlined,
   AppstoreOutlined,
@@ -46,7 +45,6 @@ import {
 } from '@/lib/hooks/data/useInventoryItems';
 import { useMetalTypes, useMetalPurities } from '@/lib/hooks/data/useMetals';
 import { useStoneTypes } from '@/lib/hooks/data/useStones';
-import { usePermissions } from '@/lib/hooks/permissions';
 import { useDebounce } from '@/lib/hooks/utils/useDebounce';
 import { useMobile } from '@/lib/hooks/utils/useMediaQuery';
 import { useRouter } from '@/lib/i18n/navigation';
@@ -240,30 +238,6 @@ function InfiniteScrollSentinel({
 }
 
 /**
- * Mobile FAB for Quick Add
- */
-function MobileAddFAB({ onClick }: { onClick: () => void }) {
-  const t = useTranslations('inventory');
-  const locale = useLocale() as Locale;
-  const isRtl = isRtlLocale(locale);
-
-  return (
-    <FloatButton
-      type="primary"
-      icon={<PlusOutlined />}
-      tooltip={t('addItem')}
-      onClick={onClick}
-      style={{
-        [isRtl ? 'left' : 'right']: 24,
-        [isRtl ? 'right' : 'left']: 'auto',
-        bottom: 90, // Above the scanner FAB
-      }}
-      className="shadow-lg md:hidden"
-    />
-  );
-}
-
-/**
  * Mobile FAB for Barcode Scanner
  */
 function MobileScannerFAB({ onClick }: { onClick: () => void }) {
@@ -304,7 +278,6 @@ export default function InventoryPage(): JSX.Element {
   const t = useTranslations('inventory');
   const tCommon = useTranslations('common');
   const router = useRouter();
-  const { can } = usePermissions();
   const currentShopId = useShopStore((state) => state.currentShopId);
   const locale = useLocale();
   const isMobile = useMobile();
@@ -479,11 +452,6 @@ export default function InventoryPage(): JSX.Element {
     [locale, currentShopId, router]
   );
 
-  // Handle add new item
-  const handleAddItem = useCallback(() => {
-    router.push(`/${locale}/${currentShopId}/inventory/new`);
-  }, [locale, currentShopId, router]);
-
   // Handle filter change from FilterPanel
   const handleFilterChange = useCallback(
     (values: Record<string, unknown>) => {
@@ -575,17 +543,6 @@ export default function InventoryPage(): JSX.Element {
             </Button>
           </Tooltip>
 
-          {/* Add Item Button - Desktop only */}
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAddItem}
-            permission="inventory.create"
-            className="hidden md:inline-flex"
-          >
-            {t('addItem')}
-          </Button>
-
           {/* Clear Selection - Only in selection mode */}
           {isSelectionMode && (
             <Button type="text" icon={<CloseOutlined />} onClick={handleClearSelection}>
@@ -641,7 +598,7 @@ export default function InventoryPage(): JSX.Element {
               ? tCommon('messages.noResults')
               : tCommon('messages.noItems')
           }
-          description={debouncedSearch || hasActiveFilters ? undefined : t('addItem')}
+          description={debouncedSearch || hasActiveFilters ? undefined : t('noItemsDescription')}
           action={
             debouncedSearch || hasActiveFilters
               ? {
@@ -651,13 +608,7 @@ export default function InventoryPage(): JSX.Element {
                     resetFilters();
                   },
                 }
-              : can('inventory.create')
-                ? {
-                    label: t('addItem'),
-                    onClick: handleAddItem,
-                    permission: 'inventory.create',
-                  }
-                : undefined
+              : undefined
           }
           size="lg"
           className="py-16"
@@ -697,8 +648,6 @@ export default function InventoryPage(): JSX.Element {
         <>
           {/* Scanner FAB - always visible on mobile */}
           <MobileScannerFAB onClick={() => setIsScannerOpen(true)} />
-          {/* Add FAB - requires permission */}
-          {can('inventory.create') && <MobileAddFAB onClick={handleAddItem} />}
         </>
       )}
 

@@ -101,17 +101,6 @@ const STATUS_TEXT_COLORS: Record<string, string> = {
  */
 const PLACEHOLDER_IMAGE = '/images/placeholder-jewelry.svg';
 
-/**
- * Extended type for inventory item with optional image URL
- * The image URL may come from a related file_uploads table or storage
- */
-interface InventoryItemDisplay extends InventoryItemWithRelations {
-  /** Primary image URL from file uploads or storage */
-  image_url?: string | null;
-  /** Computed selling price (may be calculated from purchase_price + markup) */
-  selling_price?: number | null;
-}
-
 // =============================================================================
 // HELPER FUNCTIONS
 // =============================================================================
@@ -219,14 +208,11 @@ export function ItemCard({
   const statusColor = STATUS_COLORS[item.status || 'available'] || 'default';
   const statusTextColor = STATUS_TEXT_COLORS[item.status || 'available'] || 'text-stone-700';
 
-  // Cast to extended type to support optional display properties
-  const displayItem = item as InventoryItemDisplay;
-
   // Get display values
-  const imageUrl = displayItem.image_url || PLACEHOLDER_IMAGE;
+  const imageUrl = item.image_url || PLACEHOLDER_IMAGE;
   const itemName = item.item_name || t('common.labels.name');
   const sku = item.sku || '-';
-  const price = formatPrice(displayItem.selling_price || item.purchase_price);
+  const price = formatPrice(item.purchase_price);
   const weight = formatWeight(item.weight_grams);
   const category = item.category?.category_name;
   const metalType = item.metal_type?.metal_name;

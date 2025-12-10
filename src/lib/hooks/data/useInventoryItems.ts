@@ -83,6 +83,8 @@ export interface InventoryItemWithRelations extends InventoryItem {
   } | null;
   stones_count?: number;
   certifications_count?: number;
+  /** Primary image URL from file_uploads */
+  image_url?: string | null;
 }
 
 /**
@@ -212,6 +214,11 @@ function buildInventorySelect(includeRelations: boolean): string {
     )
   `.trim();
 }
+
+/**
+ * Storage bucket for shop documents
+ */
+const STORAGE_BUCKET = 'shop-documents';
 
 /**
  * Fetches inventory items with pagination and filtering
@@ -351,8 +358,43 @@ async function fetchInventoryItems(
     throw new Error(`Failed to fetch inventory items: ${error.message}`);
   }
 
+  const items = (data ?? []) as unknown as InventoryItemWithRelations[];
+
+  // Fetch primary images for all items from file_uploads
+  if (items.length > 0) {
+    const itemIds = items.map((item) => item.id_item);
+
+    const { data: fileData } = await supabase
+      .from('file_uploads')
+      .select('entity_id, file_path')
+      .eq('id_shop', shopId)
+      .eq('entity_type', 'inventory_items')
+      .in('entity_id', itemIds)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true });
+
+    if (fileData && fileData.length > 0) {
+      // Create a map of entity_id -> first image URL (primary image)
+      const imageMap = new Map<string, string>();
+
+      for (const file of fileData) {
+        if (file.entity_id && !imageMap.has(file.entity_id)) {
+          const { data: urlData } = supabase.storage
+            .from(STORAGE_BUCKET)
+            .getPublicUrl(file.file_path);
+          imageMap.set(file.entity_id, urlData.publicUrl);
+        }
+      }
+
+      // Merge image URLs into items
+      for (const item of items) {
+        item.image_url = imageMap.get(item.id_item) || null;
+      }
+    }
+  }
+
   return {
-    items: (data ?? []) as unknown as InventoryItemWithRelations[],
+    items,
     totalCount: count ?? 0,
   };
 }

@@ -172,6 +172,10 @@ export interface InventoryItemFull extends Tables<'inventory_items'> {
   } | null;
   stones?: ItemStoneWithType[];
   certifications?: ItemCertification[];
+  /** Primary image URL from file_uploads */
+  image_url?: string | null;
+  /** All images for this item */
+  images?: Array<{ id_file: string; file_url: string; file_name: string }>;
 }
 
 /**
@@ -236,6 +240,11 @@ export interface UseInventoryItemReturn {
 // =============================================================================
 // FETCH FUNCTIONS
 // =============================================================================
+
+/**
+ * Storage bucket for shop documents
+ */
+const STORAGE_BUCKET = 'shop-documents';
 
 /**
  * Fetches a single inventory item with all related data
@@ -317,7 +326,34 @@ async function fetchInventoryItem(
     throw new Error(`Failed to fetch inventory item: ${error.message}`);
   }
 
-  return data as unknown as InventoryItemFull;
+  const item = data as unknown as InventoryItemFull;
+
+  // Fetch images from file_uploads
+  const { data: fileData } = await supabase
+    .from('file_uploads')
+    .select('id_file, file_path, file_name')
+    .eq('id_shop', shopId)
+    .eq('entity_type', 'inventory_items')
+    .eq('entity_id', itemId)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: true });
+
+  if (fileData && fileData.length > 0) {
+    // Map all images with URLs
+    item.images = fileData.map((file) => {
+      const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(file.file_path);
+      return {
+        id_file: file.id_file,
+        file_url: urlData.publicUrl,
+        file_name: file.file_name,
+      };
+    });
+
+    // Set primary image URL (first image)
+    item.image_url = item.images[0]?.file_url || null;
+  }
+
+  return item;
 }
 
 /**
