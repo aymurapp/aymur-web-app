@@ -121,11 +121,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Handle different callback types
     switch (type) {
       case 'signup': {
-        // Email confirmation successful - redirect to verify-email with success
-        const verifyUrl = createLocalizedUrl('/verify-email', request);
-        verifyUrl.searchParams.set('type', 'signup');
-        verifyUrl.searchParams.set('success', 'true');
-        return NextResponse.redirect(verifyUrl);
+        // Email confirmation successful - redirect to pricing page to select a plan
+        // Session is already established from exchangeCodeForSession above
+        return NextResponse.redirect(createLocalizedUrl('/pricing', request));
       }
 
       case 'recovery': {

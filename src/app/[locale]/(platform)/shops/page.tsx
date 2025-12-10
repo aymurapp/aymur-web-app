@@ -6,22 +6,29 @@
  * Displays a list of shops the user has access to.
  * Features:
  * - Shop cards with name, logo, and role badge
- * - Create new shop button
+ * - Create new shop button (only for users with active subscription)
  * - Auto-redirect to dashboard if user has only one shop
  * - Loading skeleton states
- * - Empty state for new users
+ * - Empty state for new users (with subscription check)
  *
  * @module app/(platform)/[locale]/shops/page
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { PlusOutlined, ShopOutlined, CrownOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+  PlusOutlined,
+  ShopOutlined,
+  CrownOutlined,
+  TeamOutlined,
+  StarOutlined,
+} from '@ant-design/icons';
 import { Empty, Tag } from 'antd';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { canCreateShop } from '@/lib/actions/shop';
 import { useShops, type ShopWithRole } from '@/lib/hooks/shop/useShops';
 import { Link, useRouter } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
@@ -114,6 +121,10 @@ export default function ShopsPage() {
   const { activeShops, isLoading, isFetched, shopCount } = useShops();
   const setCurrentShop = useShopStore((state) => state.setCurrentShop);
 
+  // Subscription check state
+  const [subscriptionChecked, setSubscriptionChecked] = useState(false);
+  const [hasNoSubscription, setHasNoSubscription] = useState(false);
+
   // Auto-redirect to dashboard if user has only one shop
   useEffect(() => {
     if (isFetched && shopCount === 1 && activeShops.length === 1) {
@@ -124,6 +135,24 @@ export default function ShopsPage() {
       }
     }
   }, [isFetched, shopCount, activeShops, setCurrentShop, router]);
+
+  // Check subscription when user has no shops
+  useEffect(() => {
+    async function checkSubscription() {
+      if (isFetched && activeShops.length === 0 && !subscriptionChecked) {
+        const result = await canCreateShop();
+        setSubscriptionChecked(true);
+
+        if (result.success && result.data) {
+          setHasNoSubscription(false);
+        } else if (!result.success && result.code === 'no_subscription') {
+          setHasNoSubscription(true);
+        }
+      }
+    }
+
+    checkSubscription();
+  }, [isFetched, activeShops.length, subscriptionChecked]);
 
   /**
    * Handle shop selection
@@ -157,6 +186,48 @@ export default function ShopsPage() {
 
   // Show empty state for new users
   if (isFetched && activeShops.length === 0) {
+    // Still checking subscription status
+    if (!subscriptionChecked) {
+      return (
+        <div className="min-h-screen bg-stone-50 flex items-center justify-center py-8 px-4">
+          <div className="max-w-md w-full text-center">
+            <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4" />
+            <p className="text-stone-600">{tCommon('messages.loading')}</p>
+          </div>
+        </div>
+      );
+    }
+
+    // No subscription - show pricing prompt
+    if (hasNoSubscription) {
+      return (
+        <div className="min-h-screen bg-stone-50 flex items-center justify-center py-8 px-4">
+          <div className="max-w-md w-full text-center">
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <div className="space-y-2">
+                  <h2 className="text-xl font-semibold text-stone-900">
+                    Choose a Plan to Get Started
+                  </h2>
+                  <p className="text-stone-600">
+                    Select a subscription plan to start creating your first jewelry shop.
+                  </p>
+                </div>
+              }
+            >
+              <Link href="/pricing">
+                <Button type="primary" size="large" icon={<StarOutlined />}>
+                  View Plans
+                </Button>
+              </Link>
+            </Empty>
+          </div>
+        </div>
+      );
+    }
+
+    // Has subscription - show create shop
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center py-8 px-4">
         <div className="max-w-md w-full text-center">
