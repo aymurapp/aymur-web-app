@@ -241,9 +241,9 @@ export interface UseInventoryItemReturn {
 // =============================================================================
 
 /**
- * Storage bucket for shop documents
+ * Storage bucket for inventory images (public)
  */
-const STORAGE_BUCKET = 'shop-documents';
+const STORAGE_BUCKET = 'inventory-images';
 
 /**
  * Fetches a single inventory item with all related data

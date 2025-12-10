@@ -86,7 +86,20 @@ export interface UploadOptions {
 /**
  * Storage bucket configuration
  */
-const STORAGE_BUCKET = 'shop-documents';
+const STORAGE_BUCKET_DOCUMENTS = 'shop-documents';
+const STORAGE_BUCKET_IMAGES = 'inventory-images';
+
+/**
+ * Get the appropriate bucket for an entity type
+ */
+function getBucketForEntity(entityType: FileEntityType): string {
+  // Use public bucket for inventory images
+  if (entityType === 'inventory_items') {
+    return STORAGE_BUCKET_IMAGES;
+  }
+  // Use private bucket for all other documents
+  return STORAGE_BUCKET_DOCUMENTS;
+}
 
 /**
  * Maximum file size (10MB)
@@ -187,9 +200,10 @@ export function useEntityFiles(entityType: FileEntityType, entityId: string | nu
       }
 
       // Add public URLs to the files
+      const bucket = getBucketForEntity(entityType);
       return (data ?? []).map((file) => ({
         ...file,
-        file_url: supabase.storage.from(STORAGE_BUCKET).getPublicUrl(file.file_path).data.publicUrl,
+        file_url: supabase.storage.from(bucket).getPublicUrl(file.file_path).data.publicUrl,
       }));
     },
     enabled: !!shopId && !!entityId && hasAccess,
@@ -249,10 +263,11 @@ export function useUploadFile() {
 
       // Generate unique filename
       const filePath = generateUniqueFilename(shopId, options.entityType, file.name);
+      const bucket = getBucketForEntity(options.entityType);
 
       // Upload to storage
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(STORAGE_BUCKET)
+        .from(bucket)
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
@@ -272,7 +287,7 @@ export function useUploadFile() {
       // Get public URL
       const {
         data: { publicUrl },
-      } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(uploadData.path);
+      } = supabase.storage.from(bucket).getPublicUrl(uploadData.path);
 
       // Create file_uploads record
       // Note: chk_file_uploads_entity constraint requires both entity_type and entity_id
@@ -294,7 +309,7 @@ export function useUploadFile() {
 
       if (recordError) {
         // Try to clean up the uploaded file
-        await supabase.storage.from(STORAGE_BUCKET).remove([uploadData.path]);
+        await supabase.storage.from(bucket).remove([uploadData.path]);
         throw new Error(`Failed to record file upload: ${recordError.message}`);
       }
 

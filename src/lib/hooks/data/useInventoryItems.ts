@@ -216,9 +216,9 @@ function buildInventorySelect(includeRelations: boolean): string {
 }
 
 /**
- * Storage bucket for shop documents
+ * Storage bucket for inventory images (public)
  */
-const STORAGE_BUCKET = 'shop-documents';
+const STORAGE_BUCKET = 'inventory-images';
 
 /**
  * Fetches inventory items with pagination and filtering
