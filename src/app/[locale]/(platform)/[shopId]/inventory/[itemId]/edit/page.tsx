@@ -148,7 +148,7 @@ export default function EditInventoryItemPage(): JSX.Element {
         message.success(tCommon('messages.operationSuccess'));
 
         // Navigate back to the item detail page
-        router.push(`/${currentShopId}/inventory/items/${itemId}`);
+        router.push(`/${currentShopId}/inventory/${itemId}`);
       } catch (err) {
         // Show error message
         const errorMessage =
@@ -165,7 +165,7 @@ export default function EditInventoryItemPage(): JSX.Element {
    */
   const handleCancel = useCallback(() => {
     if (itemId) {
-      router.push(`/${currentShopId}/inventory/items/${itemId}`);
+      router.push(`/${currentShopId}/inventory/${itemId}`);
     } else {
       router.push(`/${currentShopId}/inventory`);
     }
