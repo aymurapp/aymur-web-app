@@ -244,3 +244,6 @@ export {
 
 // Export types
 export type { ExportColumn, ExportData, ExportOptions, ExportFormat } from './export';
+
+// Google Places parsing
+export { parseGooglePlace } from './parseGooglePlace';

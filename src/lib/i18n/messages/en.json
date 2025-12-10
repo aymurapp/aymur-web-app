@@ -162,6 +162,11 @@
       "maxFilesReached": "Maximum {max} files allowed",
       "fileCount": "{count} of {max} files"
     },
+    "address": {
+      "placeholder": "Start typing an address...",
+      "noResults": "No addresses found",
+      "selectFromList": "Select an address from the list"
+    },
     "time": {
       "today": "Today",
       "yesterday": "Yesterday",
@@ -1024,7 +1029,8 @@
       "facebook": "Profile name or URL",
       "whatsapp": "+1234567890",
       "tiktok": "username",
-      "idCard": "Enter ID card number"
+      "idCard": "Enter ID card number",
+      "streetAddressHint": "Start typing to search for an address, or enter manually"
     },
     "socialMedia": {
       "instagram": "Instagram",

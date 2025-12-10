@@ -155,6 +155,11 @@
       "maxFilesReached": "الحد الاقصى {max} ملفات",
       "fileCount": "{count} من {max} ملفات"
     },
+    "address": {
+      "placeholder": "ابدأ بكتابة العنوان...",
+      "noResults": "لم يتم العثور على عناوين",
+      "selectFromList": "اختر عنوان من القائمة"
+    },
     "time": {
       "today": "اليوم",
       "yesterday": "امس",
@@ -602,7 +607,8 @@
       "facebook": "اسم الحساب او الرابط",
       "whatsapp": "+1234567890",
       "tiktok": "اسم المستخدم",
-      "idCard": "ادخل رقم بطاقة الهوية"
+      "idCard": "ادخل رقم بطاقة الهوية",
+      "streetAddressHint": "ابدأ بالكتابة للبحث عن عنوان، او ادخله يدويا"
     },
     "socialMedia": {
       "instagram": "انستغرام",

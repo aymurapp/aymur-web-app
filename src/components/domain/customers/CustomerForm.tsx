@@ -32,6 +32,7 @@ import { useTranslations } from 'next-intl';
 import { z } from 'zod';
 
 import { EntityImageUpload } from '@/components/common/data/EntityImageUpload';
+import { AddressFormSection } from '@/components/common/forms/AddressFormSection';
 import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form';
 import { PERMISSION_KEYS } from '@/lib/constants/permissions';
@@ -352,34 +353,15 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
 
       <Divider className="my-6" />
 
-      {/* Address Section */}
-      <div>
-        <Title level={5} className="mb-4 text-stone-800">
-          {t('sections.address')}
-        </Title>
-
-        {/* Street Address - Full width */}
-        <Form.Item<CustomerFormValues> name="street" label={t('streetAddress')}>
-          <Input.TextArea rows={2} placeholder={t('placeholders.streetAddress')} maxLength={255} />
-        </Form.Item>
-
-        {/* Postal Code */}
-        <Form.Item<CustomerFormValues> name="postal_code" label={t('postalCode')}>
-          <Input size="large" placeholder={t('placeholders.postalCode')} maxLength={20} dir="ltr" />
-        </Form.Item>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* City */}
-          <Form.Item<CustomerFormValues> name="city" label={t('city')}>
-            <Input size="large" placeholder={t('placeholders.city')} maxLength={100} />
-          </Form.Item>
-
-          {/* Area/District */}
-          <Form.Item<CustomerFormValues> name="area" label={t('area')}>
-            <Input size="large" placeholder={t('placeholders.area')} maxLength={100} />
-          </Form.Item>
-        </div>
-      </div>
+      {/* Address Section with Google Places Autocomplete */}
+      <AddressFormSection<CustomerFormValues>
+        fieldNames={{
+          street: 'street',
+          city: 'city',
+          area: 'area',
+          postalCode: 'postal_code',
+        }}
+      />
 
       <Divider className="my-6" />
 

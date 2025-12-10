@@ -58,5 +58,6 @@ export type {
   StaffInvitation,
 } from './database';
 
-// Export custom types here as they are created
-// Example: export type { CustomType } from './custom';
+// Address types for Google Places autocomplete
+export type { ParsedAddress } from './address';
+export { EMPTY_PARSED_ADDRESS } from './address';
