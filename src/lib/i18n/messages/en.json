@@ -1058,6 +1058,11 @@
     "recordPaymentComingSoon": "Record payment functionality coming soon",
     "paymentDate": "Payment Date",
     "applyToPurchase": "Apply to Purchase",
+    "chequeNumber": "Cheque Number",
+    "chequeBank": "Bank Name",
+    "chequeDate": "Cheque Date",
+    "goldWeightGrams": "Gold Weight (grams)",
+    "goldRatePerGram": "Rate per Gram",
     "days": "days",
     "addressLine1": "Address Line 1",
     "addressLine2": "Address Line 2",
@@ -1105,13 +1110,24 @@
       "notes": "Enter notes about this supplier...",
       "enterAmount": "Enter payment amount",
       "paymentNotes": "Optional notes about this payment...",
-      "selectPurchase": "Select a purchase to apply payment to"
+      "selectPurchase": "Select a purchase to apply payment to",
+      "chequeNumber": "Enter cheque number",
+      "chequeBank": "Enter bank name",
+      "goldWeight": "Enter gold weight",
+      "goldRate": "Enter rate per gram"
     },
     "validation": {
       "amountRequired": "Please enter the payment amount",
       "amountPositive": "Amount must be greater than zero",
       "amountExceedsBalance": "Amount cannot exceed the outstanding balance",
-      "dateRequired": "Please select the payment date"
+      "dateRequired": "Please select the payment date",
+      "chequeNumberRequired": "Please enter the cheque number",
+      "chequeBankRequired": "Please enter the bank name",
+      "chequeDateRequired": "Please select the cheque date",
+      "goldWeightRequired": "Please enter the gold weight",
+      "goldWeightPositive": "Gold weight must be greater than zero",
+      "goldRateRequired": "Please enter the rate per gram",
+      "goldRatePositive": "Rate must be greater than zero"
     },
     "messages": {
       "createSuccess": "Supplier created successfully",

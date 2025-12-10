@@ -281,9 +281,16 @@ export default function SupplierDetailPage(): React.JSX.Element {
     async (values: {
       amount: number;
       payment_date: dayjs.Dayjs;
-      payment_type: string;
+      payment_type: 'cash' | 'card' | 'transfer' | 'cheque' | 'gold';
       id_purchase?: string;
       notes?: string;
+      // Cheque fields
+      cheque_number?: string;
+      cheque_bank?: string;
+      cheque_date?: dayjs.Dayjs;
+      // Gold fields
+      gold_weight_grams?: number;
+      gold_rate_per_gram?: number;
     }) => {
       if (!supplier) {
         return;
@@ -298,6 +305,14 @@ export default function SupplierDetailPage(): React.JSX.Element {
           notes: values.notes || null,
           reference_type: values.id_purchase ? 'purchase' : 'payment',
           reference_id: values.id_purchase || null,
+          payment_type: values.payment_type,
+          // Cheque fields
+          cheque_number: values.cheque_number || null,
+          cheque_bank: values.cheque_bank || null,
+          cheque_date: values.cheque_date?.format('YYYY-MM-DD') || null,
+          // Gold fields
+          gold_weight_grams: values.gold_weight_grams || null,
+          gold_rate_per_gram: values.gold_rate_per_gram || null,
         });
 
         if (result.success) {
@@ -1102,6 +1117,81 @@ export default function SupplierDetailPage(): React.JSX.Element {
                 </Space>
               </Select.Option>
             </Select>
+          </Form.Item>
+
+          {/* Cheque Fields - shown when payment_type is 'cheque' */}
+          <Form.Item noStyle shouldUpdate={(prev, curr) => prev.payment_type !== curr.payment_type}>
+            {({ getFieldValue }) =>
+              getFieldValue('payment_type') === 'cheque' && (
+                <>
+                  <Form.Item
+                    name="cheque_number"
+                    label={t('chequeNumber')}
+                    rules={[{ required: true, message: t('validation.chequeNumberRequired') }]}
+                  >
+                    <Input size="large" placeholder={t('placeholders.chequeNumber')} />
+                  </Form.Item>
+                  <Form.Item
+                    name="cheque_bank"
+                    label={t('chequeBank')}
+                    rules={[{ required: true, message: t('validation.chequeBankRequired') }]}
+                  >
+                    <Input size="large" placeholder={t('placeholders.chequeBank')} />
+                  </Form.Item>
+                  <Form.Item
+                    name="cheque_date"
+                    label={t('chequeDate')}
+                    rules={[{ required: true, message: t('validation.chequeDateRequired') }]}
+                  >
+                    <DatePicker className="!w-full" size="large" format="YYYY-MM-DD" />
+                  </Form.Item>
+                </>
+              )
+            }
+          </Form.Item>
+
+          {/* Gold Fields - shown when payment_type is 'gold' */}
+          <Form.Item noStyle shouldUpdate={(prev, curr) => prev.payment_type !== curr.payment_type}>
+            {({ getFieldValue }) =>
+              getFieldValue('payment_type') === 'gold' && (
+                <>
+                  <Form.Item
+                    name="gold_weight_grams"
+                    label={t('goldWeightGrams')}
+                    rules={[
+                      { required: true, message: t('validation.goldWeightRequired') },
+                      { type: 'number', min: 0.001, message: t('validation.goldWeightPositive') },
+                    ]}
+                  >
+                    <InputNumber
+                      className="!w-full"
+                      size="large"
+                      min={0.001}
+                      precision={3}
+                      placeholder={t('placeholders.goldWeight')}
+                      suffix="g"
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name="gold_rate_per_gram"
+                    label={t('goldRatePerGram')}
+                    rules={[
+                      { required: true, message: t('validation.goldRateRequired') },
+                      { type: 'number', min: 0.01, message: t('validation.goldRatePositive') },
+                    ]}
+                  >
+                    <InputNumber
+                      className="!w-full"
+                      size="large"
+                      min={0.01}
+                      precision={2}
+                      prefix={currency}
+                      placeholder={t('placeholders.goldRate')}
+                    />
+                  </Form.Item>
+                </>
+              )
+            }
           </Form.Item>
 
           <Form.Item name="notes" label={tCommon('labels.notes')}>

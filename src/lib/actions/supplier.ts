@@ -118,6 +118,15 @@ const RecordPaymentSchema = z.object({
   notes: z.string().max(1000).nullable().optional(),
   reference_type: z.enum(['purchase', 'payment', 'manual', 'return']).nullable().optional(),
   reference_id: z.string().uuid().nullable().optional(),
+  // Payment type and breakdown
+  payment_type: z.enum(['cash', 'card', 'transfer', 'cheque', 'gold']).default('cash'),
+  // Cheque payment fields
+  cheque_number: z.string().max(50).nullable().optional(),
+  cheque_bank: z.string().max(100).nullable().optional(),
+  cheque_date: z.string().nullable().optional(),
+  // Gold payment fields
+  gold_weight_grams: z.number().positive().nullable().optional(),
+  gold_rate_per_gram: z.number().positive().nullable().optional(),
 });
 
 // =============================================================================
@@ -726,8 +735,20 @@ export async function recordSupplierPayment(
       };
     }
 
-    const { id_supplier, amount, transaction_date, notes, reference_type, reference_id } =
-      validationResult.data;
+    const {
+      id_supplier,
+      amount,
+      transaction_date,
+      notes,
+      reference_type,
+      reference_id,
+      payment_type,
+      cheque_number,
+      cheque_bank,
+      cheque_date,
+      gold_weight_grams,
+      gold_rate_per_gram,
+    } = validationResult.data;
 
     // 3. Get supplier to verify existence and get current balance
     const { data: supplier, error: supplierError } = await supabase
@@ -750,14 +771,35 @@ export async function recordSupplierPayment(
     const paymentDate = transaction_date.slice(0, 10); // Ensure YYYY-MM-DD format
 
     // 5. Create supplier_payments record (actual payment details)
+    // Calculate gold_amount if gold payment
+    const goldAmount =
+      payment_type === 'gold' && gold_weight_grams && gold_rate_per_gram
+        ? gold_weight_grams * gold_rate_per_gram
+        : null;
+
     const { data: paymentRecord, error: paymentError } = await supabase
       .from('supplier_payments')
       .insert({
         id_shop: supplier.id_shop,
         id_supplier,
         id_purchase: reference_type === 'purchase' ? reference_id : null,
-        payment_type: 'cash', // Default to cash, can be enhanced with payment method selection
+        payment_type: payment_type || 'cash',
         amount,
+        // Payment type breakdown amounts
+        cash_amount: payment_type === 'cash' ? amount : 0,
+        card_amount: payment_type === 'card' ? amount : 0,
+        transfer_amount: payment_type === 'transfer' ? amount : 0,
+        cheque_amount: payment_type === 'cheque' ? amount : 0,
+        // Cheque details
+        cheque_number: payment_type === 'cheque' ? cheque_number : null,
+        cheque_bank: payment_type === 'cheque' ? cheque_bank : null,
+        cheque_date: payment_type === 'cheque' && cheque_date ? cheque_date : null,
+        cheque_status: payment_type === 'cheque' ? 'pending' : null,
+        // Gold payment details
+        gold_weight_grams: payment_type === 'gold' ? gold_weight_grams : null,
+        gold_rate_per_gram: payment_type === 'gold' ? gold_rate_per_gram : null,
+        gold_amount: goldAmount,
+        // Common fields
         payment_date: paymentDate,
         notes: notes?.trim() || null,
         created_by: authData.publicUser.id_user,
