@@ -1057,6 +1057,7 @@
     "recordPayment": "Record Payment",
     "recordPaymentComingSoon": "Record payment functionality coming soon",
     "paymentDate": "Payment Date",
+    "applyToPurchase": "Apply to Purchase",
     "days": "days",
     "addressLine1": "Address Line 1",
     "addressLine2": "Address Line 2",
@@ -1103,7 +1104,8 @@
       "paymentTermsDays": "Enter payment terms",
       "notes": "Enter notes about this supplier...",
       "enterAmount": "Enter payment amount",
-      "paymentNotes": "Optional notes about this payment..."
+      "paymentNotes": "Optional notes about this payment...",
+      "selectPurchase": "Select a purchase to apply payment to"
     },
     "validation": {
       "amountRequired": "Please enter the payment amount",

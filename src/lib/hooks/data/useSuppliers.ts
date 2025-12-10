@@ -396,7 +396,7 @@ async function fetchSupplierPayments(
     .select(
       `
       *,
-      purchase:purchases!supplier_payments_id_purchase_fkey (
+      purchase:purchases (
         id_purchase,
         purchase_number
       )

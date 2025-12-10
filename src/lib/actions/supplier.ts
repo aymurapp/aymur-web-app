@@ -822,7 +822,50 @@ export async function recordSupplierPayment(
       // Transaction was created but balance update failed - log for investigation
     }
 
-    // 8. Revalidate paths
+    // 8. If payment is linked to a purchase, update the purchase's paid_amount and status
+    const purchaseId = reference_type === 'purchase' ? reference_id : null;
+    if (purchaseId) {
+      // Get current purchase data
+      const { data: purchase, error: purchaseError } = await supabase
+        .from('purchases')
+        .select('total_amount, paid_amount')
+        .eq('id_purchase', purchaseId)
+        .single();
+
+      if (!purchaseError && purchase) {
+        const currentPaidAmount = Number(purchase.paid_amount) || 0;
+        const totalAmount = Number(purchase.total_amount);
+        const newPaidAmount = currentPaidAmount + amount;
+
+        // Determine new payment status
+        let paymentStatus: 'paid' | 'partial' | 'unpaid' = 'unpaid';
+        if (newPaidAmount >= totalAmount) {
+          paymentStatus = 'paid';
+        } else if (newPaidAmount > 0) {
+          paymentStatus = 'partial';
+        }
+
+        // Update the purchase
+        const { error: updatePurchaseError } = await supabase
+          .from('purchases')
+          .update({
+            paid_amount: newPaidAmount,
+            payment_status: paymentStatus,
+            updated_at: new Date().toISOString(),
+            updated_by: authData.publicUser.id_user,
+          })
+          .eq('id_purchase', purchaseId);
+
+        if (updatePurchaseError) {
+          console.error(
+            '[recordSupplierPayment] Failed to update purchase paid_amount:',
+            updatePurchaseError
+          );
+        }
+      }
+    }
+
+    // 9. Revalidate paths
     revalidateSupplierPaths(supplier.id_shop);
 
     return {

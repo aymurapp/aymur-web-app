@@ -282,6 +282,7 @@ export default function SupplierDetailPage(): React.JSX.Element {
       amount: number;
       payment_date: dayjs.Dayjs;
       payment_type: string;
+      id_purchase?: string;
       notes?: string;
     }) => {
       if (!supplier) {
@@ -295,7 +296,8 @@ export default function SupplierDetailPage(): React.JSX.Element {
           amount: values.amount,
           transaction_date: values.payment_date.format('YYYY-MM-DD'),
           notes: values.notes || null,
-          reference_type: 'payment',
+          reference_type: values.id_purchase ? 'purchase' : 'payment',
+          reference_id: values.id_purchase || null,
         });
 
         if (result.success) {
@@ -1042,6 +1044,20 @@ export default function SupplierDetailPage(): React.JSX.Element {
               precision={2}
               prefix={currency}
               placeholder={t('placeholders.enterAmount')}
+            />
+          </Form.Item>
+
+          <Form.Item name="id_purchase" label={t('applyToPurchase')}>
+            <Select
+              size="large"
+              allowClear
+              placeholder={t('placeholders.selectPurchase')}
+              options={purchases
+                .filter((p) => p.payment_status === 'unpaid' || p.payment_status === 'partial')
+                .map((p) => ({
+                  value: p.id_purchase,
+                  label: `${p.purchase_number} - ${formatCurrency(Number(p.total_amount) - Number(p.paid_amount), currency, locale)} ${tPurchases('balanceDue').toLowerCase()}`,
+                }))}
             />
           </Form.Item>
 
