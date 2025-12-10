@@ -609,7 +609,7 @@ export default function InventoryItemDetailPage(): React.JSX.Element {
                         <Link
                           href={`/${locale}/${shopId}/suppliers/${item.purchase.supplier.id_supplier}`}
                         >
-                          {item.purchase.supplier.supplier_name}
+                          {item.purchase.supplier.company_name}
                         </Link>
                       ) : (
                         '-'

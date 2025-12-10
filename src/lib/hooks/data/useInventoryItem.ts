@@ -158,7 +158,7 @@ export interface InventoryItemFull extends Tables<'inventory_items'> {
     id_supplier: string;
     supplier?: {
       id_supplier: string;
-      supplier_name: string;
+      company_name: string;
     } | null;
   } | null;
   created_by_user?: {
@@ -303,7 +303,7 @@ async function fetchInventoryItem(
       id_supplier,
       supplier:suppliers!fk_purchases_supplier (
         id_supplier,
-        supplier_name
+        company_name
       )
     )`;
   }

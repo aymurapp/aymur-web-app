@@ -988,7 +988,7 @@ export function ItemDetailDrawer({
                 </Descriptions.Item>
                 {item.purchase.supplier && (
                   <Descriptions.Item label="Supplier">
-                    {item.purchase.supplier.supplier_name}
+                    {item.purchase.supplier.company_name}
                   </Descriptions.Item>
                 )}
               </Descriptions>
