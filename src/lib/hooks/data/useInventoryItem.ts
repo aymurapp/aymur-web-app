@@ -129,7 +129,6 @@ export interface InventoryItemFull extends Tables<'inventory_items'> {
   category?: {
     id_category: string;
     category_name: string;
-    parent_category_id: string | null;
   } | null;
   metal_type?: {
     id_metal_type: string;
@@ -262,8 +261,7 @@ async function fetchInventoryItem(
     *,
     category:product_categories!fk_inventory_items_category (
       id_category,
-      category_name,
-      parent_category_id
+      category_name
     ),
     metal_type:metal_types!fk_inventory_items_metal_type (
       id_metal_type,
