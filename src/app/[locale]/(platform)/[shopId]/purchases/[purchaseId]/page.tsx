@@ -24,7 +24,7 @@ import {
   PurchaseDetail,
   PurchaseDetailSkeleton,
 } from '@/components/domain/purchases/PurchaseDetail';
-import { RecordPaymentModal } from '@/components/domain/suppliers/RecordPaymentModal';
+import { RecordPaymentDrawer } from '@/components/domain/suppliers/RecordPaymentDrawer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { usePurchase, useCancelPurchase } from '@/lib/hooks/data/usePurchases';
 import { usePermissions } from '@/lib/hooks/permissions';
@@ -183,8 +183,8 @@ export default function PurchaseDetailPage({ params }: PurchaseDetailPageProps):
         onCancel={can('purchases.delete') ? handleCancel : undefined}
       />
 
-      {/* Record Payment Modal */}
-      <RecordPaymentModal
+      {/* Record Payment Drawer */}
+      <RecordPaymentDrawer
         open={paymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
         onSuccess={handlePaymentSuccess}

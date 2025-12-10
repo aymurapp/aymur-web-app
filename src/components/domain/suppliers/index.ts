@@ -33,6 +33,10 @@ export type { SupplierFormProps } from './SupplierForm';
 export { SupplierSelect } from './SupplierSelect';
 export type { SupplierSelectProps } from './SupplierSelect';
 
-// Modal component for recording supplier payments
+// Modal component for recording supplier payments (legacy)
 export { RecordPaymentModal as SupplierPaymentModal } from './RecordPaymentModal';
 export type { RecordPaymentModalProps as SupplierPaymentModalProps } from './RecordPaymentModal';
+
+// Drawer component for recording supplier payments (recommended)
+export { RecordPaymentDrawer } from './RecordPaymentDrawer';
+export type { RecordPaymentDrawerProps } from './RecordPaymentDrawer';
