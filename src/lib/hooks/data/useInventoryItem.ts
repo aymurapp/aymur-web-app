@@ -60,7 +60,7 @@ export interface ItemStoneWithType extends ItemStone {
   stone_type?: {
     id_stone_type: string;
     stone_name: string;
-    stone_category: string | null;
+    category: string | null;
   } | null;
 }
 
@@ -143,7 +143,7 @@ export interface InventoryItemFull extends Tables<'inventory_items'> {
   stone_type?: {
     id_stone_type: string;
     stone_name: string;
-    stone_category: string | null;
+    category: string | null;
   } | null;
   size?: {
     id_size: string;
@@ -276,7 +276,7 @@ async function fetchInventoryItem(
     stone_type:stone_types!fk_inventory_items_stone_type (
       id_stone_type,
       stone_name,
-      stone_category
+      category
     ),
     size:product_sizes!fk_inventory_items_size (
       id_size,
@@ -368,7 +368,7 @@ async function fetchItemStones(shopId: string, itemId: string): Promise<ItemSton
       stone_type:stone_types!fk_item_stones_stone_type (
         id_stone_type,
         stone_name,
-        stone_category
+        category
       )
     `
     )
@@ -718,7 +718,7 @@ export function useAddItemStone() {
           stone_type:stone_types!fk_item_stones_stone_type (
             id_stone_type,
             stone_name,
-            stone_category
+            category
           )
         `
         )
