@@ -473,9 +473,9 @@ function StonesSection({ stones, t }: StonesSectionProps): JSX.Element {
                 <Text strong className="text-stone-900">
                   {stone.stone_type?.stone_name || 'Unknown Stone'}
                 </Text>
-                {stone.stone_type?.stone_category && (
+                {stone.stone_type?.category && (
                   <Tag color="cyan" className="text-xs">
-                    {stone.stone_type.stone_category}
+                    {stone.stone_type.category}
                   </Tag>
                 )}
               </div>
