@@ -33,12 +33,12 @@ import {
   UserOutlined,
   PhoneOutlined,
   MailOutlined,
-  HomeOutlined,
   FileTextOutlined,
 } from '@ant-design/icons';
 import { Input, Select, message, Divider, Typography, Skeleton } from 'antd';
 import { useTranslations } from 'next-intl';
 
+import { AddressFormSection } from '@/components/common/forms/AddressFormSection';
 import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form';
 import {
@@ -144,8 +144,6 @@ export function SupplierForm({
       startTransition(async () => {
         try {
           // Prepare supplier data - map to actual database field names
-          // Note: DB does NOT have city, country, bank_name, bank_account_number,
-          // swift_code, credit_limit, credit_terms_days
           const supplierData = {
             company_name: data.company_name,
             contact_person: data.contact_name || null, // DB field is contact_person
@@ -153,6 +151,9 @@ export function SupplierForm({
             email: data.email || null,
             id_supplier_category: data.id_category || null, // DB field is id_supplier_category
             address: data.address_line1 || null, // DB has single address field
+            city: data.city || null,
+            area: data.area || null,
+            postal_code: data.postal_code || null,
             tax_id: data.tax_id || null,
             status: data.is_active === false ? 'inactive' : 'active', // DB uses status string
             notes: data.notes || null,
@@ -192,8 +193,6 @@ export function SupplierForm({
       onSubmit={handleSubmit}
       defaultValues={{
         // Map database field names to form field names
-        // DB suppliers table has: company_name, contact_person, phone, email,
-        // address, id_supplier_category, tax_id, status, notes
         company_name: supplier?.company_name || '',
         contact_name: supplier?.contact_person || '', // DB field is contact_person
         phone: supplier?.phone || '',
@@ -201,9 +200,10 @@ export function SupplierForm({
         id_category: supplier?.id_supplier_category || undefined, // DB field is id_supplier_category
         address_line1: supplier?.address || '', // DB has single address field
         address_line2: '', // DB doesn't have address_line2
-        city: '', // DB doesn't have city field
+        city: supplier?.city || '',
+        area: supplier?.area || '',
         state: '', // DB doesn't have state field
-        postal_code: '', // DB doesn't have postal_code field
+        postal_code: supplier?.postal_code || '',
         country: '', // DB doesn't have country field
         tax_id: supplier?.tax_id || '',
         bank_name: '', // DB doesn't have bank_name field
@@ -292,20 +292,20 @@ export function SupplierForm({
         <>
           <Divider className="my-6" />
 
-          {/* Address Section - Database only has single 'address' field */}
+          {/* Address Section with Google Places Autocomplete */}
           <div>
-            <Title level={5} className="mb-4 text-stone-800 flex items-center gap-2">
-              <HomeOutlined className="text-amber-500" />
-              {t('sections.address')}
-            </Title>
-
-            {/* Address - single field in database */}
-            <Form.Item<SupplierFormValues> name="address_line1" label={t('address')}>
-              <TextArea rows={3} placeholder={t('placeholders.address')} maxLength={255} />
-            </Form.Item>
+            <AddressFormSection<SupplierFormValues>
+              fieldNames={{
+                street: 'address_line1',
+                city: 'city',
+                area: 'area',
+                postalCode: 'postal_code',
+              }}
+              title={t('sections.address')}
+            />
 
             {/* Tax ID */}
-            <Form.Item<SupplierFormValues> name="tax_id" label={t('taxId')}>
+            <Form.Item<SupplierFormValues> name="tax_id" label={t('taxId')} className="mt-4">
               <Input size="large" placeholder={t('placeholders.taxId')} maxLength={50} dir="ltr" />
             </Form.Item>
           </div>

@@ -118,6 +118,16 @@ export const stateSchema = z
   .transform((val) => val?.trim() || null);
 
 /**
+ * Area/District validation - varchar(100), optional
+ */
+export const supplierAreaSchema = z
+  .string()
+  .max(100, 'Area cannot exceed 100 characters')
+  .optional()
+  .nullable()
+  .transform((val) => val?.trim() || null);
+
+/**
  * Postal code validation - varchar(20), optional
  */
 export const supplierPostalCodeSchema = z
@@ -253,6 +263,7 @@ const supplierBaseSchema = z.object({
   address_line1: addressLineSchema,
   address_line2: addressLineSchema,
   city: supplierCitySchema,
+  area: supplierAreaSchema,
   state: stateSchema,
   postal_code: supplierPostalCodeSchema,
   country: countrySchema,

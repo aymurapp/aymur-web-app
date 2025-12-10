@@ -2301,6 +2301,8 @@ export type Database = {
       suppliers: {
         Row: {
           address: string | null;
+          area: string | null;
+          city: string | null;
           company_name: string;
           contact_person: string | null;
           created_at: string;
@@ -2313,6 +2315,7 @@ export type Database = {
           id_supplier_category: string | null;
           notes: string | null;
           phone: string | null;
+          postal_code: string | null;
           status: string | null;
           tax_id: string | null;
           updated_at: string;
@@ -2321,6 +2324,8 @@ export type Database = {
         };
         Insert: {
           address?: string | null;
+          area?: string | null;
+          city?: string | null;
           company_name: string;
           contact_person?: string | null;
           created_at?: string;
@@ -2333,6 +2338,7 @@ export type Database = {
           id_supplier_category?: string | null;
           notes?: string | null;
           phone?: string | null;
+          postal_code?: string | null;
           status?: string | null;
           tax_id?: string | null;
           updated_at?: string;
@@ -2341,6 +2347,8 @@ export type Database = {
         };
         Update: {
           address?: string | null;
+          area?: string | null;
+          city?: string | null;
           company_name?: string;
           contact_person?: string | null;
           created_at?: string;
@@ -2353,6 +2361,7 @@ export type Database = {
           id_supplier_category?: string | null;
           notes?: string | null;
           phone?: string | null;
+          postal_code?: string | null;
           status?: string | null;
           tax_id?: string | null;
           updated_at?: string;
