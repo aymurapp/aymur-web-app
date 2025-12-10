@@ -152,15 +152,6 @@ const ITEM_TYPE_OPTIONS: { value: ItemType; labelKey: string }[] = [
 ];
 
 /**
- * Ownership type options
- */
-const OWNERSHIP_TYPE_OPTIONS: { value: OwnershipType; labelKey: string }[] = [
-  { value: 'owned', labelKey: 'owned' },
-  { value: 'consignment', labelKey: 'consignment' },
-  { value: 'memo', labelKey: 'memo' },
-];
-
-/**
  * Gold color options
  */
 const GOLD_COLOR_OPTIONS: { value: GoldColor; labelKey: string }[] = [
@@ -597,34 +588,12 @@ export function ItemForm({
               </Form.Item>
             </Col>
 
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label={t('consignment')}
-                required
-                validateStatus={errors.ownership_type ? 'error' : undefined}
-                help={errors.ownership_type?.message}
-              >
-                <Controller
-                  name="ownership_type"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      options={OWNERSHIP_TYPE_OPTIONS.map((opt) => ({
-                        value: opt.value,
-                        label:
-                          opt.labelKey === 'owned'
-                            ? 'Owned'
-                            : opt.labelKey === 'consignment'
-                              ? 'Consignment'
-                              : 'Memo',
-                      }))}
-                      className="w-full"
-                    />
-                  )}
-                />
-              </Form.Item>
-            </Col>
+            {/* Ownership type field - hidden, defaults to 'owned' */}
+            <Controller
+              name="ownership_type"
+              control={control}
+              render={() => <input type="hidden" />}
+            />
 
             <Col xs={24} sm={12}>
               <Form.Item
@@ -735,15 +704,17 @@ export function ItemForm({
                       value={field.value ?? undefined}
                       onChange={field.onChange}
                       placeholder={tCommon('select.placeholder')}
-                      options={GOLD_COLOR_OPTIONS.map((opt) => ({
-                        value: opt.value,
-                        label:
-                          opt.labelKey === 'yellow'
-                            ? 'Yellow Gold'
-                            : opt.labelKey === 'white'
-                              ? 'White Gold'
-                              : 'Rose Gold',
-                      }))}
+                      options={GOLD_COLOR_OPTIONS.map((opt) => {
+                        const goldColorLabels: Record<string, string> = {
+                          yellow: 'Yellow Gold',
+                          white: 'White Gold',
+                          rose: 'Rose Gold',
+                        };
+                        return {
+                          value: opt.value,
+                          label: goldColorLabels[opt.labelKey] || opt.labelKey,
+                        };
+                      })}
                       allowClear
                       className="w-full"
                     />
