@@ -16,7 +16,7 @@
  * @module components/domain/inventory/ItemForm
  */
 
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   SaveOutlined,
@@ -44,6 +44,10 @@ import {
   Alert,
   Upload,
   Space,
+  Image,
+  message,
+  type UploadFile,
+  type UploadProps as AntdUploadProps,
 } from 'antd';
 import { useTranslations } from 'next-intl';
 import { useForm, Controller } from 'react-hook-form';
@@ -66,14 +70,21 @@ import {
   type OwnershipType,
 } from '@/lib/utils/schemas';
 
-import type { UploadProps } from 'antd';
-
 const { Text, Title } = Typography;
 const { TextArea } = Input;
 
 // =============================================================================
 // TYPES
 // =============================================================================
+
+/**
+ * Image file data structure
+ */
+export interface ItemImageData {
+  id_file: string;
+  file_url: string;
+  file_name: string;
+}
 
 /**
  * Inventory item data for editing (from database)
@@ -96,6 +107,8 @@ export interface InventoryItemData {
   stone_weight_carats?: number | null;
   purchase_price: number;
   currency: string;
+  /** Existing images for this item */
+  images?: ItemImageData[];
 }
 
 /**
@@ -332,6 +345,39 @@ export function ItemForm({
   }, [watchedCategory, initialData?.id_category, setValue]);
 
   // ==========================================================================
+  // IMAGE STATE
+  // ==========================================================================
+
+  // Convert existing images to UploadFile format
+  const initialFileList = useMemo<UploadFile[]>(() => {
+    if (!initialData?.images || initialData.images.length === 0) {
+      return [];
+    }
+    return initialData.images.map((img) => ({
+      uid: img.id_file,
+      name: img.file_name,
+      status: 'done' as const,
+      url: img.file_url,
+      thumbUrl: img.file_url,
+    }));
+  }, [initialData?.images]);
+
+  // State for file list (existing + new uploads)
+  const [fileList, setFileList] = useState<UploadFile[]>(initialFileList);
+  // Track files that user wants to delete (will be used in form submission for actual deletion)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_filesToDelete, setFilesToDelete] = useState<string[]>([]);
+  // Preview state
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+
+  // Update file list when initialData changes
+  useEffect(() => {
+    setFileList(initialFileList);
+    setFilesToDelete([]);
+  }, [initialFileList]);
+
+  // ==========================================================================
   // DROPDOWN OPTIONS
   // ==========================================================================
 
@@ -392,15 +438,69 @@ export function ItemForm({
   );
 
   // ==========================================================================
-  // UPLOAD CONFIG (Placeholder)
+  // IMAGE HANDLERS
   // ==========================================================================
 
-  const uploadProps: UploadProps = {
+  /**
+   * Handle image preview
+   */
+  const handlePreview = useCallback(async (file: UploadFile) => {
+    const src = file.url || file.thumbUrl || '';
+    setPreviewImage(src);
+    setPreviewOpen(true);
+  }, []);
+
+  /**
+   * Handle file list changes (add new files)
+   */
+  const handleFileChange: AntdUploadProps['onChange'] = useCallback(
+    ({ fileList: newFileList }: { fileList: UploadFile[] }) => {
+      // Filter to only allow image files
+      const validFiles = newFileList.filter((file: UploadFile) => {
+        if (file.originFileObj) {
+          const isImage = file.type?.startsWith('image/');
+          if (!isImage) {
+            message.error('Only image files are allowed');
+            return false;
+          }
+          const isLt5M = (file.size || 0) / 1024 / 1024 < 5;
+          if (!isLt5M) {
+            message.error('Image must be smaller than 5MB');
+            return false;
+          }
+        }
+        return true;
+      });
+      setFileList(validFiles);
+    },
+    []
+  );
+
+  /**
+   * Handle file removal
+   */
+  const handleRemove = useCallback((file: UploadFile) => {
+    // If it's an existing file (has status 'done' and a valid uid), mark for deletion
+    if (file.status === 'done' && file.uid && !file.originFileObj) {
+      setFilesToDelete((prev) => [...prev, file.uid]);
+    }
+    return true; // Allow removal from fileList
+  }, []);
+
+  /**
+   * Upload props configuration
+   */
+  const uploadProps: AntdUploadProps = {
     name: 'file',
     multiple: true,
     listType: 'picture-card',
+    fileList,
     beforeUpload: () => false, // Prevent auto upload
     maxCount: 5,
+    onChange: handleFileChange,
+    onRemove: handleRemove,
+    onPreview: handlePreview,
+    accept: 'image/*',
   };
 
   // ==========================================================================
@@ -880,19 +980,33 @@ export function ItemForm({
           </Row>
         </FormSection>
 
-        {/* Images Section (Placeholder) */}
+        {/* Images Section */}
         <FormSection icon={<PictureOutlined />} title="Images">
           <Upload {...uploadProps}>
-            <div className="flex flex-col items-center justify-center p-4">
-              <PictureOutlined className="text-2xl text-stone-400 mb-2" />
-              <Text type="secondary" className="text-sm">
-                {tCommon('actions.upload')}
-              </Text>
-            </div>
+            {fileList.length < 5 && (
+              <div className="flex flex-col items-center justify-center p-4">
+                <PictureOutlined className="text-2xl text-stone-400 mb-2" />
+                <Text type="secondary" className="text-sm">
+                  {tCommon('actions.upload')}
+                </Text>
+              </div>
+            )}
           </Upload>
           <Text type="secondary" className="text-xs mt-2 block">
             Upload up to 5 images. Max file size: 5MB each.
           </Text>
+          {/* Image Preview Modal */}
+          {previewImage && (
+            <Image
+              alt="Preview"
+              wrapperStyle={{ display: 'none' }}
+              preview={{
+                visible: previewOpen,
+                onVisibleChange: (visible) => setPreviewOpen(visible),
+              }}
+              src={previewImage}
+            />
+          )}
         </FormSection>
 
         <Divider />

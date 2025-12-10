@@ -103,6 +103,7 @@ export default function EditInventoryItemPage(): JSX.Element {
       stone_weight_carats: item.stone_weight_carats,
       purchase_price: item.purchase_price,
       currency: item.currency,
+      images: item.images,
     };
   }, [item]);
 
