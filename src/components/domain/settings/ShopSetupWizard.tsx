@@ -1,15 +1,16 @@
 'use client';
 
 /**
- * ShopSetupWizard Component (task-069)
+ * ShopSetupWizard Component
  *
- * A multi-step wizard for creating a new shop.
- * Steps:
- * 1. Shop name, description
- * 2. Currency, locale/language, timezone selection
- * 3. Logo upload (optional)
+ * A comprehensive multi-step wizard for creating a new shop with:
+ * - Basic info (name, description)
+ * - Business settings (currency, language, timezone)
+ * - Business contact (phone, email, tax ID)
+ * - Location (address with Google Places autocomplete)
+ * - Branding (logo with crop/zoom functionality)
  *
- * On complete, calls the createShop server action and redirects to the new shop's dashboard.
+ * Enterprise-level UI/UX with smooth transitions and comprehensive validation.
  *
  * @module components/domain/settings/ShopSetupWizard
  */
@@ -19,22 +20,29 @@ import React, { useState, useCallback } from 'react';
 import {
   ShopOutlined,
   GlobalOutlined,
+  PhoneOutlined,
+  EnvironmentOutlined,
   PictureOutlined,
   CheckCircleOutlined,
   ArrowLeftOutlined,
   ArrowRightOutlined,
   LoadingOutlined,
+  MailOutlined,
+  IdcardOutlined,
 } from '@ant-design/icons';
-import { Steps, Input, Select, message, Upload, Result } from 'antd';
+import { Steps, Input, Select, message, Result, Typography, Divider } from 'antd';
 import { useTranslations } from 'next-intl';
 
+import { AddressAutocomplete } from '@/components/common/forms/AddressAutocomplete';
+import { ShopLogoUpload } from '@/components/common/forms/ShopLogoUpload';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { createShop, type CreateShopInput } from '@/lib/actions/shop';
 import { useRouter } from '@/lib/i18n/navigation';
+import type { ParsedAddress } from '@/lib/types/address';
 import { cn } from '@/lib/utils/cn';
 
-import type { UploadFile, UploadProps } from 'antd';
+const { Text, Title } = Typography;
 
 /**
  * Props for ShopSetupWizard component
@@ -60,32 +68,60 @@ interface WizardStep {
  * Form data structure
  */
 interface WizardFormData {
+  // Basic Info
   shopName: string;
   description: string;
+  // Settings
   currency: string;
   language: string;
   timezone: string;
+  // Business Contact
+  phone: string;
+  email: string;
+  taxId: string;
+  // Address
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  area: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  // Branding
   shopLogo: string | null;
 }
 
 /**
- * Currency options
+ * Currency options - Comprehensive list
  */
 const CURRENCY_OPTIONS = [
+  // Major World Currencies
   { value: 'USD', label: 'USD - US Dollar', symbol: '$' },
   { value: 'EUR', label: 'EUR - Euro', symbol: '€' },
   { value: 'GBP', label: 'GBP - British Pound', symbol: '£' },
-  { value: 'TRY', label: 'TRY - Turkish Lira', symbol: '₺' },
+  { value: 'AUD', label: 'AUD - Australian Dollar', symbol: 'A$' },
+  { value: 'CAD', label: 'CAD - Canadian Dollar', symbol: 'C$' },
+  { value: 'CHF', label: 'CHF - Swiss Franc', symbol: 'Fr' },
+  // Gulf Countries
   { value: 'AED', label: 'AED - UAE Dirham', symbol: 'د.إ' },
   { value: 'SAR', label: 'SAR - Saudi Riyal', symbol: '﷼' },
   { value: 'KWD', label: 'KWD - Kuwaiti Dinar', symbol: 'د.ك' },
   { value: 'QAR', label: 'QAR - Qatari Riyal', symbol: '﷼' },
   { value: 'BHD', label: 'BHD - Bahraini Dinar', symbol: '.د.ب' },
   { value: 'OMR', label: 'OMR - Omani Rial', symbol: '﷼' },
+  // North Africa
+  { value: 'MAD', label: 'MAD - Moroccan Dirham', symbol: 'د.م.' },
+  { value: 'DZD', label: 'DZD - Algerian Dinar', symbol: 'د.ج' },
+  { value: 'TND', label: 'TND - Tunisian Dinar', symbol: 'د.ت' },
+  { value: 'EGP', label: 'EGP - Egyptian Pound', symbol: 'ج.م' },
+  { value: 'LYD', label: 'LYD - Libyan Dinar', symbol: 'ل.د' },
+  // Middle East
+  { value: 'IQD', label: 'IQD - Iraqi Dinar', symbol: 'ع.د' },
+  { value: 'TRY', label: 'TRY - Turkish Lira', symbol: '₺' },
+  { value: 'JOD', label: 'JOD - Jordanian Dinar', symbol: 'د.ا' },
+  { value: 'LBP', label: 'LBP - Lebanese Pound', symbol: 'ل.ل' },
+  // Other
   { value: 'INR', label: 'INR - Indian Rupee', symbol: '₹' },
-  { value: 'CAD', label: 'CAD - Canadian Dollar', symbol: 'C$' },
-  { value: 'AUD', label: 'AUD - Australian Dollar', symbol: 'A$' },
-  { value: 'CHF', label: 'CHF - Swiss Franc', symbol: 'Fr' },
 ];
 
 /**
@@ -93,11 +129,12 @@ const CURRENCY_OPTIONS = [
  */
 const LANGUAGE_OPTIONS = [
   { value: 'en', label: 'English' },
-  { value: 'fr', label: 'Francais' },
-  { value: 'es', label: 'Espanol' },
+  { value: 'fr', label: 'Français' },
+  { value: 'es', label: 'Español' },
   { value: 'nl', label: 'Nederlands' },
   { value: 'ar', label: 'العربية' },
-  { value: 'tr', label: 'Turkce' },
+  { value: 'tr', label: 'Türkçe' },
+  { value: 'ku', label: 'کوردی' },
 ];
 
 /**
@@ -115,11 +152,16 @@ const TIMEZONE_OPTIONS = [
   { value: 'Europe/Moscow', label: 'Moscow' },
   { value: 'Asia/Dubai', label: 'Dubai, Abu Dhabi' },
   { value: 'Asia/Riyadh', label: 'Riyadh, Kuwait, Baghdad' },
+  { value: 'Asia/Baghdad', label: 'Baghdad' },
   { value: 'Asia/Kolkata', label: 'Mumbai, Kolkata, New Delhi' },
   { value: 'Asia/Shanghai', label: 'Beijing, Shanghai, Hong Kong' },
   { value: 'Asia/Tokyo', label: 'Tokyo, Seoul' },
   { value: 'Australia/Sydney', label: 'Sydney, Melbourne' },
   { value: 'Pacific/Auckland', label: 'Auckland, Wellington' },
+  { value: 'Africa/Cairo', label: 'Cairo' },
+  { value: 'Africa/Casablanca', label: 'Casablanca' },
+  { value: 'Africa/Algiers', label: 'Algiers' },
+  { value: 'Africa/Tunis', label: 'Tunis' },
 ];
 
 /**
@@ -131,6 +173,16 @@ const INITIAL_FORM_DATA: WizardFormData = {
   currency: 'USD',
   language: 'en',
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York',
+  phone: '',
+  email: '',
+  taxId: '',
+  addressLine1: '',
+  addressLine2: '',
+  city: '',
+  area: '',
+  state: '',
+  postalCode: '',
+  country: '',
   shopLogo: null,
 };
 
@@ -147,7 +199,6 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [createdShopId, setCreatedShopId] = useState<string | null>(null);
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   /**
    * Wizard steps configuration
@@ -155,60 +206,99 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
   const steps: WizardStep[] = [
     {
       key: 'basic',
-      title: 'Basic Info',
-      description: 'Shop name and description',
+      title: t('wizard.basicInfo'),
+      description: t('wizard.basicInfoDesc'),
       icon: <ShopOutlined />,
     },
     {
       key: 'settings',
-      title: 'Settings',
-      description: 'Currency, language, timezone',
+      title: t('wizard.settings'),
+      description: t('wizard.settingsDesc'),
       icon: <GlobalOutlined />,
     },
     {
+      key: 'contact',
+      title: t('wizard.contact'),
+      description: t('wizard.contactDesc'),
+      icon: <PhoneOutlined />,
+    },
+    {
+      key: 'location',
+      title: t('wizard.location'),
+      description: t('wizard.locationDesc'),
+      icon: <EnvironmentOutlined />,
+    },
+    {
       key: 'branding',
-      title: 'Branding',
-      description: 'Logo (optional)',
+      title: t('wizard.branding'),
+      description: t('wizard.brandingDesc'),
       icon: <PictureOutlined />,
     },
   ];
+
+  /**
+   * Handle address selection from autocomplete
+   */
+  const handleAddressSelect = useCallback((address: ParsedAddress) => {
+    setFormData((prev) => ({
+      ...prev,
+      addressLine1: address.street || address.fullAddress,
+      city: address.city,
+      area: address.area,
+      postalCode: address.postalCode,
+      country: address.country,
+    }));
+  }, []);
 
   /**
    * Validate current step
    */
   const validateCurrentStep = useCallback((): boolean => {
     switch (currentStep) {
-      case 0:
+      case 0: // Basic Info
         if (!formData.shopName.trim()) {
-          message.error('Shop name is required');
+          message.error(t('validation.shopNameRequired'));
           return false;
         }
         if (formData.shopName.trim().length < 2) {
-          message.error('Shop name must be at least 2 characters');
+          message.error(t('validation.shopNameMinLength'));
           return false;
         }
         return true;
-      case 1:
+
+      case 1: // Settings
         if (!formData.currency) {
-          message.error('Please select a currency');
+          message.error(t('validation.currencyRequired'));
           return false;
         }
         if (!formData.language) {
-          message.error('Please select a language');
+          message.error(t('validation.languageRequired'));
           return false;
         }
         if (!formData.timezone) {
-          message.error('Please select a timezone');
+          message.error(t('validation.timezoneRequired'));
           return false;
         }
         return true;
-      case 2:
-        // Logo is optional
+
+      case 2: // Contact (optional fields)
+        // Email validation if provided
+        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+          message.error(tCommon('validation.invalidEmail'));
+          return false;
+        }
         return true;
+
+      case 3: // Location (optional)
+        return true;
+
+      case 4: // Branding (optional)
+        return true;
+
       default:
         return true;
     }
-  }, [currentStep, formData]);
+  }, [currentStep, formData, t, tCommon]);
 
   /**
    * Go to next step
@@ -245,28 +335,34 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
         language: formData.language,
         timezone: formData.timezone,
         shopLogo: formData.shopLogo,
+        phone: formData.phone || undefined,
+        email: formData.email || undefined,
+        taxId: formData.taxId || undefined,
+        addressLine1: formData.addressLine1 || undefined,
+        addressLine2: formData.addressLine2 || undefined,
+        city: formData.city || undefined,
+        area: formData.area || undefined,
+        state: formData.state || undefined,
+        postalCode: formData.postalCode || undefined,
+        country: formData.country || undefined,
       };
 
       const result = await createShop(input);
 
-      if (result.success) {
-        if (result.data) {
-          setCreatedShopId(result.data.id_shop);
-          setIsComplete(true);
-          message.success(result.message || 'Shop created successfully!');
-        } else {
-          message.error('Failed to create shop');
-        }
-      } else {
-        message.error(result.error);
+      if (result.success && result.data) {
+        setCreatedShopId(result.data.id_shop);
+        setIsComplete(true);
+        message.success(result.message || t('messages.shopCreated'));
+      } else if (!result.success) {
+        message.error(result.error || t('messages.shopCreationFailed'));
       }
     } catch (error) {
       console.error('Shop creation error:', error);
-      message.error('An unexpected error occurred');
+      message.error(tCommon('messages.unexpectedError'));
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, validateCurrentStep]);
+  }, [formData, validateCurrentStep, t, tCommon]);
 
   /**
    * Navigate to the new shop's dashboard
@@ -278,24 +374,6 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
   }, [createdShopId, router]);
 
   /**
-   * Handle file upload change
-   */
-  const handleUploadChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
-    setFileList(newFileList);
-
-    // If there's an uploaded file with a URL, use it
-    const uploadedFile = newFileList[0];
-    if (uploadedFile?.response?.url) {
-      setFormData((prev) => ({ ...prev, shopLogo: uploadedFile.response.url }));
-    } else if (uploadedFile?.thumbUrl) {
-      // For preview purposes (actual upload would happen via a separate endpoint)
-      setFormData((prev) => ({ ...prev, shopLogo: uploadedFile.thumbUrl || null }));
-    } else if (newFileList.length === 0) {
-      setFormData((prev) => ({ ...prev, shopLogo: null }));
-    }
-  };
-
-  /**
    * Render step content
    */
   const renderStepContent = () => {
@@ -303,14 +381,14 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
       return (
         <Result
           status="success"
-          title="Shop Created Successfully!"
-          subTitle={`Your shop "${formData.shopName}" is ready. You can now start managing your jewelry business.`}
+          title={t('wizard.successTitle')}
+          subTitle={t('wizard.successSubtitle', { shopName: formData.shopName })}
           extra={[
             <Button key="dashboard" type="primary" size="large" onClick={handleGoToDashboard}>
-              Go to Dashboard
+              {t('wizard.goToDashboard')}
             </Button>,
             <Button key="shops" size="large" onClick={() => router.push('/shops')}>
-              View All Shops
+              {t('wizard.viewAllShops')}
             </Button>,
           ]}
         />
@@ -318,7 +396,7 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
     }
 
     switch (currentStep) {
-      case 0:
+      case 0: // Basic Info
         return (
           <div className="space-y-6">
             <div>
@@ -327,12 +405,15 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
               </label>
               <Input
                 size="large"
-                placeholder="Enter your shop name"
+                placeholder={t('placeholders.shopName')}
                 value={formData.shopName}
                 onChange={(e) => setFormData((prev) => ({ ...prev, shopName: e.target.value }))}
                 maxLength={100}
                 showCount
               />
+              <Text type="secondary" className="text-xs mt-1 block">
+                {t('hints.shopName')}
+              </Text>
             </div>
 
             <div>
@@ -341,7 +422,7 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
               </label>
               <Input.TextArea
                 size="large"
-                placeholder="Describe your jewelry business"
+                placeholder={t('placeholders.description')}
                 value={formData.description}
                 onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={4}
@@ -352,7 +433,7 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
           </div>
         );
 
-      case 1:
+      case 1: // Settings
         return (
           <div className="space-y-6">
             <div>
@@ -362,26 +443,26 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
               <Select
                 size="large"
                 className="w-full"
-                placeholder="Select currency"
+                placeholder={t('placeholders.currency')}
                 value={formData.currency}
                 onChange={(value) => setFormData((prev) => ({ ...prev, currency: value }))}
                 showSearch
                 optionFilterProp="label"
                 options={CURRENCY_OPTIONS}
               />
-              <p className="mt-1 text-xs text-stone-500">
-                This will be the default currency for all transactions in this shop.
-              </p>
+              <Text type="secondary" className="text-xs mt-1 block">
+                {t('hints.currency')}
+              </Text>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">
-                Language <span className="text-red-500">*</span>
+                {t('language')} <span className="text-red-500">*</span>
               </label>
               <Select
                 size="large"
                 className="w-full"
-                placeholder="Select language"
+                placeholder={t('placeholders.language')}
                 value={formData.language}
                 onChange={(value) => setFormData((prev) => ({ ...prev, language: value }))}
                 options={LANGUAGE_OPTIONS}
@@ -395,7 +476,7 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
               <Select
                 size="large"
                 className="w-full"
-                placeholder="Select timezone"
+                placeholder={t('placeholders.timezone')}
                 value={formData.timezone}
                 onChange={(value) => setFormData((prev) => ({ ...prev, timezone: value }))}
                 showSearch
@@ -406,36 +487,199 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
           </div>
         );
 
-      case 2:
+      case 2: // Contact Info
+        return (
+          <div className="space-y-6">
+            <Text type="secondary" className="block mb-4">
+              {t('wizard.contactHint')}
+            </Text>
+
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                <PhoneOutlined className="me-2" />
+                {tCommon('labels.phone')} ({tCommon('labels.optional')})
+              </label>
+              <Input
+                size="large"
+                placeholder={t('placeholders.phone')}
+                value={formData.phone}
+                onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                maxLength={20}
+                dir="ltr"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                <MailOutlined className="me-2" />
+                {tCommon('labels.email')} ({tCommon('labels.optional')})
+              </label>
+              <Input
+                size="large"
+                type="email"
+                placeholder={t('placeholders.email')}
+                value={formData.email}
+                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                maxLength={255}
+                dir="ltr"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                <IdcardOutlined className="me-2" />
+                {t('taxId')} ({tCommon('labels.optional')})
+              </label>
+              <Input
+                size="large"
+                placeholder={t('placeholders.taxId')}
+                value={formData.taxId}
+                onChange={(e) => setFormData((prev) => ({ ...prev, taxId: e.target.value }))}
+                maxLength={50}
+                dir="ltr"
+              />
+              <Text type="secondary" className="text-xs mt-1 block">
+                {t('hints.taxId')}
+              </Text>
+            </div>
+          </div>
+        );
+
+      case 3: // Location
+        return (
+          <div className="space-y-6">
+            <Text type="secondary" className="block mb-4">
+              {t('wizard.locationHint')}
+            </Text>
+
+            {/* Address Autocomplete */}
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                <EnvironmentOutlined className="me-2" />
+                {t('address')} ({tCommon('labels.optional')})
+              </label>
+              <AddressAutocomplete
+                onAddressSelect={handleAddressSelect}
+                value={formData.addressLine1}
+                onChange={(value) => setFormData((prev) => ({ ...prev, addressLine1: value }))}
+                placeholder={tCommon('address.placeholder')}
+                size="large"
+              />
+              <Text type="secondary" className="text-xs mt-1 block">
+                {t('hints.address')}
+              </Text>
+            </div>
+
+            {/* Address Line 2 */}
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                {t('addressLine2')} ({tCommon('labels.optional')})
+              </label>
+              <Input
+                size="large"
+                placeholder={t('placeholders.addressLine2')}
+                value={formData.addressLine2}
+                onChange={(e) => setFormData((prev) => ({ ...prev, addressLine2: e.target.value }))}
+                maxLength={255}
+              />
+            </div>
+
+            {/* City, Area, Postal Code */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-2">
+                  {tCommon('labels.city')}
+                </label>
+                <Input
+                  size="large"
+                  placeholder={t('placeholders.city')}
+                  value={formData.city}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
+                  maxLength={100}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-2">{t('area')}</label>
+                <Input
+                  size="large"
+                  placeholder={t('placeholders.area')}
+                  value={formData.area}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, area: e.target.value }))}
+                  maxLength={100}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-2">
+                  {tCommon('labels.postalCode')}
+                </label>
+                <Input
+                  size="large"
+                  placeholder={t('placeholders.postalCode')}
+                  value={formData.postalCode}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, postalCode: e.target.value }))}
+                  maxLength={20}
+                  dir="ltr"
+                />
+              </div>
+            </div>
+
+            {/* State, Country */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-2">
+                  {t('state')}
+                </label>
+                <Input
+                  size="large"
+                  placeholder={t('placeholders.state')}
+                  value={formData.state}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
+                  maxLength={100}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-2">
+                  {tCommon('labels.country')}
+                </label>
+                <Input
+                  size="large"
+                  placeholder={t('placeholders.country')}
+                  value={formData.country}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, country: e.target.value }))}
+                  maxLength={100}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 4: // Branding
         return (
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">
-                Shop Logo ({tCommon('labels.optional')})
+                {t('shopLogo')} ({tCommon('labels.optional')})
               </label>
-              <Upload.Dragger
-                name="logo"
-                listType="picture"
-                maxCount={1}
-                fileList={fileList}
-                onChange={handleUploadChange}
-                beforeUpload={() => false} // Prevent auto-upload, handle manually
-                accept="image/*"
-              >
-                <p className="ant-upload-drag-icon">
-                  <PictureOutlined className="text-4xl text-stone-400" />
-                </p>
-                <p className="ant-upload-text">Click or drag an image to upload</p>
-                <p className="ant-upload-hint">
-                  Recommended: Square image, at least 200x200 pixels
-                </p>
-              </Upload.Dragger>
+              <Text type="secondary" className="block mb-4">
+                {t('hints.shopLogo')}
+              </Text>
+              <div className="flex justify-center">
+                <ShopLogoUpload
+                  value={formData.shopLogo}
+                  onChange={(logoUrl) => setFormData((prev) => ({ ...prev, shopLogo: logoUrl }))}
+                  size="large"
+                />
+              </div>
             </div>
+
+            <Divider />
 
             {/* Summary */}
             <Card className="bg-stone-50">
-              <h4 className="font-medium text-stone-900 mb-4">Summary</h4>
-              <dl className="space-y-2 text-sm">
+              <Title level={5} className="mb-4">
+                {t('wizard.summary')}
+              </Title>
+              <dl className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-stone-500">{t('shopName')}:</dt>
                   <dd className="font-medium text-stone-900">{formData.shopName}</dd>
@@ -445,18 +689,38 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
                   <dd className="font-medium text-stone-900">{formData.currency}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-stone-500">Language:</dt>
+                  <dt className="text-stone-500">{t('language')}:</dt>
                   <dd className="font-medium text-stone-900">
                     {LANGUAGE_OPTIONS.find((l) => l.value === formData.language)?.label}
                   </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-stone-500">{t('timezone')}:</dt>
-                  <dd className="font-medium text-stone-900 text-right max-w-[60%] truncate">
+                  <dd className="font-medium text-stone-900 text-end max-w-[60%] truncate">
                     {TIMEZONE_OPTIONS.find((tz) => tz.value === formData.timezone)?.label ||
                       formData.timezone}
                   </dd>
                 </div>
+                {formData.phone && (
+                  <div className="flex justify-between">
+                    <dt className="text-stone-500">{tCommon('labels.phone')}:</dt>
+                    <dd className="font-medium text-stone-900">{formData.phone}</dd>
+                  </div>
+                )}
+                {formData.email && (
+                  <div className="flex justify-between">
+                    <dt className="text-stone-500">{tCommon('labels.email')}:</dt>
+                    <dd className="font-medium text-stone-900">{formData.email}</dd>
+                  </div>
+                )}
+                {formData.city && (
+                  <div className="flex justify-between">
+                    <dt className="text-stone-500">{tCommon('labels.address')}:</dt>
+                    <dd className="font-medium text-stone-900 text-end max-w-[60%]">
+                      {[formData.city, formData.country].filter(Boolean).join(', ')}
+                    </dd>
+                  </div>
+                )}
               </dl>
             </Card>
           </div>
@@ -474,6 +738,7 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
         <Steps
           current={currentStep}
           className="mb-8"
+          size="small"
           items={steps.map((step) => ({
             title: step.title,
             description: step.description,
@@ -508,7 +773,18 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
             )}
           </div>
 
-          <div>
+          <div className="flex gap-2">
+            {/* Skip button for optional steps */}
+            {currentStep >= 2 && currentStep < steps.length - 1 && (
+              <Button
+                size="large"
+                onClick={() => setCurrentStep((prev) => prev + 1)}
+                disabled={isSubmitting}
+              >
+                {t('wizard.skip')}
+              </Button>
+            )}
+
             {currentStep < steps.length - 1 ? (
               <Button type="primary" size="large" onClick={handleNext} disabled={isSubmitting}>
                 {tCommon('actions.next')} <ArrowRightOutlined />
@@ -521,7 +797,7 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
                 loading={isSubmitting}
                 icon={isSubmitting ? <LoadingOutlined /> : <CheckCircleOutlined />}
               >
-                {isSubmitting ? 'Creating Shop...' : t('createShop')}
+                {isSubmitting ? t('wizard.creating') : t('createShop')}
               </Button>
             )}
           </div>

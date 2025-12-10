@@ -18,6 +18,7 @@ import { LockOutlined, CrownOutlined } from '@ant-design/icons';
 import { Button, Result, Typography, Card } from 'antd';
 import { useTranslations } from 'next-intl';
 
+import { useSubscriptionPlan } from '@/lib/hooks/data';
 import { usePermissions } from '@/lib/hooks/permissions';
 import { useShop } from '@/lib/hooks/shop';
 import { Link } from '@/lib/i18n/navigation';
@@ -62,7 +63,8 @@ function checkTier(currentTier: string | undefined, requiredTier: string): boole
     free: 0,
     starter: 1,
     pro: 2,
-    enterprise: 3,
+    business: 3,
+    enterprise: 4,
   };
 
   const currentLevel = tierHierarchy[currentTier?.toLowerCase() ?? 'free'] ?? 0;
@@ -191,16 +193,16 @@ export function LockedFeature({
 }: LockedFeatureProps): JSX.Element | null {
   const { can, isLoading: permissionsLoading } = usePermissions();
   const { isLoading: shopLoading } = useShop();
+  const { subscription, isLoading: subscriptionLoading } = useSubscriptionPlan();
 
-  const isLoading = permissionsLoading || shopLoading;
+  const isLoading = permissionsLoading || shopLoading || subscriptionLoading;
 
   // Check permission
   const hasPermission = permission ? can(permission) : true;
 
   // Check subscription tier
-  // Note: Subscription tables don't exist in current schema.
-  // For now, assume all shops have 'free' tier. Update when subscription feature is implemented.
-  const currentTier: string | undefined = undefined; // TODO: shop?.subscription?.plan?.plan_name when available
+  // Get the tier from subscription, default to undefined if no subscription
+  const currentTier = subscription?.plan?.tier;
   const hasTier = requiredTier ? checkTier(currentTier, requiredTier) : true;
 
   // Determine if locked

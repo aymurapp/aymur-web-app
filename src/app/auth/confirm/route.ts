@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 
 import { createServerClient } from '@supabase/ssr';
 
+import { routing } from '@/lib/i18n/routing';
 import type { Database } from '@/lib/types/database';
 
 import type { EmailOtpType } from '@supabase/supabase-js';
@@ -26,6 +27,26 @@ import type { EmailOtpType } from '@supabase/supabase-js';
  *
  * @see https://supabase.com/docs/guides/auth/server-side/email-based-auth-with-pkce-flow-for-ssr
  */
+
+/**
+ * Creates a URL with the correct locale prefix
+ * Detects locale from Accept-Language header or uses default
+ */
+function createLocalizedUrl(path: string, request: NextRequest): URL {
+  const requestUrl = new URL(request.url);
+
+  // Try to detect locale from Accept-Language header
+  const acceptLanguage = request.headers.get('accept-language') || '';
+  const preferredLocale = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase();
+
+  // Check if preferred locale is supported, otherwise use default
+  const locale = routing.locales.includes(preferredLocale as (typeof routing.locales)[number])
+    ? preferredLocale
+    : routing.defaultLocale;
+
+  return new URL(`/${locale}${path}`, requestUrl.origin);
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const requestUrl = new URL(request.url);
 
@@ -40,8 +61,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const errorDescription = requestUrl.searchParams.get('error_description');
 
   if (error) {
-    // Handle error - redirect to appropriate page with error info
-    const errorUrl = new URL('/login', requestUrl.origin);
+    // Handle error - redirect to appropriate page with error info (with locale prefix)
+    const errorUrl = createLocalizedUrl('/login', request);
     errorUrl.searchParams.set('error', error);
     if (errorDescription) {
       errorUrl.searchParams.set('error_description', errorDescription);
@@ -86,7 +107,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       // Handle specific error types
       if (verifyError.message.includes('expired') || verifyError.message.includes('invalid')) {
-        const errorUrl = new URL('/verify-email', requestUrl.origin);
+        const errorUrl = createLocalizedUrl('/verify-email', request);
         errorUrl.searchParams.set('error', 'token_expired');
         errorUrl.searchParams.set(
           'error_description',
@@ -96,7 +117,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
 
       // Generic error redirect
-      const errorUrl = new URL('/login', requestUrl.origin);
+      const errorUrl = createLocalizedUrl('/login', request);
       errorUrl.searchParams.set('error', 'verification_error');
       errorUrl.searchParams.set('error_description', verifyError.message);
       return NextResponse.redirect(errorUrl);
@@ -104,37 +125,41 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Handle different confirmation types
     switch (type) {
-      case 'signup':
+      case 'signup': {
         // Email signup confirmation successful
-        const verifySuccessUrl = new URL('/verify-email', requestUrl.origin);
+        const verifySuccessUrl = createLocalizedUrl('/verify-email', request);
         verifySuccessUrl.searchParams.set('type', 'signup');
+        verifySuccessUrl.searchParams.set('success', 'true');
         return NextResponse.redirect(verifySuccessUrl);
+      }
 
-      case 'recovery':
+      case 'recovery': {
         // Password recovery - redirect to reset password page
-        const resetUrl = new URL('/reset-password', requestUrl.origin);
+        const resetUrl = createLocalizedUrl('/reset-password', request);
         return NextResponse.redirect(resetUrl);
+      }
 
       case 'invite':
         // Team invitation - redirect to shops
-        return NextResponse.redirect(new URL('/shops', requestUrl.origin));
+        return NextResponse.redirect(createLocalizedUrl('/shops', request));
 
-      case 'email_change':
+      case 'email_change': {
         // Email change confirmation
-        const settingsUrl = new URL('/settings', requestUrl.origin);
+        const settingsUrl = createLocalizedUrl('/settings', request);
         settingsUrl.searchParams.set('message', 'email_updated');
         return NextResponse.redirect(settingsUrl);
+      }
 
       case 'magiclink':
         // Magic link sign-in
-        return NextResponse.redirect(new URL(next, requestUrl.origin));
+        return NextResponse.redirect(createLocalizedUrl(next, request));
 
       default:
         // Unknown type - redirect to next URL
-        return NextResponse.redirect(new URL(next, requestUrl.origin));
+        return NextResponse.redirect(createLocalizedUrl(next, request));
     }
   }
 
   // No valid parameters - redirect to home
-  return NextResponse.redirect(new URL('/', requestUrl.origin));
+  return NextResponse.redirect(createLocalizedUrl('/', request));
 }

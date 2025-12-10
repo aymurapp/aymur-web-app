@@ -40,7 +40,8 @@ export type FileEntityType =
   | 'workshop_orders'
   | 'expenses'
   | 'suppliers'
-  | 'profile';
+  | 'profile'
+  | 'shops';
 
 /**
  * File upload record from the database

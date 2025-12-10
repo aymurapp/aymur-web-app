@@ -59,15 +59,41 @@ export const LOCALE_LABELS: Record<Locale, string> = {
 // =============================================================================
 
 /**
- * Supported currencies
+ * Supported currencies - Comprehensive list including:
+ * - Major world currencies (USD, EUR, GBP, AUD, CAD, CHF)
+ * - Gulf countries (AED, SAR, KWD, QAR, BHD, OMR)
+ * - North Africa (MAD, DZD, TND, EGP, LYD)
+ * - Middle East (IQD, TRY, JOD, LBP)
+ * - Other major currencies (INR)
  */
 export const CURRENCIES = {
+  // Major World Currencies
   USD: 'USD',
   EUR: 'EUR',
-  IQD: 'IQD',
-  AED: 'AED',
   GBP: 'GBP',
+  AUD: 'AUD',
+  CAD: 'CAD',
+  CHF: 'CHF',
+  // Gulf Countries
+  AED: 'AED',
+  SAR: 'SAR',
+  KWD: 'KWD',
+  QAR: 'QAR',
+  BHD: 'BHD',
+  OMR: 'OMR',
+  // North Africa
+  MAD: 'MAD',
+  DZD: 'DZD',
+  TND: 'TND',
+  EGP: 'EGP',
+  LYD: 'LYD',
+  // Middle East
+  IQD: 'IQD',
   TRY: 'TRY',
+  JOD: 'JOD',
+  LBP: 'LBP',
+  // Other
+  INR: 'INR',
 } as const;
 
 export type Currency = (typeof CURRENCIES)[keyof typeof CURRENCIES];
@@ -81,24 +107,66 @@ export const DEFAULT_CURRENCY: Currency = CURRENCIES.USD;
  * Currency symbols
  */
 export const CURRENCY_SYMBOLS: Record<Currency, string> = {
+  // Major World Currencies
   [CURRENCIES.USD]: '$',
   [CURRENCIES.EUR]: '€',
-  [CURRENCIES.IQD]: 'IQD',
-  [CURRENCIES.AED]: 'AED',
   [CURRENCIES.GBP]: '£',
+  [CURRENCIES.AUD]: 'A$',
+  [CURRENCIES.CAD]: 'C$',
+  [CURRENCIES.CHF]: 'Fr',
+  // Gulf Countries
+  [CURRENCIES.AED]: 'د.إ',
+  [CURRENCIES.SAR]: '﷼',
+  [CURRENCIES.KWD]: 'د.ك',
+  [CURRENCIES.QAR]: '﷼',
+  [CURRENCIES.BHD]: '.د.ب',
+  [CURRENCIES.OMR]: '﷼',
+  // North Africa
+  [CURRENCIES.MAD]: 'د.م.',
+  [CURRENCIES.DZD]: 'د.ج',
+  [CURRENCIES.TND]: 'د.ت',
+  [CURRENCIES.EGP]: 'ج.م',
+  [CURRENCIES.LYD]: 'ل.د',
+  // Middle East
+  [CURRENCIES.IQD]: 'ع.د',
   [CURRENCIES.TRY]: '₺',
+  [CURRENCIES.JOD]: 'د.ا',
+  [CURRENCIES.LBP]: 'ل.ل',
+  // Other
+  [CURRENCIES.INR]: '₹',
 };
 
 /**
  * Currency labels for display
  */
 export const CURRENCY_LABELS: Record<Currency, string> = {
+  // Major World Currencies
   [CURRENCIES.USD]: 'US Dollar',
   [CURRENCIES.EUR]: 'Euro',
-  [CURRENCIES.IQD]: 'Iraqi Dinar',
-  [CURRENCIES.AED]: 'UAE Dirham',
   [CURRENCIES.GBP]: 'British Pound',
+  [CURRENCIES.AUD]: 'Australian Dollar',
+  [CURRENCIES.CAD]: 'Canadian Dollar',
+  [CURRENCIES.CHF]: 'Swiss Franc',
+  // Gulf Countries
+  [CURRENCIES.AED]: 'UAE Dirham',
+  [CURRENCIES.SAR]: 'Saudi Riyal',
+  [CURRENCIES.KWD]: 'Kuwaiti Dinar',
+  [CURRENCIES.QAR]: 'Qatari Riyal',
+  [CURRENCIES.BHD]: 'Bahraini Dinar',
+  [CURRENCIES.OMR]: 'Omani Rial',
+  // North Africa
+  [CURRENCIES.MAD]: 'Moroccan Dirham',
+  [CURRENCIES.DZD]: 'Algerian Dinar',
+  [CURRENCIES.TND]: 'Tunisian Dinar',
+  [CURRENCIES.EGP]: 'Egyptian Pound',
+  [CURRENCIES.LYD]: 'Libyan Dinar',
+  // Middle East
+  [CURRENCIES.IQD]: 'Iraqi Dinar',
   [CURRENCIES.TRY]: 'Turkish Lira',
+  [CURRENCIES.JOD]: 'Jordanian Dinar',
+  [CURRENCIES.LBP]: 'Lebanese Pound',
+  // Other
+  [CURRENCIES.INR]: 'Indian Rupee',
 };
 
 // =============================================================================

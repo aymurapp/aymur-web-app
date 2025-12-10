@@ -160,7 +160,9 @@
       "fileTooLarge": "File size exceeds {maxSize}",
       "invalidType": "File type not allowed",
       "maxFilesReached": "Maximum {max} files allowed",
-      "fileCount": "{count} of {max} files"
+      "fileCount": "{count} of {max} files",
+      "cropImage": "Crop Image",
+      "dragOrClick": "Click or drag image to upload"
     },
     "address": {
       "placeholder": "Start typing an address...",
@@ -449,6 +451,68 @@
         "reminders_update": "Update",
         "reminders_delete": "Delete"
       }
+    },
+    "language": "Language",
+    "taxId": "Tax ID",
+    "address": "Address",
+    "addressLine2": "Address Line 2",
+    "area": "Area/District",
+    "state": "State/Province",
+    "shopLogo": "Shop Logo",
+    "wizard": {
+      "basicInfo": "Basic Info",
+      "basicInfoDesc": "Name & description",
+      "settings": "Settings",
+      "settingsDesc": "Currency & language",
+      "contact": "Contact",
+      "contactDesc": "Phone & email",
+      "location": "Location",
+      "locationDesc": "Address details",
+      "branding": "Branding",
+      "brandingDesc": "Logo upload",
+      "contactHint": "Add contact information for your business. This will appear on invoices and receipts.",
+      "locationHint": "Enter your business address. Start typing to search and auto-fill the address fields.",
+      "summary": "Summary",
+      "skip": "Skip",
+      "creating": "Creating Shop...",
+      "successTitle": "Shop Created Successfully!",
+      "successSubtitle": "Your shop \"{shopName}\" is ready. You can now start managing your jewelry business.",
+      "goToDashboard": "Go to Dashboard",
+      "viewAllShops": "View All Shops"
+    },
+    "placeholders": {
+      "shopName": "Enter your shop name",
+      "description": "Describe your jewelry business...",
+      "currency": "Select currency",
+      "language": "Select language",
+      "timezone": "Select timezone",
+      "phone": "+1 234 567 8900",
+      "email": "contact@yourshop.com",
+      "taxId": "Enter tax/VAT registration number",
+      "addressLine2": "Suite, floor, building name (optional)",
+      "city": "City",
+      "area": "District or neighborhood",
+      "postalCode": "12345",
+      "state": "State or province",
+      "country": "Country"
+    },
+    "hints": {
+      "shopName": "This will be displayed on invoices, receipts, and your shop profile.",
+      "currency": "This will be the default currency for all transactions in this shop.",
+      "taxId": "VAT, GST, or tax registration number for invoices.",
+      "address": "Start typing to search for your address. Fields will auto-fill.",
+      "shopLogo": "Upload a square logo. You can crop and adjust the image. Recommended: 200x200 pixels or larger."
+    },
+    "validation": {
+      "shopNameRequired": "Shop name is required",
+      "shopNameMinLength": "Shop name must be at least 2 characters",
+      "currencyRequired": "Please select a currency",
+      "languageRequired": "Please select a language",
+      "timezoneRequired": "Please select a timezone"
+    },
+    "messages": {
+      "shopCreated": "Shop created successfully!",
+      "shopCreationFailed": "Failed to create shop"
     }
   },
   "inventory": {
@@ -1022,6 +1086,7 @@
       "city": "Enter city",
       "area": "Enter area or district",
       "postalCode": "Enter postal code",
+      "country": "Enter country",
       "taxId": "Enter tax ID",
       "creditLimit": "Enter credit limit",
       "notes": "Enter notes about this customer...",
@@ -2610,6 +2675,61 @@
         "button": "Export Log",
         "success": "Activity log exported successfully"
       }
+    }
+  },
+  "billing": {
+    "title": "Billing & Subscription",
+    "subtitle": "Manage your subscription plan and billing details",
+    "currentPlanSection": "Current Plan",
+    "usageSection": "Plan Limits & Usage",
+    "availablePlansSection": "Available Plans",
+    "currentPlan": "Current Plan",
+    "planDescription": "Your active subscription plan",
+    "manageSubscription": "Manage Subscription",
+    "nextBillingDate": "Next Billing Date",
+    "billingCycle": "Billing Cycle",
+    "planTier": "Plan Tier",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "noSubscription": "No active subscription",
+    "selectPlanBelow": "Select a plan below to get started",
+    "unlimited": "Unlimited",
+    "shops": "shops",
+    "staffPerShop": "staff per shop",
+    "aiCredits": "AI credits/month",
+    "storage": "storage",
+    "shopsUsage": "Shops",
+    "staffUsage": "Staff Members",
+    "aiCreditsUsage": "AI Credits (this month)",
+    "storageUsage": "Storage",
+    "usageNotAvailable": "Usage data not available",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
+    "subscribe": "Subscribe",
+    "contactSales": "Contact Sales",
+    "updatePayment": "Update Payment Method",
+    "checkoutSuccess": "Subscription updated successfully! Thank you for your purchase.",
+    "checkoutCanceled": "Checkout was canceled. No changes were made.",
+    "errorLoadingPlans": "Failed to load available plans",
+    "errorCreatingCheckout": "Failed to create checkout session. Please try again.",
+    "errorCreatingPortal": "Failed to open billing portal. Please try again.",
+    "noPlansAvailable": "No plans available at the moment",
+    "pastDueTitle": "Payment Past Due",
+    "pastDueDescription": "Your last payment failed. Please update your payment method to avoid service interruption.",
+    "cancelsOn": "Cancels on {date}",
+    "enterpriseTitle": "Enterprise Plan",
+    "enterpriseDescription": "You are on our Enterprise plan with custom features and dedicated support. Contact our sales team for any changes or inquiries.",
+    "status": {
+      "active": "Active",
+      "past_due": "Past Due",
+      "canceled": "Canceled",
+      "paused": "Paused"
+    },
+    "interval": {
+      "month": "month",
+      "year": "year",
+      "week": "week",
+      "day": "day"
     }
   },
   "ai": {

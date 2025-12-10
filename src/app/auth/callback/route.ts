@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 
 import { createServerClient } from '@supabase/ssr';
 
+import { routing } from '@/lib/i18n/routing';
 import type { Database } from '@/lib/types/database';
 
 /**
@@ -15,7 +16,7 @@ import type { Database } from '@/lib/types/database';
  * 1. Receives the authorization code from Supabase
  * 2. Exchanges it for a session
  * 3. Sets the session cookies
- * 4. Redirects to the appropriate page
+ * 4. Redirects to the appropriate page with locale prefix
  *
  * Supabase redirects here after:
  * - OAuth sign-in (Google, etc.)
@@ -24,6 +25,26 @@ import type { Database } from '@/lib/types/database';
  *
  * @see https://supabase.com/docs/guides/auth/server-side/nextjs
  */
+
+/**
+ * Creates a URL with the correct locale prefix
+ * Detects locale from Accept-Language header or uses default
+ */
+function createLocalizedUrl(path: string, request: NextRequest): URL {
+  const requestUrl = new URL(request.url);
+
+  // Try to detect locale from Accept-Language header
+  const acceptLanguage = request.headers.get('accept-language') || '';
+  const preferredLocale = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase();
+
+  // Check if preferred locale is supported, otherwise use default
+  const locale = routing.locales.includes(preferredLocale as (typeof routing.locales)[number])
+    ? preferredLocale
+    : routing.defaultLocale;
+
+  return new URL(`/${locale}${path}`, requestUrl.origin);
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const requestUrl = new URL(request.url);
 
@@ -38,8 +59,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const errorDescription = requestUrl.searchParams.get('error_description');
 
   if (error) {
-    // Redirect to login with error message
-    const errorUrl = new URL('/login', requestUrl.origin);
+    // Redirect to login with error message (with locale prefix)
+    const errorUrl = createLocalizedUrl('/login', request);
     errorUrl.searchParams.set('error', error);
     if (errorDescription) {
       errorUrl.searchParams.set('error_description', errorDescription);
@@ -81,7 +102,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       // Handle specific error types
       if (exchangeError.message.includes('expired')) {
-        const errorUrl = new URL('/login', requestUrl.origin);
+        const errorUrl = createLocalizedUrl('/login', request);
         errorUrl.searchParams.set('error', 'link_expired');
         errorUrl.searchParams.set(
           'error_description',
@@ -91,7 +112,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
 
       // Generic error redirect
-      const errorUrl = new URL('/login', requestUrl.origin);
+      const errorUrl = createLocalizedUrl('/login', request);
       errorUrl.searchParams.set('error', 'auth_error');
       errorUrl.searchParams.set('error_description', exchangeError.message);
       return NextResponse.redirect(errorUrl);
@@ -99,31 +120,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Handle different callback types
     switch (type) {
-      case 'signup':
+      case 'signup': {
         // Email confirmation successful - redirect to verify-email with success
-        const verifyUrl = new URL('/verify-email', requestUrl.origin);
+        const verifyUrl = createLocalizedUrl('/verify-email', request);
         verifyUrl.searchParams.set('type', 'signup');
+        verifyUrl.searchParams.set('success', 'true');
         return NextResponse.redirect(verifyUrl);
+      }
 
-      case 'recovery':
+      case 'recovery': {
         // Password reset - redirect to reset password page
-        const resetUrl = new URL('/reset-password', requestUrl.origin);
+        const resetUrl = createLocalizedUrl('/reset-password', request);
         return NextResponse.redirect(resetUrl);
+      }
 
       case 'invite':
         // Team invite - redirect to shops page
-        return NextResponse.redirect(new URL('/shops', requestUrl.origin));
+        return NextResponse.redirect(createLocalizedUrl('/shops', request));
 
       case 'magiclink':
         // Magic link sign-in
-        return NextResponse.redirect(new URL(next, requestUrl.origin));
+        return NextResponse.redirect(createLocalizedUrl(next, request));
 
       default:
         // OAuth or unknown type - redirect to next URL or home
-        return NextResponse.redirect(new URL(next, requestUrl.origin));
+        return NextResponse.redirect(createLocalizedUrl(next, request));
     }
   }
 
   // No code provided - redirect to shops (middleware will handle unauthenticated users)
-  return NextResponse.redirect(new URL('/shops', requestUrl.origin));
+  return NextResponse.redirect(createLocalizedUrl('/shops', request));
 }

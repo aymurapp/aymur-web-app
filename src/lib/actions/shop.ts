@@ -43,6 +43,26 @@ export interface CreateShopInput {
   timezone: string;
   /** Optional shop logo URL (uploaded separately) */
   shopLogo?: string | null;
+  /** Business phone number */
+  phone?: string | null;
+  /** Business email address */
+  email?: string | null;
+  /** Tax identification number */
+  taxId?: string | null;
+  /** Street address line 1 */
+  addressLine1?: string | null;
+  /** Street address line 2 */
+  addressLine2?: string | null;
+  /** City name */
+  city?: string | null;
+  /** Area or district */
+  area?: string | null;
+  /** State or province */
+  state?: string | null;
+  /** Postal/ZIP code */
+  postalCode?: string | null;
+  /** Country name */
+  country?: string | null;
 }
 
 /**
@@ -224,12 +244,9 @@ export async function getShopLimits(shopId: string): Promise<ActionResult<Subscr
 /**
  * Checks if user can create a new shop based on their subscription.
  * This version doesn't require an existing shop ID - it checks the user's
- * owned shops directly.
+ * subscription plan limits against their current shop count.
  *
- * Note: Subscription/plan management is handled externally (Stripe).
- * This function counts shops owned by the user to enforce limits.
- *
- * @returns ActionResult with limit information
+ * @returns ActionResult with limit information including plan name
  */
 export async function canCreateShop(): Promise<ActionResult<SubscriptionLimits>> {
   try {
@@ -264,9 +281,49 @@ export async function canCreateShop(): Promise<ActionResult<SubscriptionLimits>>
       };
     }
 
+    // Get user's active subscription with plan details
+    const { data: subscription, error: subscriptionError } = await supabase
+      .from('subscriptions')
+      .select(
+        `
+        id_subscription,
+        plans:id_plan (
+          max_shops,
+          plan_name
+        )
+      `
+      )
+      .eq('id_user', userData.id_user)
+      .eq('status', 'active')
+      .single();
+
+    // Type assertion for the nested plan data
+    const typedSubscription = subscription as {
+      id_subscription: string;
+      plans: { max_shops: number | null; plan_name: string } | null;
+    } | null;
+
+    if (subscriptionError || !typedSubscription) {
+      console.error('[canCreateShop] Subscription error:', subscriptionError?.message);
+      return {
+        success: false,
+        error: 'Active subscription required. Please subscribe to create a shop.',
+        code: 'no_subscription',
+      };
+    }
+
+    // Extract plan details from the joined data
+    const plan = typedSubscription.plans;
+
+    if (!plan) {
+      return {
+        success: false,
+        error: 'Subscription plan not found. Please contact support.',
+        code: 'plan_not_found',
+      };
+    }
+
     // Count existing shops owned by this user
-    // Note: Subscription limits are enforced via Stripe metadata or shop_settings
-    // For now, we count shops where user is owner
     const { count, error: countError } = await supabase
       .from('shops')
       .select('*', { count: 'exact', head: true })
@@ -283,20 +340,32 @@ export async function canCreateShop(): Promise<ActionResult<SubscriptionLimits>>
     }
 
     const currentCount = count || 0;
-    // Default max shops per user - can be overridden by subscription metadata
-    // TODO: Fetch actual limit from Stripe subscription metadata when available
-    const maxShops = 10;
-    const withinLimit = currentCount < maxShops;
+
+    // Handle unlimited shops (Enterprise plan) - max_shops is NULL
+    if (plan.max_shops === null) {
+      return {
+        success: true,
+        data: {
+          withinLimit: true,
+          currentUsage: currentCount,
+          maxAllowed: -1, // -1 indicates unlimited
+          message: `You have ${currentCount} shop(s). Your ${plan.plan_name} plan allows unlimited shops.`,
+        },
+      };
+    }
+
+    const withinLimit = currentCount < plan.max_shops;
+    const remainingShops = plan.max_shops - currentCount;
 
     return {
       success: true,
       data: {
         withinLimit,
         currentUsage: currentCount,
-        maxAllowed: maxShops,
+        maxAllowed: plan.max_shops,
         message: withinLimit
-          ? `You can create ${maxShops - currentCount} more shop(s).`
-          : 'You have reached the maximum number of shops for your plan.',
+          ? `You can create ${remainingShops} more shop(s) on your ${plan.plan_name} plan.`
+          : `You have reached the maximum of ${plan.max_shops} shop(s) for your ${plan.plan_name} plan.`,
       },
     };
   } catch (err) {
@@ -398,27 +467,25 @@ export async function createShop(data: CreateShopInput): Promise<ActionResult<Cr
       };
     }
 
-    // 5. Get the user's existing subscription ID from their first shop, or generate a new one
-    // Note: id_subscription in shops table references external Stripe subscription
-    // For new users without Stripe subscription, we use their user ID as placeholder
-    let subscriptionId: string;
-
-    const { data: existingShop } = await supabase
-      .from('shops')
+    // 5. Get the user's active subscription ID
+    // The subscription was already validated in canCreateShop(), but we need the ID
+    const { data: subscriptionData, error: subscriptionError } = await supabase
+      .from('subscriptions')
       .select('id_subscription')
-      .eq('id_owner', userData.id_user)
-      .is('deleted_at', null)
-      .limit(1)
+      .eq('id_user', userData.id_user)
+      .eq('status', 'active')
       .single();
 
-    if (existingShop?.id_subscription) {
-      // Use existing subscription ID from user's other shops
-      subscriptionId = existingShop.id_subscription;
-    } else {
-      // For new users, generate a placeholder subscription ID
-      // This will be updated when user subscribes via Stripe
-      subscriptionId = `sub_placeholder_${userData.id_user}`;
+    if (subscriptionError || !subscriptionData) {
+      console.error('[createShop] Subscription lookup error:', subscriptionError?.message);
+      return {
+        success: false,
+        error: 'Active subscription required. Please subscribe to create a shop.',
+        code: 'no_subscription',
+      };
     }
+
+    const subscriptionId = subscriptionData.id_subscription;
 
     // 6. Create the shop
     const { data: shop, error: shopError } = await supabase
@@ -427,10 +494,21 @@ export async function createShop(data: CreateShopInput): Promise<ActionResult<Cr
         id_owner: userData.id_user,
         id_subscription: subscriptionId,
         shop_name: data.shopName.trim(),
+        description: data.description?.trim() || null,
         currency: data.currency.toUpperCase(),
         language: data.language,
         timezone: data.timezone,
         shop_logo: data.shopLogo || null,
+        phone: data.phone?.trim() || null,
+        email: data.email?.trim() || null,
+        tax_id: data.taxId?.trim() || null,
+        address_line1: data.addressLine1?.trim() || null,
+        address_line2: data.addressLine2?.trim() || null,
+        city: data.city?.trim() || null,
+        area: data.area?.trim() || null,
+        state: data.state?.trim() || null,
+        postal_code: data.postalCode?.trim() || null,
+        country: data.country?.trim() || null,
       })
       .select('id_shop, shop_name, currency, timezone, language, shop_logo')
       .single();

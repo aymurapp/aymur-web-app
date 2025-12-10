@@ -810,3 +810,26 @@ export {
   type OptimisticUpdateVariables,
   type UseOptimisticUpdateReturn,
 } from './useOptimisticUpdate';
+
+// ============================================
+// Subscription Hooks
+// ============================================
+
+// Subscription and plan data for the current shop
+export {
+  // Query hooks
+  useSubscriptionPlan,
+  useInvalidateSubscription,
+  // Helper functions
+  planNameToTier,
+  // Query keys
+  subscriptionKeys,
+  // Types - Subscription
+  type SubscriptionPlan,
+  type SubscriptionStatus,
+  type UseSubscriptionPlanReturn,
+  // Types - Plan
+  type Plan,
+  type PlanTier,
+  type PlanFeatures,
+} from './useSubscription';

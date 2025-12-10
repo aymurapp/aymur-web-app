@@ -56,6 +56,12 @@ export interface AddressFieldNames {
    * @default 'postal_code'
    */
   postalCode?: string;
+
+  /**
+   * Field name for country
+   * @default 'country'
+   */
+  country?: string;
 }
 
 export interface AddressFormSectionProps {
@@ -114,6 +120,7 @@ const DEFAULT_FIELD_NAMES: Required<AddressFieldNames> = {
   city: 'city',
   area: 'area',
   postalCode: 'postal_code',
+  country: 'country',
 };
 
 // =============================================================================
@@ -226,6 +233,15 @@ export function AddressFormSection<TFieldValues extends FieldValues = FieldValue
         );
       }
 
+      // Set country
+      if (address.country) {
+        setValue(
+          fields.country as Path<TFieldValues>,
+          address.country as TFieldValues[Path<TFieldValues>],
+          { shouldValidate: true, shouldDirty: true }
+        );
+      }
+
       // Call parent callback if provided
       onAddressSelect?.(address);
     },
@@ -285,8 +301,8 @@ export function AddressFormSection<TFieldValues extends FieldValues = FieldValue
         />
       </div>
 
-      {/* City and Area - Side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* City, Area, and Country */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* City */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-2">{t('city')}</label>
@@ -320,6 +336,25 @@ export function AddressFormSection<TFieldValues extends FieldValues = FieldValue
               );
             }}
             placeholder={t('placeholders.area')}
+            maxLength={100}
+            disabled={disabled}
+          />
+        </div>
+
+        {/* Country */}
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-2">{t('country')}</label>
+          <Input
+            size="large"
+            value={watch(fields.country as Path<TFieldValues>) as string}
+            onChange={(e) => {
+              setValue(
+                fields.country as Path<TFieldValues>,
+                e.target.value as TFieldValues[Path<TFieldValues>],
+                { shouldDirty: true }
+              );
+            }}
+            placeholder={t('placeholders.country')}
             maxLength={100}
             disabled={disabled}
           />
