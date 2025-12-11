@@ -153,11 +153,11 @@ export function VerifyEmailStatus() {
         </div>
         <h2 className="text-2xl font-bold text-stone-900 mb-3">Email verified!</h2>
         <p className="text-stone-600 mb-6">
-          Your email has been verified successfully. Choose a plan to get started.
+          Your email has been verified successfully. Let&apos;s get you set up!
         </p>
-        <Link href="/pricing">
+        <Link href="/onboarding/welcome">
           <Button type="primary" size="large" className="h-12 px-8">
-            Choose Your Plan
+            Continue Setup
           </Button>
         </Link>
       </div>

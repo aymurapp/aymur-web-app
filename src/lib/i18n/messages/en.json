@@ -2771,6 +2771,130 @@
       "dedicatedSupport": "Dedicated account manager"
     }
   },
+  "onboarding": {
+    "steps": {
+      "welcome": "Welcome",
+      "role": "Your Role",
+      "plans": "Choose Plan",
+      "setup": "Setup Shop",
+      "complete": "Complete"
+    },
+    "welcome": {
+      "title": "Welcome to AYMUR",
+      "subtitle": "The complete platform for managing your jewelry business",
+      "greeting": "Hi{name, select, undefined {} other {, {name}}}!",
+      "description": "You're just a few steps away from transforming how you manage your jewelry business. Let's get you set up with everything you need.",
+      "features": {
+        "inventory": "Smart Inventory Management",
+        "inventoryDesc": "Track every piece with precision using our intelligent catalog system",
+        "sales": "Streamlined Sales",
+        "salesDesc": "Point of sale, invoicing, and customer management in one place",
+        "analytics": "Business Analytics",
+        "analyticsDesc": "Real-time insights to grow your business smarter",
+        "ai": "AI-Powered Assistance",
+        "aiDesc": "Get intelligent recommendations and automate routine tasks"
+      },
+      "cta": "Let's Get Started",
+      "timeEstimate": "Setup takes about 5 minutes"
+    },
+    "plans": {
+      "title": "Choose Your Plan",
+      "subtitle": "Select the perfect plan for your business needs",
+      "popular": "Most Popular",
+      "recommended": "Recommended",
+      "currentPlan": "Current Plan",
+      "features": "What's included",
+      "cta": "Get Started",
+      "ctaEnterprise": "Contact Sales",
+      "perMonth": "/month",
+      "perYear": "/year",
+      "billedMonthly": "Billed monthly",
+      "billedAnnually": "Billed annually",
+      "guarantee": "14-day free trial. No credit card required.",
+      "enterprise": {
+        "title": "Need more?",
+        "description": "Contact us for custom enterprise solutions with unlimited everything and dedicated support."
+      }
+    },
+    "checkout": {
+      "success": {
+        "title": "Welcome Aboard!",
+        "subtitle": "Your subscription is now active",
+        "description": "Thank you for choosing AYMUR. You now have access to all the features in your plan. Let's set up your first shop!",
+        "cta": "Create Your Shop",
+        "ctaHint": "Takes about 2 minutes to set up",
+        "featuresUnlocked": "Features now unlocked",
+        "features": {
+          "title": "You now have access to:",
+          "shops": "Multi-shop management",
+          "team": "Team collaboration",
+          "analytics": "Business analytics",
+          "security": "Enterprise security",
+          "shopCount": "{count, plural, one {# shop} other {# shops}}",
+          "staff": "{count} team members per shop",
+          "ai": "{count} AI credits per month",
+          "storage": "{count} GB storage"
+        }
+      },
+      "canceled": {
+        "title": "Checkout Canceled",
+        "subtitle": "No worries, you can try again anytime",
+        "noCharge": "No charges were made to your account",
+        "description": "Your checkout was canceled. Take your time to review our plans and choose when you're ready.",
+        "cta": "Back to Plans",
+        "helpTitle": "Questions about our plans?",
+        "helpDescription": "Our team is here to help you find the perfect plan for your jewelry business.",
+        "help": "Contact sales@aymur.com"
+      }
+    },
+    "setup": {
+      "title": "Set Up Your Shop",
+      "subtitle": "Let's create your first jewelry shop"
+    },
+    "role": {
+      "title": "How will you use AYMUR?",
+      "subtitle": "This helps us personalize your experience",
+      "owner": {
+        "title": "Create My Shop",
+        "description": "I want to start or manage my own jewelry business",
+        "features": ["Create your own shop", "Manage inventory & sales", "Add team members"]
+      },
+      "team": {
+        "title": "Join a Team",
+        "description": "I was invited to join an existing jewelry shop",
+        "features": ["Join via invitation link", "Access shared inventory", "Collaborate with team"]
+      },
+      "cta": "Continue"
+    },
+    "invitation": {
+      "title": "Join Your Team",
+      "subtitle": "You need an invitation to join a shop",
+      "description": "To join an existing jewelry shop on AYMUR, you'll need an invitation from the shop owner or manager.",
+      "steps": {
+        "title": "How to get started:",
+        "step1": "Ask your shop owner or manager to send you an invitation",
+        "step2": "Check your email for the invitation link",
+        "step3": "Click the link to create your account and join the shop"
+      },
+      "hasInvitation": "Already have an invitation?",
+      "checkEmail": "Check your email inbox for a message from AYMUR",
+      "wrongChoice": "Want to create your own shop instead?",
+      "backToRole": "Go back",
+      "contactOwner": "Contact your shop owner for an invitation"
+    },
+    "complete": {
+      "title": "You're All Set!",
+      "subtitle": "Your shop is ready to go",
+      "description": "Congratulations! You've successfully set up your AYMUR account. Your jewelry business management journey starts now.",
+      "cta": "Go to Dashboard",
+      "tips": {
+        "title": "Quick Start Tips",
+        "inventory": "Start by adding your inventory items",
+        "customers": "Import or add your customer database",
+        "settings": "Customize your shop settings and branding"
+      }
+    }
+  },
   "ai": {
     "title": "AI Assistant",
     "chat": "Chat",

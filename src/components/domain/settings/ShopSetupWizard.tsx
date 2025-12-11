@@ -50,6 +50,8 @@ const { Text, Title } = Typography;
 export interface ShopSetupWizardProps {
   /** Callback when wizard is cancelled */
   onCancel?: () => void;
+  /** Callback when wizard is completed (shop created successfully) */
+  onComplete?: (shopId: string) => void;
   /** Custom class name */
   className?: string;
 }
@@ -189,7 +191,7 @@ const INITIAL_FORM_DATA: WizardFormData = {
 /**
  * ShopSetupWizard Component
  */
-export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
+export function ShopSetupWizard({ onCancel, onComplete, className }: ShopSetupWizardProps) {
   const t = useTranslations('shop');
   const tCommon = useTranslations('common');
   const router = useRouter();
@@ -365,13 +367,17 @@ export function ShopSetupWizard({ onCancel, className }: ShopSetupWizardProps) {
   }, [formData, validateCurrentStep, t, tCommon]);
 
   /**
-   * Navigate to the new shop's dashboard
+   * Navigate to the new shop's dashboard or call onComplete callback
    */
   const handleGoToDashboard = useCallback(() => {
     if (createdShopId) {
-      router.push(`/${createdShopId}/dashboard`);
+      if (onComplete) {
+        onComplete(createdShopId);
+      } else {
+        router.push(`/${createdShopId}/dashboard`);
+      }
     }
-  }, [createdShopId, router]);
+  }, [createdShopId, router, onComplete]);
 
   /**
    * Render step content

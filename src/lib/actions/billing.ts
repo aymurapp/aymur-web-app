@@ -121,6 +121,16 @@ async function getOrCreateStripeCustomer(userId: string): Promise<string> {
 // =============================================================================
 
 /**
+ * Options for checkout session redirect URLs
+ */
+export interface CheckoutRedirectOptions {
+  /** URL to redirect to on successful checkout (relative path, e.g., '/onboarding/checkout/success') */
+  successPath?: string;
+  /** URL to redirect to when checkout is canceled (relative path, e.g., '/onboarding/checkout/canceled') */
+  cancelPath?: string;
+}
+
+/**
  * Creates a Stripe Checkout session for subscribing to a plan
  *
  * Flow:
@@ -130,18 +140,28 @@ async function getOrCreateStripeCustomer(userId: string): Promise<string> {
  * 4. Return checkout URL for redirect
  *
  * @param priceId - The Stripe price ID (price_xxx) for the subscription plan
+ * @param options - Optional redirect URL configuration
  * @returns Result containing the checkout session URL or error
  *
  * @example
  * ```tsx
+ * // Default redirect (settings/billing)
  * const result = await createCheckoutSessionAction('price_xxx');
+ *
+ * // Custom redirect (onboarding flow)
+ * const result = await createCheckoutSessionAction('price_xxx', {
+ *   successPath: '/onboarding/checkout/success',
+ *   cancelPath: '/onboarding/checkout/canceled',
+ * });
+ *
  * if (result.success) {
  *   window.location.href = result.data.url;
  * }
  * ```
  */
 export async function createCheckoutSessionAction(
-  priceId: string
+  priceId: string,
+  options?: CheckoutRedirectOptions
 ): Promise<BillingActionResult<UrlResult>> {
   try {
     // Validate input
@@ -182,10 +202,12 @@ export async function createCheckoutSessionAction(
     // Get or create Stripe customer
     const customerId = await getOrCreateStripeCustomer(user.id);
 
-    // Build redirect URLs
+    // Build redirect URLs with optional custom paths
     const baseUrl = getBaseUrl();
-    const successUrl = `${baseUrl}/settings/billing?success=true`;
-    const cancelUrl = `${baseUrl}/settings/billing?canceled=true`;
+    const successPath = options?.successPath ?? '/settings/billing?success=true';
+    const cancelPath = options?.cancelPath ?? '/settings/billing?canceled=true';
+    const successUrl = `${baseUrl}${successPath}`;
+    const cancelUrl = `${baseUrl}${cancelPath}`;
 
     // Create checkout session with subscription metadata
     const session = await getStripe().checkout.sessions.create({

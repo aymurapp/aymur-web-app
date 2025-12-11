@@ -121,9 +121,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Handle different callback types
     switch (type) {
       case 'signup': {
-        // Email confirmation successful - redirect to pricing page to select a plan
+        // Email confirmation successful - redirect to onboarding welcome page
         // Session is already established from exchangeCodeForSession above
-        return NextResponse.redirect(createLocalizedUrl('/pricing', request));
+        return NextResponse.redirect(createLocalizedUrl('/onboarding/welcome', request));
       }
 
       case 'recovery': {

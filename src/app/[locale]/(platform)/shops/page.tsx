@@ -198,7 +198,7 @@ export default function ShopsPage() {
       );
     }
 
-    // No subscription - show pricing prompt
+    // No subscription - redirect to onboarding flow
     if (hasNoSubscription) {
       return (
         <div className="min-h-screen bg-stone-50 flex items-center justify-center py-8 px-4">
@@ -207,18 +207,17 @@ export default function ShopsPage() {
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={
                 <div className="space-y-2">
-                  <h2 className="text-xl font-semibold text-stone-900">
-                    Choose a Plan to Get Started
-                  </h2>
+                  <h2 className="text-xl font-semibold text-stone-900">Complete Your Setup</h2>
                   <p className="text-stone-600">
-                    Select a subscription plan to start creating your first jewelry shop.
+                    Let&apos;s finish setting up your account to start managing your jewelry
+                    business.
                   </p>
                 </div>
               }
             >
-              <Link href="/pricing">
+              <Link href="/onboarding/welcome">
                 <Button type="primary" size="large" icon={<StarOutlined />}>
-                  View Plans
+                  Continue Setup
                 </Button>
               </Link>
             </Empty>
