@@ -631,30 +631,16 @@ export async function getUserSubscriptionLimitsAction(): Promise<
       };
     }
 
-    // Get user's active subscription with plan details (limits from database)
+    // Get user's active subscription
     const { data: subscription } = await supabase
       .from('subscriptions')
-      .select(
-        `
-        id_subscription,
-        status,
-        plans:id_plan (
-          id_plan,
-          plan_name,
-          max_shops,
-          max_staff_per_shop,
-          storage_limit_mb,
-          ai_credits_monthly,
-          is_contact_sales
-        )
-      `
-      )
+      .select('id_subscription, id_plan, status')
       .eq('id_user', userRecord.id_user)
       .eq('status', 'active')
       .maybeSingle();
 
-    // Extract plan from subscription (null if no active subscription)
-    const plan = subscription?.plans as {
+    // Get plan details if subscription exists (limits from database)
+    let plan: {
       id_plan: string;
       plan_name: string;
       max_shops: number | null;
@@ -662,7 +648,19 @@ export async function getUserSubscriptionLimitsAction(): Promise<
       storage_limit_mb: number | null;
       ai_credits_monthly: number | null;
       is_contact_sales: boolean;
-    } | null;
+    } | null = null;
+
+    if (subscription?.id_plan) {
+      const { data: planData } = await supabase
+        .from('plans')
+        .select(
+          'id_plan, plan_name, max_shops, max_staff_per_shop, storage_limit_mb, ai_credits_monthly, is_contact_sales'
+        )
+        .eq('id_plan', subscription.id_plan)
+        .single();
+
+      plan = planData;
+    }
 
     // Count shops OWNED by user (these count against the limit)
     const { count: ownedShopsCount, error: ownedError } = await supabase
