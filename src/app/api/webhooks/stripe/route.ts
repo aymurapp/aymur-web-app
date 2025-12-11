@@ -574,28 +574,9 @@ export async function POST(request: Request): Promise<Response> {
 /**
  * GET /api/webhooks/stripe
  *
- * Returns webhook endpoint information.
- * Useful for health checks and documentation.
+ * Returns 405 Method Not Allowed.
+ * Webhooks only accept POST requests from Stripe.
  */
 export async function GET(): Promise<Response> {
-  return new Response(
-    JSON.stringify({
-      name: 'Stripe Webhook Handler',
-      version: '1.0.0',
-      description: 'Handles Stripe subscription and payment events',
-      supported_events: [
-        'customer.subscription.created',
-        'customer.subscription.updated',
-        'customer.subscription.deleted',
-        'invoice.payment_failed',
-        'invoice.payment_succeeded',
-      ],
-      authentication: 'Stripe webhook signature verification',
-      idempotency: 'Implemented via stripe_webhooks table',
-    }),
-    {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
+  return new Response(null, { status: 405 });
 }
