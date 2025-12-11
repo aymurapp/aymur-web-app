@@ -172,8 +172,11 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
       const result = await signInWithOAuth('google');
       if (result.success && result.data?.url) {
         window.location.href = result.data.url;
-      } else {
+      } else if (!result.success) {
         message.error(result.error || 'Failed to initiate Google sign up');
+        setIsGoogleLoading(false);
+      } else {
+        message.error('Failed to initiate Google sign up');
         setIsGoogleLoading(false);
       }
     } catch {
