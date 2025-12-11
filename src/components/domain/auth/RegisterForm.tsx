@@ -366,6 +366,7 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
             block
             loading={isSigningUp}
             className="h-12 text-base font-semibold"
+            style={{ backgroundColor: '#C9A227' }}
           >
             {isSigningUp ? t('creating') : t('createAccount')}
           </Button>

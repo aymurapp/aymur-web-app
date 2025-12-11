@@ -219,6 +219,7 @@ export function LoginForm({ redirectUrl }: LoginFormProps) {
             block
             loading={isSigningIn}
             className="h-12 text-base font-semibold"
+            style={{ backgroundColor: '#C9A227' }}
           >
             {isSigningIn ? t('signingIn') : t('signIn')}
           </Button>

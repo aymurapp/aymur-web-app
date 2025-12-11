@@ -157,7 +157,12 @@ export function VerifyEmailStatus() {
           Your email has been verified successfully. Let&apos;s get you set up!
         </p>
         <Link href="/onboarding/welcome">
-          <Button type="primary" size="large" className="h-12 px-8">
+          <Button
+            type="primary"
+            size="large"
+            className="h-12 px-8"
+            style={{ backgroundColor: '#C9A227' }}
+          >
             Continue Setup
           </Button>
         </Link>
@@ -195,7 +200,12 @@ export function VerifyEmailStatus() {
           verified.
         </p>
         <Link href="/">
-          <Button type="primary" size="large" className="h-12 px-8">
+          <Button
+            type="primary"
+            size="large"
+            className="h-12 px-8"
+            style={{ backgroundColor: '#C9A227' }}
+          >
             Go to Dashboard
           </Button>
         </Link>
@@ -253,6 +263,7 @@ export function VerifyEmailStatus() {
             loading={isResending}
             onClick={handleResend}
             className="h-12"
+            style={{ backgroundColor: '#C9A227' }}
           >
             {isResending ? 'Sending...' : 'Resend Verification Email'}
           </Button>

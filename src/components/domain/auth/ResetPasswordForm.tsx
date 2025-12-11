@@ -151,7 +151,7 @@ export function ResetPasswordForm() {
         subTitle="This password reset link is invalid or has expired. Please request a new one."
         extra={
           <Link href="/forgot-password">
-            <Button type="primary" size="large">
+            <Button type="primary" size="large" style={{ backgroundColor: '#C9A227' }}>
               Request New Link
             </Button>
           </Link>
@@ -294,6 +294,7 @@ export function ResetPasswordForm() {
             block
             loading={isUpdatingPassword}
             className="h-12 text-base font-semibold"
+            style={{ backgroundColor: '#C9A227' }}
           >
             {isUpdatingPassword ? tCommon('messages.processing') : t('resetPassword')}
           </Button>

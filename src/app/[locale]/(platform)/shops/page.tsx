@@ -37,6 +37,7 @@ import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { getUserSubscriptionLimitsAction } from '@/lib/actions/billing';
 import {
   validateInvitationCode,
@@ -801,10 +802,7 @@ function EmptyState({
   if (isCheckingSubscription) {
     return (
       <div className="py-20 text-center">
-        <div className="inline-flex items-center gap-3 text-stone-500">
-          <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-          <span>Checking your account...</span>
-        </div>
+        <LoadingSpinner size="default" text="Checking your account..." />
       </div>
     );
   }
@@ -975,10 +973,7 @@ export default function ShopsPage() {
   if (subscriptionChecked && hasNoSubscription) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-stone-500">Redirecting to setup...</p>
-        </div>
+        <LoadingSpinner size="large" text="Redirecting to setup..." />
       </div>
     );
   }

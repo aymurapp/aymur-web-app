@@ -92,6 +92,7 @@ export function ForgotPasswordForm() {
             block
             onClick={() => setEmailSent(false)}
             className="h-12"
+            style={{ backgroundColor: '#C9A227' }}
           >
             Send again
           </Button>
@@ -174,6 +175,7 @@ export function ForgotPasswordForm() {
             block
             loading={isResettingPassword}
             className="h-12 text-base font-semibold"
+            style={{ backgroundColor: '#C9A227' }}
           >
             {isResettingPassword ? tCommon('messages.processing') : t('sendLink')}
           </Button>
