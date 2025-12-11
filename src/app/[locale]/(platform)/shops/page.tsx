@@ -16,13 +16,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import {
-  PlusOutlined,
-  ShopOutlined,
-  CrownOutlined,
-  TeamOutlined,
-  StarOutlined,
-} from '@ant-design/icons';
+import { PlusOutlined, ShopOutlined, CrownOutlined, TeamOutlined } from '@ant-design/icons';
 import { Empty, Tag } from 'antd';
 import { useTranslations } from 'next-intl';
 
@@ -154,6 +148,13 @@ export default function ShopsPage() {
     checkSubscription();
   }, [isFetched, activeShops.length, subscriptionChecked]);
 
+  // Auto-redirect to onboarding when user has no subscription
+  useEffect(() => {
+    if (subscriptionChecked && hasNoSubscription) {
+      router.replace('/onboarding/welcome');
+    }
+  }, [subscriptionChecked, hasNoSubscription, router]);
+
   /**
    * Handle shop selection
    */
@@ -198,29 +199,14 @@ export default function ShopsPage() {
       );
     }
 
-    // No subscription - redirect to onboarding flow
+    // No subscription - auto-redirect to onboarding (handled by useEffect above)
+    // Show loading state while redirect is in progress
     if (hasNoSubscription) {
       return (
         <div className="min-h-screen bg-stone-50 flex items-center justify-center py-8 px-4">
           <div className="max-w-md w-full text-center">
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={
-                <div className="space-y-2">
-                  <h2 className="text-xl font-semibold text-stone-900">Complete Your Setup</h2>
-                  <p className="text-stone-600">
-                    Let&apos;s finish setting up your account to start managing your jewelry
-                    business.
-                  </p>
-                </div>
-              }
-            >
-              <Link href="/onboarding/welcome">
-                <Button type="primary" size="large" icon={<StarOutlined />}>
-                  Continue Setup
-                </Button>
-              </Link>
-            </Empty>
+            <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4" />
+            <p className="text-stone-600">Redirecting to setup...</p>
           </div>
         </div>
       );
