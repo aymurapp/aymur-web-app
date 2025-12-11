@@ -27,6 +27,7 @@ import {
   RocketOutlined,
   StarOutlined,
   ArrowRightOutlined,
+  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { message } from 'antd';
 import { useTranslations } from 'next-intl';
@@ -35,7 +36,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { getAvailablePlansAction, createCheckoutSessionAction } from '@/lib/actions/billing';
 import { getOnboardingStatus, updateOnboardingStep } from '@/lib/actions/onboarding';
-import { useRouter } from '@/lib/i18n/navigation';
+import { Link, useRouter } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
 
 // =============================================================================
@@ -609,6 +610,19 @@ export default function OnboardingPlansPage() {
               'bg-stone-500/5 blur-3xl'
             )}
           />
+        </div>
+
+        {/* Back Button */}
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+          <Link
+            href="/onboarding/welcome"
+            className="inline-flex items-center gap-2 text-stone-600 hover:text-stone-900 transition-colors group"
+          >
+            <ArrowLeftOutlined className="text-sm group-hover:-translate-x-1 transition-transform rtl:rotate-180 rtl:group-hover:translate-x-1" />
+            <span className="text-sm font-medium">
+              {t('common.back', { defaultValue: 'Back' })}
+            </span>
+          </Link>
         </div>
 
         {/* Header Content */}

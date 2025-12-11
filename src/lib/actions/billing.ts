@@ -569,3 +569,181 @@ export async function getSubscriptionUsageAction(shopId: string): Promise<
     };
   }
 }
+
+/**
+ * Gets the current user's subscription limits for the shops overview page
+ *
+ * Returns:
+ * - Plan details (name, limits from database)
+ * - Owned shops count (counts against limit)
+ * - Member shops count (does NOT count against limit)
+ * - Total storage used across owned shops
+ *
+ * Important: Limits are fetched from the plans table and can be modified by admin in Supabase.
+ * Being a member of other shops does NOT count against your shop limit.
+ *
+ * @returns Result containing subscription limits and usage or error
+ */
+export async function getUserSubscriptionLimitsAction(): Promise<
+  BillingActionResult<{
+    planName: string | null;
+    planId: string | null;
+    subscriptionStatus: string | null;
+    // Shops - only OWNED shops count against limit
+    ownedShopsCount: number;
+    memberShopsCount: number;
+    maxShops: number | null; // null = unlimited (Enterprise)
+    // Storage - aggregate across all owned shops
+    totalStorageUsedMb: number;
+    storageLimitMb: number | null; // null = unlimited
+    // Staff limit per shop (for reference)
+    maxStaffPerShop: number | null; // null = unlimited
+    // AI credits
+    aiCreditsMonthly: number | null; // null = unlimited
+    // Is enterprise/contact sales
+    isContactSales: boolean;
+  }>
+> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return {
+        success: false,
+        error: 'Authentication required',
+        code: 'UNAUTHENTICATED',
+      };
+    }
+
+    const supabase = await createClient();
+
+    // Get user's id_user
+    const { data: userRecord, error: userError } = await supabase
+      .from('users')
+      .select('id_user')
+      .eq('auth_id', user.id)
+      .single();
+
+    if (userError || !userRecord) {
+      return {
+        success: false,
+        error: 'User record not found',
+        code: 'USER_NOT_FOUND',
+      };
+    }
+
+    // Get user's active subscription with plan details (limits from database)
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select(
+        `
+        id_subscription,
+        status,
+        plans:id_plan (
+          id_plan,
+          plan_name,
+          max_shops,
+          max_staff_per_shop,
+          storage_limit_mb,
+          ai_credits_monthly,
+          is_contact_sales
+        )
+      `
+      )
+      .eq('id_user', userRecord.id_user)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    // Extract plan from subscription (null if no active subscription)
+    const plan = subscription?.plans as {
+      id_plan: string;
+      plan_name: string;
+      max_shops: number | null;
+      max_staff_per_shop: number | null;
+      storage_limit_mb: number | null;
+      ai_credits_monthly: number | null;
+      is_contact_sales: boolean;
+    } | null;
+
+    // Count shops OWNED by user (these count against the limit)
+    const { count: ownedShopsCount, error: ownedError } = await supabase
+      .from('shops')
+      .select('id_shop', { count: 'exact', head: true })
+      .eq('id_owner', userRecord.id_user)
+      .is('deleted_at', null);
+
+    if (ownedError) {
+      console.error('Error counting owned shops:', ownedError);
+    }
+
+    // Count shops user is a MEMBER of (via shop_access, but NOT owner)
+    // This does NOT count against the shop limit
+    const { data: memberShops, error: memberError } = await supabase
+      .from('shop_access')
+      .select(
+        `
+        id_shop,
+        shops:id_shop (
+          id_owner
+        )
+      `
+      )
+      .eq('id_user', userRecord.id_user)
+      .eq('is_active', true);
+
+    if (memberError) {
+      console.error('Error counting member shops:', memberError);
+    }
+
+    // Filter to only shops where user is NOT the owner
+    const memberShopsCount =
+      memberShops?.filter((access) => {
+        const shop = access.shops as { id_owner: string } | null;
+        return shop && shop.id_owner !== userRecord.id_user;
+      }).length ?? 0;
+
+    // Get total storage used across all OWNED shops
+    const { data: ownedShopsData, error: storageError } = await supabase
+      .from('shops')
+      .select('storage_used_bytes')
+      .eq('id_owner', userRecord.id_user)
+      .is('deleted_at', null);
+
+    if (storageError) {
+      console.error('Error fetching storage usage:', storageError);
+    }
+
+    // Sum storage across all owned shops and convert to MB
+    const totalStorageUsedBytes =
+      ownedShopsData?.reduce((sum, shop) => sum + (shop.storage_used_bytes || 0), 0) ?? 0;
+    const totalStorageUsedMb = Math.round(totalStorageUsedBytes / (1024 * 1024));
+
+    return {
+      success: true,
+      data: {
+        planName: plan?.plan_name ?? null,
+        planId: plan?.id_plan ?? null,
+        subscriptionStatus: subscription?.status ?? null,
+        // Shops
+        ownedShopsCount: ownedShopsCount ?? 0,
+        memberShopsCount,
+        maxShops: plan?.max_shops ?? null,
+        // Storage
+        totalStorageUsedMb,
+        storageLimitMb: plan?.storage_limit_mb ?? null,
+        // Staff
+        maxStaffPerShop: plan?.max_staff_per_shop ?? null,
+        // AI
+        aiCreditsMonthly: plan?.ai_credits_monthly ?? null,
+        // Enterprise flag
+        isContactSales: plan?.is_contact_sales ?? false,
+      },
+    };
+  } catch (error) {
+    console.error('getUserSubscriptionLimitsAction error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch subscription limits',
+      code: 'LIMITS_ERROR',
+    };
+  }
+}

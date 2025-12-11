@@ -22,6 +22,7 @@ import { usePathname } from 'next/navigation';
 import { Steps } from 'antd';
 import { useTranslations } from 'next-intl';
 
+import { LocaleSwitcher } from '@/components/layout/LocaleSwitcher';
 import { cn } from '@/lib/utils/cn';
 
 // =============================================================================
@@ -77,9 +78,19 @@ function OnboardingHeader({
   return (
     <header className="bg-stone-900 border-b border-stone-800">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Logo Row */}
-        <div className="flex items-center justify-center py-6">
+        {/* Logo Row with Language Selector */}
+        <div className="relative flex items-center justify-center py-6">
+          {/* Logo - centered */}
           <img src="/images/AYMUR-Full-Text-Logo.png" alt="AYMUR" className="h-10 sm:h-12" />
+
+          {/* Language Selector - positioned absolutely on the right */}
+          <div className="absolute end-0 top-1/2 -translate-y-1/2">
+            <LocaleSwitcher
+              size="small"
+              showLabel
+              className="!text-stone-300 hover:!text-amber-400"
+            />
+          </div>
         </div>
 
         {/* Steps Navigation */}
@@ -171,11 +182,21 @@ export default function OnboardingLayout({
       {!shouldHideSteps ? (
         <OnboardingHeader currentStep={currentStep} t={t} />
       ) : (
-        // Simple header with just logo for team member flow
+        // Simple header with logo and language selector for team member flow
         <header className="bg-stone-900 border-b border-stone-800">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-center py-6">
+            <div className="relative flex items-center justify-center py-6">
+              {/* Logo - centered */}
               <img src="/images/AYMUR-Full-Text-Logo.png" alt="AYMUR" className="h-10 sm:h-12" />
+
+              {/* Language Selector - positioned absolutely on the right */}
+              <div className="absolute end-0 top-1/2 -translate-y-1/2">
+                <LocaleSwitcher
+                  size="small"
+                  showLabel
+                  className="!text-stone-300 hover:!text-amber-400"
+                />
+              </div>
             </div>
           </div>
         </header>

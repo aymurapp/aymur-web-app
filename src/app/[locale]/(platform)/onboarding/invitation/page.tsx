@@ -108,6 +108,17 @@ function HeroSection({
         />
       </div>
 
+      {/* Back Button */}
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+        <Link
+          href="/onboarding/role"
+          className="inline-flex items-center gap-2 text-stone-400 hover:text-white transition-colors group"
+        >
+          <ArrowLeftOutlined className="text-sm group-hover:-translate-x-1 transition-transform rtl:rotate-180 rtl:group-hover:translate-x-1" />
+          <span className="text-sm font-medium">Back</span>
+        </Link>
+      </div>
+
       {/* Content */}
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Decorative icon circle */}

@@ -22,7 +22,13 @@ import React, { useState, useCallback, useEffect, Suspense } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
-import { UserOutlined, PhoneOutlined, GlobalOutlined, HomeOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  PhoneOutlined,
+  GlobalOutlined,
+  HomeOutlined,
+  ArrowLeftOutlined,
+} from '@ant-design/icons';
 import { Form, Input, Select, Avatar, message, Upload } from 'antd';
 import { useTranslations } from 'next-intl';
 
@@ -31,7 +37,7 @@ import { Card } from '@/components/ui/Card';
 import { LoadingSpinner, LoadingSpinnerSection } from '@/components/ui/LoadingSpinner';
 import { updateProfile, uploadAvatar } from '@/lib/actions/profile';
 import { useUser } from '@/lib/hooks/auth';
-import { useRouter } from '@/lib/i18n/navigation';
+import { Link, useRouter } from '@/lib/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils/cn';
 
@@ -173,6 +179,17 @@ function HeroSection({
             backgroundSize: '60px 60px',
           }}
         />
+      </div>
+
+      {/* Back Button */}
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+        <Link
+          href="/onboarding/role"
+          className="inline-flex items-center gap-2 text-stone-400 hover:text-white transition-colors group"
+        >
+          <ArrowLeftOutlined className="text-sm group-hover:-translate-x-1 transition-transform rtl:rotate-180 rtl:group-hover:translate-x-1" />
+          <span className="text-sm font-medium">{tCommon('back', { defaultValue: 'Back' })}</span>
+        </Link>
       </div>
 
       {/* Content */}

@@ -62,7 +62,22 @@ const marketingOnlyPaths = ['/about', '/pricing', '/contact', '/terms', '/privac
 /**
  * Platform paths that should redirect to platform.aymur.com on marketing domain
  */
-const platformPaths = ['/shops', '/profile', '/subscription'];
+const platformPaths = ['/shops', '/profile', '/subscription', '/onboarding'];
+
+/**
+ * Auth paths that should redirect to platform.aymur.com on marketing domain
+ * Auth must happen on platform domain so cookies are set correctly
+ */
+const authPaths = [
+  '/login',
+  '/signup',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+  '/auth/callback',
+  '/auth/confirm',
+];
 
 /**
  * Removes the locale prefix from a pathname.
@@ -128,6 +143,14 @@ function getDomainType(hostname: string): 'marketing' | 'platform' | 'developmen
 }
 
 /**
+ * Checks if a path is an auth route that should be on platform domain.
+ */
+function isAuthPath(pathname: string): boolean {
+  const withoutLocale = removeLocalePrefix(pathname);
+  return authPaths.some((p) => withoutLocale === p || withoutLocale.startsWith(`${p}/`));
+}
+
+/**
  * Checks if a path is trying to access platform routes.
  */
 function isPlatformPath(pathname: string): boolean {
@@ -155,6 +178,14 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   // Marketing domain → redirect platform routes to platform.aymur.com
   if (domainType === 'marketing' && isPlatformPath(pathname)) {
+    const url = new URL(request.url);
+    url.hostname = 'platform.aymur.com';
+    return NextResponse.redirect(url);
+  }
+
+  // Marketing domain → redirect auth routes to platform.aymur.com
+  // Auth must happen on platform domain so cookies work correctly
+  if (domainType === 'marketing' && isAuthPath(pathname)) {
     const url = new URL(request.url);
     url.hostname = 'platform.aymur.com';
     return NextResponse.redirect(url);

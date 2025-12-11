@@ -2927,6 +2927,7 @@ export type Database = {
           id_role: string;
           permissions: Json | null;
           invitation_token: string;
+          invitation_code: string;
           invited_by: string;
           expires_at: string;
           status: string | null;
@@ -2942,6 +2943,7 @@ export type Database = {
           id_role: string;
           permissions?: Json | null;
           invitation_token?: string;
+          invitation_code?: string;
           invited_by: string;
           expires_at: string;
           status?: string | null;
@@ -2957,6 +2959,7 @@ export type Database = {
           id_role?: string;
           permissions?: Json | null;
           invitation_token?: string;
+          invitation_code?: string;
           invited_by?: string;
           expires_at?: string;
           status?: string | null;
