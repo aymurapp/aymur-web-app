@@ -18,7 +18,7 @@
  * @module app/(platform)/[locale]/onboarding/profile
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Suspense } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -439,13 +439,24 @@ function CTASection({
 // =============================================================================
 
 /**
- * Profile Completion Page Component
+ * Loading fallback for Suspense boundary
+ */
+function ProfilePageLoading(): React.JSX.Element {
+  return (
+    <div className="flex-1 flex items-center justify-center py-20">
+      <Spin size="large" />
+    </div>
+  );
+}
+
+/**
+ * Profile Completion Page Content
  *
  * Allows users to complete their profile with avatar and basic info
  * during the onboarding flow. Routes to plans (owner) or invitation (team)
  * based on the role query parameter.
  */
-export default function ProfilePage(): React.JSX.Element {
+function ProfilePageContent(): React.JSX.Element {
   const t = useTranslations('onboarding');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -601,5 +612,19 @@ export default function ProfilePage(): React.JSX.Element {
         t={t}
       />
     </div>
+  );
+}
+
+/**
+ * Profile Page with Suspense Boundary
+ *
+ * Wraps ProfilePageContent in Suspense to support useSearchParams
+ * during static generation / prerendering.
+ */
+export default function ProfilePage(): React.JSX.Element {
+  return (
+    <Suspense fallback={<ProfilePageLoading />}>
+      <ProfilePageContent />
+    </Suspense>
   );
 }
