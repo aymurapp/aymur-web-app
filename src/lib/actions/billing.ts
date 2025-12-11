@@ -675,29 +675,34 @@ export async function getUserSubscriptionLimitsAction(): Promise<
 
     // Count shops user is a MEMBER of (via shop_access, but NOT owner)
     // This does NOT count against the shop limit
-    const { data: memberShops, error: memberError } = await supabase
+    // Step 1: Get all shop IDs the user has access to
+    const { data: shopAccessList, error: memberError } = await supabase
       .from('shop_access')
-      .select(
-        `
-        id_shop,
-        shops:id_shop (
-          id_owner
-        )
-      `
-      )
+      .select('id_shop')
       .eq('id_user', userRecord.id_user)
       .eq('is_active', true);
 
     if (memberError) {
-      console.error('Error counting member shops:', memberError);
+      console.error('Error fetching shop access:', memberError);
     }
 
-    // Filter to only shops where user is NOT the owner
-    const memberShopsCount =
-      memberShops?.filter((access) => {
-        const shop = access.shops as { id_owner: string } | null;
-        return shop && shop.id_owner !== userRecord.id_user;
-      }).length ?? 0;
+    // Step 2: Count how many of those shops are NOT owned by this user
+    let memberShopsCount = 0;
+    if (shopAccessList && shopAccessList.length > 0) {
+      const shopIds = shopAccessList.map((access) => access.id_shop);
+
+      const { count: memberCount, error: countError } = await supabase
+        .from('shops')
+        .select('id_shop', { count: 'exact', head: true })
+        .in('id_shop', shopIds)
+        .neq('id_owner', userRecord.id_user)
+        .is('deleted_at', null);
+
+      if (countError) {
+        console.error('Error counting member shops:', countError);
+      }
+      memberShopsCount = memberCount ?? 0;
+    }
 
     // Get total storage used across all OWNED shops
     const { data: ownedShopsData, error: storageError } = await supabase
