@@ -26,6 +26,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { LoadingSpinnerSection } from '@/components/ui/LoadingSpinner';
 import { canCreateShop, type SubscriptionLimits } from '@/lib/actions/shop';
+import { useInvalidateUser } from '@/lib/hooks/auth/useUser';
 import { Link, useRouter } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
 
@@ -377,6 +378,7 @@ export default function NewShopPage(): React.JSX.Element {
   const t = useTranslations('shop');
   const tCommon = useTranslations('common');
   const router = useRouter();
+  const { invalidate: invalidateUser } = useInvalidateUser();
 
   const [isChecking, setIsChecking] = useState(true);
   const [limits, setLimits] = useState<SubscriptionLimits | null>(null);
@@ -415,6 +417,15 @@ export default function NewShopPage(): React.JSX.Element {
     router.push('/shops');
   };
 
+  /**
+   * Handle shop creation complete - invalidate cache and navigate to dashboard
+   */
+  const handleComplete = async (shopId: string) => {
+    // Invalidate user cache to ensure shops list updates
+    await invalidateUser();
+    router.push(`/${shopId}/dashboard`);
+  };
+
   // Loading state - use AYMUR branded spinner
   if (isChecking) {
     return <LoadingSpinnerSection className="min-h-screen" />;
@@ -449,7 +460,7 @@ export default function NewShopPage(): React.JSX.Element {
       {/* Shop Setup Wizard Section */}
       <section className="flex-1 py-8 sm:py-12 bg-stone-50">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ShopSetupWizard onCancel={handleCancel} />
+          <ShopSetupWizard onCancel={handleCancel} onComplete={handleComplete} />
         </div>
       </section>
     </div>

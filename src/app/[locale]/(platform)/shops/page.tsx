@@ -802,7 +802,7 @@ function EmptyState({
   if (isCheckingSubscription) {
     return (
       <div className="py-20 text-center">
-        <LoadingSpinner size="default" text="Checking your account..." />
+        <LoadingSpinner size="medium" text="Checking your account..." />
       </div>
     );
   }

@@ -38,6 +38,7 @@ import { ShopLogoUpload } from '@/components/common/forms/ShopLogoUpload';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { createShop, type CreateShopInput } from '@/lib/actions/shop';
+import { useInvalidateUser } from '@/lib/hooks/auth/useUser';
 import { useRouter } from '@/lib/i18n/navigation';
 import type { ParsedAddress } from '@/lib/types/address';
 import { cn } from '@/lib/utils/cn';
@@ -195,6 +196,7 @@ export function ShopSetupWizard({ onCancel, onComplete, className }: ShopSetupWi
   const t = useTranslations('shop');
   const tCommon = useTranslations('common');
   const router = useRouter();
+  const { invalidate: invalidateUser } = useInvalidateUser();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<WizardFormData>(INITIAL_FORM_DATA);
@@ -353,6 +355,8 @@ export function ShopSetupWizard({ onCancel, onComplete, className }: ShopSetupWi
 
       if (result.success && result.data) {
         setCreatedShopId(result.data.id_shop);
+        // Invalidate user cache so shops list updates immediately
+        await invalidateUser();
         setIsComplete(true);
         message.success(result.message || t('messages.shopCreated'));
       } else if (!result.success) {
