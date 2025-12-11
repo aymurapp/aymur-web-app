@@ -2815,6 +2815,12 @@
       "enterprise": {
         "title": "Need more?",
         "description": "Contact us for custom enterprise solutions with unlimited everything and dedicated support."
+      },
+      "alreadySubscribed": {
+        "title": "You're Already Subscribed!",
+        "description": "Great news! You already have an active subscription. Continue to set up your first shop.",
+        "cta": "Continue to Shop Setup",
+        "hint": "Your subscription is active and ready to use"
       }
     },
     "checkout": {

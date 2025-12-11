@@ -83,7 +83,7 @@ function BrandingPanel() {
         p-8 lg:p-12
         overflow-hidden
         bg-stone-900
-        order-first lg:order-last
+        order-first lg:order-first
       "
     >
       {/* Decorative Background Elements */}
@@ -186,7 +186,7 @@ function FormPanel({ children }: { children: React.ReactNode }) {
         flex items-center justify-center
         p-6 sm:p-8 lg:p-12
         bg-stone-100
-        order-last lg:order-first
+        order-last lg:order-last
       "
     >
       {/* Form Card Container */}
@@ -256,18 +256,40 @@ function FormPanel({ children }: { children: React.ReactNode }) {
           color: ${BRAND_COLORS.gold} !important;
         }
 
-        /* Checkbox styling */
+        /* Checkbox styling - gold themed */
         .ant-checkbox-wrapper {
           color: #57534e !important;
         }
 
+        /* Unchecked checkbox - light stone border */
+        .ant-checkbox .ant-checkbox-inner {
+          background-color: #ffffff !important;
+          border-color: #d6d3d1 !important;
+          border-width: 2px !important;
+          border-radius: 4px !important;
+          transition: all 0.2s ease !important;
+        }
+
+        /* Checked checkbox - gold background */
         .ant-checkbox-checked .ant-checkbox-inner {
           background-color: ${BRAND_COLORS.gold} !important;
           border-color: ${BRAND_COLORS.gold} !important;
         }
 
+        /* Hover state - gold border */
         .ant-checkbox:hover .ant-checkbox-inner {
           border-color: ${BRAND_COLORS.gold} !important;
+        }
+
+        /* Focus state - gold ring */
+        .ant-checkbox-input:focus-visible + .ant-checkbox-inner {
+          border-color: ${BRAND_COLORS.gold} !important;
+          box-shadow: 0 0 0 3px ${BRAND_COLORS.gold}30 !important;
+        }
+
+        /* Checkmark color */
+        .ant-checkbox-checked .ant-checkbox-inner::after {
+          border-color: #ffffff !important;
         }
 
         /* Divider styling */
@@ -304,21 +326,22 @@ function FormPanel({ children }: { children: React.ReactNode }) {
  * Auth Layout
  *
  * Enterprise-grade split-screen layout for authentication pages featuring:
- * - 45/55 split on desktop (left form panel, right branding panel)
+ * - 55/45 split on desktop (left branding panel, right form panel)
  * - Stacked layout on mobile (branding on top, form below)
  * - Dark stone-900 branding with gold accents matching AYMUR theme
  * - AYMUR logo and professional feature highlights
+ * - Gold-themed form inputs and checkboxes
  *
  * NOTE: NextIntlClientProvider is provided by parent [locale]/layout.tsx
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left Panel - Form Content (45% on desktop) */}
-      <FormPanel>{children}</FormPanel>
-
-      {/* Right Panel - Branding (55% on desktop) */}
+      {/* Left Panel - Branding (55% on desktop) */}
       <BrandingPanel />
+
+      {/* Right Panel - Form Content (45% on desktop) */}
+      <FormPanel>{children}</FormPanel>
     </div>
   );
 }

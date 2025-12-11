@@ -11,11 +11,12 @@
  * - Subscription features preview
  * - CTA to create first shop
  * - Professional, celebratory aesthetics
+ * - Updates onboarding step to 'setup' on mount
  *
  * @module app/(platform)/[locale]/onboarding/checkout/success
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import {
   CheckCircleFilled,
@@ -30,6 +31,7 @@ import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { updateOnboardingStep } from '@/lib/actions/onboarding';
 import { Link } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
 
@@ -154,6 +156,18 @@ function FeaturesList({ t }: { t: ReturnType<typeof useTranslations> }): JSX.Ele
  */
 export default function CheckoutSuccessPage(): JSX.Element {
   const t = useTranslations('onboarding');
+
+  // Update onboarding step to 'setup' when user reaches this page
+  useEffect(() => {
+    const updateStep = async () => {
+      try {
+        await updateOnboardingStep('setup');
+      } catch (error) {
+        console.error('[CheckoutSuccessPage] Failed to update onboarding step:', error);
+      }
+    };
+    updateStep();
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-12 px-4 sm:px-6">

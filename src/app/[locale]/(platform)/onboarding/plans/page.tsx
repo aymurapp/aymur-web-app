@@ -20,12 +20,22 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 
-import { CheckOutlined, CrownOutlined, RocketOutlined, StarOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  CheckCircleFilled,
+  CrownOutlined,
+  RocketOutlined,
+  StarOutlined,
+  ArrowRightOutlined,
+} from '@ant-design/icons';
 import { message } from 'antd';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { getAvailablePlansAction, createCheckoutSessionAction } from '@/lib/actions/billing';
+import { getOnboardingStatus, updateOnboardingStep } from '@/lib/actions/onboarding';
+import { useRouter } from '@/lib/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
 
 // =============================================================================
@@ -389,26 +399,104 @@ function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) 
   );
 }
 
+/**
+ * Already subscribed state - shown when user already has an active subscription
+ */
+function AlreadySubscribedState({
+  onContinue,
+  isLoading,
+  t,
+}: {
+  onContinue: () => void;
+  isLoading: boolean;
+  t: ReturnType<typeof useTranslations<'onboarding'>>;
+}) {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center py-16 px-4">
+      <div className="max-w-lg w-full">
+        <Card className="text-center p-8 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
+          {/* Success Icon */}
+          <div className="mb-6">
+            <div
+              className={cn(
+                'inline-flex items-center justify-center',
+                'w-20 h-20 rounded-full',
+                'bg-emerald-100'
+              )}
+            >
+              <CheckCircleFilled className="text-4xl text-emerald-500" />
+            </div>
+          </div>
+
+          {/* Title */}
+          <h2 className="text-2xl font-bold text-stone-900 mb-3">
+            {t('plans.alreadySubscribed.title')}
+          </h2>
+
+          {/* Description */}
+          <p className="text-stone-600 mb-8">{t('plans.alreadySubscribed.description')}</p>
+
+          {/* Continue Button */}
+          <Button
+            type="primary"
+            size="large"
+            onClick={onContinue}
+            loading={isLoading}
+            icon={<ArrowRightOutlined />}
+            className={cn(
+              'h-14 px-10 text-base font-semibold rounded-xl',
+              'bg-gradient-to-r from-[#C9A227] to-[#A68B1F]',
+              'border-none hover:from-[#A68B1F] hover:to-[#8B7419]',
+              'shadow-lg shadow-[#C9A227]/30'
+            )}
+          >
+            {t('plans.alreadySubscribed.cta')}
+          </Button>
+
+          {/* Hint */}
+          <p className="mt-4 text-sm text-stone-500">{t('plans.alreadySubscribed.hint')}</p>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 // =============================================================================
 // MAIN COMPONENT
 // =============================================================================
 
 export default function OnboardingPlansPage() {
   const t = useTranslations('onboarding');
+  const router = useRouter();
 
   const [plans, setPlans] = useState<PlanData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [continueLoading, setContinueLoading] = useState(false);
 
   /**
-   * Load plans from database
+   * Load plans and check subscription status
    */
-  const loadPlans = useCallback(async () => {
+  const loadPlansAndStatus = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
+      // Check subscription status first
+      const statusResult = await getOnboardingStatus();
+      if (statusResult.success && statusResult.data) {
+        setHasActiveSubscription(statusResult.data.hasActiveSubscription);
+
+        // If already has subscription, no need to load plans
+        if (statusResult.data.hasActiveSubscription) {
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Load plans if no active subscription
       const result = await getAvailablePlansAction();
 
       if (result.success && result.data) {
@@ -424,10 +512,27 @@ export default function OnboardingPlansPage() {
     }
   }, []);
 
-  // Load plans on mount
+  // Load plans and status on mount
   useEffect(() => {
-    loadPlans();
-  }, [loadPlans]);
+    loadPlansAndStatus();
+  }, [loadPlansAndStatus]);
+
+  /**
+   * Handle continue for already subscribed users
+   */
+  const handleContinueToSetup = async () => {
+    setContinueLoading(true);
+    try {
+      // Update onboarding step to setup
+      await updateOnboardingStep('setup');
+      router.push('/onboarding/setup');
+    } catch (err) {
+      console.error('Error continuing to setup:', err);
+      message.error('Failed to continue. Please try again.');
+    } finally {
+      setContinueLoading(false);
+    }
+  };
 
   /**
    * Handle plan selection and checkout
@@ -470,7 +575,18 @@ export default function OnboardingPlansPage() {
 
   // Error state
   if (error && !isLoading) {
-    return <ErrorState error={error} onRetry={loadPlans} />;
+    return <ErrorState error={error} onRetry={loadPlansAndStatus} />;
+  }
+
+  // Already subscribed state
+  if (hasActiveSubscription && !isLoading) {
+    return (
+      <AlreadySubscribedState
+        onContinue={handleContinueToSetup}
+        isLoading={continueLoading}
+        t={t}
+      />
+    );
   }
 
   return (

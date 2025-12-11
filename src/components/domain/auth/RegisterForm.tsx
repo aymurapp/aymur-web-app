@@ -11,9 +11,13 @@
  * - Email verification flow trigger
  * - Loading states
  * - RTL support via logical properties
+ * - Honeypot field for bot protection
+ * - AYMUR branding with logo
  */
 
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useRef } from 'react';
+
+import Image from 'next/image';
 
 import { Alert, Checkbox, Input, Progress, message, Typography } from 'antd';
 import { useTranslations } from 'next-intl';
@@ -107,6 +111,9 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
   const [password, setPassword] = useState('');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
+  // Honeypot field ref for bot detection - bots fill hidden fields, humans don't
+  const honeypotRef = useRef<HTMLInputElement>(null);
+
   // Calculate password strength
   const passwordStrength = useMemo(() => calculatePasswordStrength(password), [password]);
 
@@ -115,6 +122,12 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
    */
   const handleSubmit = useCallback(
     async (data: RegisterWithConfirmInput) => {
+      // Bot detection: if honeypot field is filled, silently reject
+      if (honeypotRef.current?.value) {
+        console.warn('[RegisterForm] Bot detected via honeypot');
+        return;
+      }
+
       clearError();
       setShowError(false);
       setTermsError(false);
@@ -205,6 +218,18 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
 
   return (
     <div className="w-full">
+      {/* Logo */}
+      <div className="flex justify-center mb-6">
+        <Image
+          src="/images/AYMUR-Letter-A-Logo-and-webicon.png"
+          alt="AYMUR"
+          width={56}
+          height={56}
+          className="h-14 w-auto"
+          priority
+        />
+      </div>
+
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2 tracking-tight">
@@ -237,6 +262,23 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
         }}
         className="space-y-1"
       >
+        {/* Honeypot field - hidden from humans, bots fill it */}
+        <div
+          aria-hidden="true"
+          className="absolute -left-[9999px] -top-[9999px]"
+          style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}
+        >
+          <label htmlFor="company_website">Company Website</label>
+          <input
+            ref={honeypotRef}
+            type="text"
+            id="company_website"
+            name="company_website"
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+
         {/* Full Name Field */}
         <Form.Item<RegisterWithConfirmInput> name="fullName" label={t('fullName')} required>
           <Input placeholder="John Doe" size="large" autoComplete="name" autoFocus />

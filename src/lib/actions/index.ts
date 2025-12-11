@@ -459,3 +459,18 @@ export type {
   AuditExportFormat,
   AuditLogExport,
 } from './audit-log';
+
+// Onboarding actions
+export {
+  // Status and navigation
+  getOnboardingStatus,
+  updateOnboardingStep,
+  determineCorrectStep,
+  // Helper functions
+  getNextStep,
+  getStepPath,
+  isStepCompleted,
+} from './onboarding';
+
+// Onboarding types
+export type { OnboardingStep, OnboardingStatus } from './onboarding';

@@ -12,10 +12,13 @@
  * - Error handling with Ant Design message
  * - Loading states
  * - RTL support via logical properties
+ * - Honeypot field for bot protection
+ * - AYMUR branding with logo
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
 import { Alert, Checkbox, Divider, Input, message } from 'antd';
@@ -52,6 +55,9 @@ export function LoginForm({ redirectUrl }: LoginFormProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const [showError, setShowError] = useState(false);
 
+  // Honeypot field ref for bot detection - bots fill hidden fields, humans don't
+  const honeypotRef = useRef<HTMLInputElement>(null);
+
   // Get redirect URL from props, search params, or default to /shops
   // Checks both 'callbackUrl' (OAuth flows) and 'redirect' (middleware redirect param)
   const getRedirectUrl = useCallback(() => {
@@ -77,6 +83,12 @@ export function LoginForm({ redirectUrl }: LoginFormProps) {
    */
   const handleSubmit = useCallback(
     async (data: LoginInput) => {
+      // Bot detection: if honeypot field is filled, silently reject
+      if (honeypotRef.current?.value) {
+        console.warn('[LoginForm] Bot detected via honeypot');
+        return;
+      }
+
       clearError();
       setShowError(false);
 
@@ -102,6 +114,18 @@ export function LoginForm({ redirectUrl }: LoginFormProps) {
 
   return (
     <div className="w-full">
+      {/* Logo */}
+      <div className="flex justify-center mb-6">
+        <Image
+          src="/images/AYMUR-Letter-A-Logo-and-webicon.png"
+          alt="AYMUR"
+          width={56}
+          height={56}
+          className="h-14 w-auto"
+          priority
+        />
+      </div>
+
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2 tracking-tight">
@@ -132,6 +156,23 @@ export function LoginForm({ redirectUrl }: LoginFormProps) {
         }}
         className="space-y-1"
       >
+        {/* Honeypot field - hidden from humans, bots fill it */}
+        <div
+          aria-hidden="true"
+          className="absolute -left-[9999px] -top-[9999px]"
+          style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}
+        >
+          <label htmlFor="website_url">Website</label>
+          <input
+            ref={honeypotRef}
+            type="text"
+            id="website_url"
+            name="website_url"
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+
         {/* Email Field */}
         <Form.Item<LoginInput> name="email" label={t('email')} required>
           <Input

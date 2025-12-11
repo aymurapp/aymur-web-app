@@ -1,10 +1,24 @@
 import { redirect } from 'next/navigation';
 
+import { determineCorrectStep, getStepPath } from '@/lib/actions/onboarding';
+
 /**
  * Onboarding Index Page
  *
- * Redirects to the welcome step of the onboarding flow.
+ * Server component that checks the user's current onboarding step
+ * and redirects them to the appropriate page.
+ *
+ * This ensures users always resume from where they left off.
  */
-export default function OnboardingPage(): never {
+export default async function OnboardingPage(): Promise<never> {
+  // Determine the correct step based on user's current state
+  const result = await determineCorrectStep();
+
+  if (result.success && result.data) {
+    const stepPath = getStepPath(result.data);
+    redirect(stepPath);
+  }
+
+  // Default fallback to welcome page
   redirect('./onboarding/welcome');
 }
