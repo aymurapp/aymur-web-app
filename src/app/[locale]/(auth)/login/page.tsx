@@ -1,8 +1,7 @@
 import React, { Suspense } from 'react';
 
-import { Spin } from 'antd';
-
 import { LoginForm } from '@/components/domain/auth/LoginForm';
+import { LoadingSpinnerCard } from '@/components/ui/LoadingSpinner';
 
 import type { Metadata } from 'next';
 
@@ -13,8 +12,8 @@ export const dynamic = 'force-dynamic';
  * Login Page Metadata
  */
 export const metadata: Metadata = {
-  title: 'Sign In',
-  description: 'Sign in to your Aymur Platform account to manage your jewelry business.',
+  title: 'Log In',
+  description: 'Log in to your Aymur Platform account to manage your jewelry business.',
 };
 
 /**
@@ -25,13 +24,7 @@ export const metadata: Metadata = {
  */
 export default function LoginPage(): React.JSX.Element {
   return (
-    <Suspense
-      fallback={
-        <div className="w-full flex items-center justify-center py-12">
-          <Spin size="large" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingSpinnerCard />}>
       <LoginForm />
     </Suspense>
   );

@@ -1,8 +1,7 @@
 import React, { Suspense } from 'react';
 
-import { Spin } from 'antd';
-
 import { ResetPasswordForm } from '@/components/domain/auth/ResetPasswordForm';
+import { LoadingSpinnerCard } from '@/components/ui/LoadingSpinner';
 
 import type { Metadata } from 'next';
 
@@ -25,13 +24,7 @@ export const metadata: Metadata = {
  */
 export default function ResetPasswordPage(): React.JSX.Element {
   return (
-    <Suspense
-      fallback={
-        <div className="w-full flex items-center justify-center py-12">
-          <Spin size="large" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingSpinnerCard />}>
       <ResetPasswordForm />
     </Suspense>
   );

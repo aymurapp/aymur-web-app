@@ -197,7 +197,7 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
               d="M15 19l-7-7 7-7"
             />
           </svg>
-          Return to Sign In
+          Return to Log In
         </Link>
       </div>
     );

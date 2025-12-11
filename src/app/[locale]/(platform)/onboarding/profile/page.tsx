@@ -23,11 +23,12 @@ import React, { useState, useCallback, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { UserOutlined, PhoneOutlined, GlobalOutlined, HomeOutlined } from '@ant-design/icons';
-import { Form, Input, Select, Avatar, message, Upload, Spin } from 'antd';
+import { Form, Input, Select, Avatar, message, Upload } from 'antd';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { LoadingSpinner, LoadingSpinnerSection } from '@/components/ui/LoadingSpinner';
 import { updateProfile, uploadAvatar } from '@/lib/actions/profile';
 import { useUser } from '@/lib/hooks/auth';
 import { useRouter } from '@/lib/i18n/navigation';
@@ -209,7 +210,7 @@ function HeroSection({
                 <div className="relative w-full h-full rounded-full overflow-hidden bg-stone-800">
                   {isUploading ? (
                     <div className="absolute inset-0 flex items-center justify-center bg-stone-800/80">
-                      <Spin size="large" />
+                      <LoadingSpinner size="medium" />
                     </div>
                   ) : (
                     <Avatar
@@ -442,11 +443,7 @@ function CTASection({
  * Loading fallback for Suspense boundary
  */
 function ProfilePageLoading(): React.JSX.Element {
-  return (
-    <div className="flex-1 flex items-center justify-center py-20">
-      <Spin size="large" />
-    </div>
-  );
+  return <LoadingSpinnerSection className="flex-1" />;
 }
 
 /**
@@ -583,11 +580,7 @@ function ProfilePageContent(): React.JSX.Element {
 
   // Loading state
   if (isUserLoading) {
-    return (
-      <div className="flex-1 flex items-center justify-center py-20">
-        <Spin size="large" />
-      </div>
-    );
+    return <LoadingSpinnerSection className="flex-1" />;
   }
 
   return (

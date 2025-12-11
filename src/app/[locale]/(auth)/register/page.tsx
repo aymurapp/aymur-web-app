@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
  * Register Page Metadata
  */
 export const metadata: Metadata = {
-  title: 'Create Account',
-  description: 'Create your Aymur Platform account and start managing your jewelry business today.',
+  title: 'Sign Up',
+  description: 'Sign up for Aymur Platform and start managing your jewelry business today.',
 };
 
 /**

@@ -22,6 +22,7 @@ import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { LoadingSpinner, LoadingSpinnerSection } from '@/components/ui/LoadingSpinner';
 import { canCreateShop } from '@/lib/actions/shop';
 import { useShops, type ShopWithRole } from '@/lib/hooks/shop/useShops';
 import { Link, useRouter } from '@/lib/i18n/navigation';
@@ -95,17 +96,6 @@ function ShopCard({ shop, onClick }: { shop: ShopWithRole; onClick: () => void }
 }
 
 /**
- * Loading skeleton for shop cards
- */
-function ShopCardSkeleton() {
-  return (
-    <Card skeleton loading skeletonRows={3} className="h-full">
-      <div />
-    </Card>
-  );
-}
-
-/**
  * Shop Selection Page Component
  */
 export default function ShopsPage() {
@@ -171,15 +161,10 @@ export default function ShopsPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-stone-900 mb-2">{t('selectShop')}</h1>
-            <p className="text-stone-600">{tCommon('messages.loading')}</p>
           </div>
 
-          {/* Loading Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <ShopCardSkeleton key={i} />
-            ))}
-          </div>
+          {/* Loading */}
+          <LoadingSpinnerSection text={tCommon('messages.loading')} />
         </div>
       </div>
     );
@@ -191,10 +176,7 @@ export default function ShopsPage() {
     if (!subscriptionChecked) {
       return (
         <div className="min-h-screen bg-stone-50 flex items-center justify-center py-8 px-4">
-          <div className="max-w-md w-full text-center">
-            <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4" />
-            <p className="text-stone-600">{tCommon('messages.loading')}</p>
-          </div>
+          <LoadingSpinner size="large" text={tCommon('messages.loading')} />
         </div>
       );
     }
@@ -204,10 +186,7 @@ export default function ShopsPage() {
     if (hasNoSubscription) {
       return (
         <div className="min-h-screen bg-stone-50 flex items-center justify-center py-8 px-4">
-          <div className="max-w-md w-full text-center">
-            <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4" />
-            <p className="text-stone-600">Redirecting to setup...</p>
-          </div>
+          <LoadingSpinner size="large" text="Redirecting to setup..." />
         </div>
       );
     }

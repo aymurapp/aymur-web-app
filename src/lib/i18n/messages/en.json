@@ -252,23 +252,23 @@
   },
   "auth": {
     "login": {
-      "title": "Sign In",
-      "subtitle": "Welcome back! Please sign in to your account",
+      "title": "Log In",
+      "subtitle": "Welcome back! Please log in to your account",
       "email": "Email Address",
       "password": "Password",
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",
-      "signIn": "Sign In",
+      "signIn": "Log In",
       "noAccount": "Don't have an account?",
-      "createAccount": "Create an account",
-      "signingIn": "Signing in...",
+      "createAccount": "Sign Up",
+      "signingIn": "Logging in...",
       "invalidCredentials": "Invalid email or password",
       "accountLocked": "Your account has been locked. Please contact support.",
-      "sessionExpired": "Your session has expired. Please sign in again.",
+      "sessionExpired": "Your session has expired. Please log in again.",
       "orContinueWith": "or continue with"
     },
     "register": {
-      "title": "Create Account",
+      "title": "Sign Up",
       "subtitle": "Get started with your jewelry business management",
       "fullName": "Full Name",
       "email": "Email Address",
@@ -277,14 +277,14 @@
       "shopName": "Shop Name",
       "termsAgree": "I agree to the Terms of Service and Privacy Policy",
       "termsRequired": "You must accept the terms to continue",
-      "createAccount": "Create Account",
+      "createAccount": "Sign Up",
       "haveAccount": "Already have an account?",
-      "signIn": "Sign in",
+      "signIn": "Log In",
       "creating": "Creating your account...",
       "passwordStrength": "Password strength",
       "checkEmail": "Check your email",
       "verificationSent": "We have sent a verification link to your email address. Please click the link to verify your account.",
-      "returnToLogin": "Return to Sign In"
+      "returnToLogin": "Return to Log In"
     },
     "forgotPassword": {
       "title": "Reset Password",

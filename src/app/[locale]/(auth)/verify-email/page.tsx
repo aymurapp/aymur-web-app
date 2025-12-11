@@ -1,8 +1,7 @@
 import React, { Suspense } from 'react';
 
-import { Spin } from 'antd';
-
 import { VerifyEmailStatus } from '@/components/domain/auth/VerifyEmailStatus';
+import { LoadingSpinnerCard } from '@/components/ui/LoadingSpinner';
 
 import type { Metadata } from 'next';
 
@@ -25,13 +24,7 @@ export const metadata: Metadata = {
  */
 export default function VerifyEmailPage(): React.JSX.Element {
   return (
-    <Suspense
-      fallback={
-        <div className="w-full flex items-center justify-center py-12">
-          <Spin size="large" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingSpinnerCard />}>
       <VerifyEmailStatus />
     </Suspense>
   );

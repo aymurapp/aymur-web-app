@@ -17,6 +17,7 @@ import { useSearchParams } from 'next/navigation';
 import { Alert, message } from 'antd';
 
 import { Button } from '@/components/ui/Button';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Link, useRouter } from '@/lib/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 
@@ -117,12 +118,12 @@ export function VerifyEmailStatus() {
   // Verifying state
   if (status === 'verifying') {
     return (
-      <div className="w-full text-center">
+      <div className="w-full text-center py-4">
         <div className="mb-6">
-          <div className="animate-spin w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full mx-auto" />
+          <LoadingSpinner size="large" />
         </div>
         <h2 className="text-2xl font-bold text-stone-900 mb-3">Verifying your email</h2>
-        <p className="text-stone-600">Please wait while we verify your email address...</p>
+        <p className="text-stone-500">Please wait while we verify your email address...</p>
       </div>
     );
   }
@@ -260,7 +261,7 @@ export function VerifyEmailStatus() {
           href="/login"
           className="block text-amber-600 hover:text-amber-700 font-semibold transition-colors"
         >
-          Back to Sign In
+          Back to Log In
         </Link>
       </div>
     </div>

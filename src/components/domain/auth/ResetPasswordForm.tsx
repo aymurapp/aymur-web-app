@@ -22,6 +22,7 @@ import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/lib/hooks/auth/useAuth';
 import { Link, useRouter } from '@/lib/i18n/navigation';
 import { resetPasswordSchema, type ResetPasswordInput } from '@/lib/utils/validation';
@@ -162,9 +163,8 @@ export function ResetPasswordForm() {
   // Show loading while checking token
   if (tokenValid === null) {
     return (
-      <div className="w-full text-center py-12">
-        <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4" />
-        <p className="text-stone-600">Validating reset link...</p>
+      <div className="w-full text-center py-8">
+        <LoadingSpinner size="large" text="Validating reset link..." />
       </div>
     );
   }
@@ -316,7 +316,7 @@ export function ResetPasswordForm() {
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
-          Back to Sign In
+          Back to Log In
         </Link>
       </p>
     </div>

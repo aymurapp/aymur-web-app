@@ -1,24 +1,8 @@
+'use client';
+
 import React from 'react';
 
 import { CheckCircleFilled } from '@ant-design/icons';
-
-import type { Metadata } from 'next';
-
-/**
- * Auth Layout Metadata
- */
-export const metadata: Metadata = {
-  title: {
-    template: '%s | AYMUR',
-    default: 'Authentication | AYMUR',
-  },
-  description:
-    'Sign in or create an account to access the AYMUR jewelry business management platform.',
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
 
 // =============================================================================
 // CONSTANTS
