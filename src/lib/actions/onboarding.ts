@@ -204,7 +204,7 @@ export async function updateOnboardingStep(step: OnboardingStep): Promise<Action
  * @param currentStep - The current step
  * @returns The next step
  */
-export function getNextStep(currentStep: OnboardingStep): OnboardingStep {
+export async function getNextStep(currentStep: OnboardingStep): Promise<OnboardingStep> {
   const currentIndex = STEP_ORDER.indexOf(currentStep);
   if (currentIndex === -1 || currentIndex >= STEP_ORDER.length - 1) {
     return 'completed';
@@ -219,7 +219,7 @@ export function getNextStep(currentStep: OnboardingStep): OnboardingStep {
  * @param step - The onboarding step
  * @returns The URL path for that step
  */
-export function getStepPath(step: OnboardingStep): string {
+export async function getStepPath(step: OnboardingStep): Promise<string> {
   return STEP_PATHS[step];
 }
 
@@ -230,7 +230,10 @@ export function getStepPath(step: OnboardingStep): string {
  * @param checkStep - The step to check
  * @returns True if the checkStep has been completed
  */
-export function isStepCompleted(currentStep: OnboardingStep, checkStep: OnboardingStep): boolean {
+export async function isStepCompleted(
+  currentStep: OnboardingStep,
+  checkStep: OnboardingStep
+): Promise<boolean> {
   const currentIndex = STEP_ORDER.indexOf(currentStep);
   const checkIndex = STEP_ORDER.indexOf(checkStep);
   return currentIndex > checkIndex;

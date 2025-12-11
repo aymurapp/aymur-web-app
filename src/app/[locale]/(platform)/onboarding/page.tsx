@@ -15,7 +15,7 @@ export default async function OnboardingPage(): Promise<never> {
   const result = await determineCorrectStep();
 
   if (result.success && result.data) {
-    const stepPath = getStepPath(result.data);
+    const stepPath = await getStepPath(result.data);
     redirect(stepPath);
   }
 
