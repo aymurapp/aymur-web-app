@@ -151,17 +151,18 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
   // Show success message if registration was successful
   if (registrationSuccess) {
     return (
-      <div className="w-full text-center">
+      <div className="w-full text-center py-4">
         <div className="mb-6">
           <div
             className="
               inline-flex items-center justify-center
-              w-16 h-16 rounded-full
-              bg-emerald-100
+              w-20 h-20 rounded-full
+              bg-emerald-50
+              border-2 border-emerald-100
             "
           >
             <svg
-              className="w-8 h-8 text-emerald-600"
+              className="w-10 h-10 text-emerald-500"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -172,15 +173,30 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
             </svg>
           </div>
         </div>
-        <h2 className="text-2xl font-bold text-stone-900 mb-3">Check your email</h2>
-        <p className="text-stone-600 mb-6">
-          We have sent a verification link to your email address. Please click the link to verify
-          your account.
+        <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-3 tracking-tight">
+          Check your email
+        </h2>
+        <p className="text-stone-500 mb-8 text-sm sm:text-base leading-relaxed">
+          We have sent a verification link to your email address.
+          <br />
+          Please click the link to verify your account.
         </p>
         <Link
           href="/login"
-          className="text-amber-600 hover:text-amber-700 font-semibold transition-colors"
+          className="
+            inline-flex items-center gap-2
+            text-amber-600 hover:text-amber-700
+            font-semibold transition-colors
+          "
         >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
           Return to Sign In
         </Link>
       </div>
@@ -191,8 +207,10 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
     <div className="w-full">
       {/* Header */}
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-stone-900 mb-2">{t('title')}</h2>
-        <p className="text-stone-600">{t('subtitle')}</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2 tracking-tight">
+          {t('title')}
+        </h1>
+        <p className="text-stone-500 text-sm sm:text-base">{t('subtitle')}</p>
       </div>
 
       {/* Error Alert */}
@@ -304,7 +322,7 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
       </Form>
 
       {/* Sign In Link */}
-      <p className="text-center mt-8 text-stone-600">
+      <p className="text-center mt-8 text-stone-500 text-sm">
         {t('haveAccount')}{' '}
         <Link
           href="/login"

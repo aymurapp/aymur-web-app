@@ -191,7 +191,7 @@ function BrandingPanel() {
 /**
  * Form Panel Component
  *
- * Light stone-50 panel containing the auth form.
+ * Light stone-50 panel containing the auth form with enterprise-grade styling.
  */
 function FormPanel({ children }: { children: React.ReactNode }) {
   return (
@@ -201,11 +201,113 @@ function FormPanel({ children }: { children: React.ReactNode }) {
         min-h-[calc(100vh-280px)] lg:min-h-screen
         flex items-center justify-center
         p-6 sm:p-8 lg:p-12
-        bg-stone-50
+        bg-stone-100
         order-last lg:order-first
       "
     >
-      <div className="w-full max-w-md">{children}</div>
+      {/* Form Card Container */}
+      <div
+        className="
+          w-full max-w-md
+          bg-white
+          rounded-2xl
+          shadow-xl shadow-stone-200/50
+          border border-stone-200/60
+          p-8 sm:p-10
+        "
+      >
+        {children}
+      </div>
+
+      {/* Enterprise-grade form input styles */}
+      <style jsx global>{`
+        /* Input fields - clean white with subtle borders */
+        .ant-input,
+        .ant-input-password .ant-input,
+        .ant-input-affix-wrapper {
+          background-color: #ffffff !important;
+          border-color: #d6d3d1 !important;
+          border-radius: 8px !important;
+          color: #1c1917 !important;
+          transition: all 0.2s ease !important;
+        }
+
+        .ant-input::placeholder,
+        .ant-input-password .ant-input::placeholder {
+          color: #a8a29e !important;
+        }
+
+        /* Input hover state */
+        .ant-input:hover,
+        .ant-input-affix-wrapper:hover {
+          border-color: #a8a29e !important;
+        }
+
+        /* Input focus state with gold ring */
+        .ant-input:focus,
+        .ant-input-focused,
+        .ant-input-affix-wrapper:focus,
+        .ant-input-affix-wrapper-focused {
+          border-color: ${BRAND_COLORS.gold} !important;
+          box-shadow: 0 0 0 3px ${BRAND_COLORS.gold}20 !important;
+        }
+
+        /* Password toggle icon */
+        .ant-input-password .ant-input-suffix {
+          color: #78716c !important;
+        }
+
+        .ant-input-password .ant-input-suffix:hover {
+          color: #1c1917 !important;
+        }
+
+        /* Form labels */
+        .ant-form-item-label > label {
+          color: #44403c !important;
+          font-weight: 500 !important;
+          font-size: 14px !important;
+        }
+
+        .ant-form-item-required::before {
+          color: ${BRAND_COLORS.gold} !important;
+        }
+
+        /* Checkbox styling */
+        .ant-checkbox-wrapper {
+          color: #57534e !important;
+        }
+
+        .ant-checkbox-checked .ant-checkbox-inner {
+          background-color: ${BRAND_COLORS.gold} !important;
+          border-color: ${BRAND_COLORS.gold} !important;
+        }
+
+        .ant-checkbox:hover .ant-checkbox-inner {
+          border-color: ${BRAND_COLORS.gold} !important;
+        }
+
+        /* Divider styling */
+        .ant-divider {
+          border-color: #e7e5e4 !important;
+        }
+
+        .ant-divider-inner-text {
+          color: #a8a29e !important;
+          font-size: 13px !important;
+        }
+
+        /* Alert styling */
+        .ant-alert-error {
+          background-color: #fef2f2 !important;
+          border-color: #fecaca !important;
+          border-radius: 8px !important;
+        }
+
+        /* Progress bar (password strength) */
+        .ant-progress-bg {
+          transition: all 0.3s ease !important;
+        }
+      `}</style>
     </div>
   );
 }
