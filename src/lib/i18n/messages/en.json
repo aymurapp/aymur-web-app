@@ -2775,6 +2775,7 @@
     "steps": {
       "welcome": "Welcome",
       "role": "Your Role",
+      "profile": "Profile",
       "plans": "Choose Plan",
       "setup": "Setup Shop",
       "complete": "Complete"
@@ -2881,6 +2882,34 @@
       "wrongChoice": "Want to create your own shop instead?",
       "backToRole": "Go back",
       "contactOwner": "Contact your shop owner for an invitation"
+    },
+    "profile": {
+      "title": "Complete Your Profile",
+      "subtitle": "Complete your profile",
+      "defaultName": "Welcome",
+      "formTitle": "Your Information",
+      "formDescription": "Fill in your details to personalize your experience",
+      "avatarUploaded": "Profile photo updated successfully",
+      "avatarUploadFailed": "Failed to upload profile photo",
+      "profileUpdated": "Profile updated successfully",
+      "profileUpdateFailed": "Failed to update profile",
+      "skipForNow": "Skip for now",
+      "helpText": "You can always update this later in your settings",
+      "form": {
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Enter your full name",
+        "phone": "Phone Number",
+        "phonePlaceholder": "Enter your phone number",
+        "country": "Country",
+        "countryPlaceholder": "Select your country",
+        "city": "City",
+        "cityPlaceholder": "Enter your city"
+      },
+      "validation": {
+        "fullNameRequired": "Please enter your full name",
+        "fullNameMin": "Name must be at least 2 characters",
+        "fullNameMax": "Name cannot exceed 100 characters"
+      }
     },
     "complete": {
       "title": "You're All Set!",

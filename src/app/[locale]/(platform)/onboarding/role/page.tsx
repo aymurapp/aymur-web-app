@@ -47,7 +47,7 @@ const ROLE_CARDS = [
   {
     key: 'owner',
     Icon: CrownOutlined,
-    href: '/onboarding/plans',
+    href: '/onboarding/profile?role=owner',
     accentColor: BRAND_COLORS.gold,
     gradient: 'from-amber-500 to-amber-600',
     gradientLight: 'from-amber-50 to-amber-100/50',
@@ -60,7 +60,7 @@ const ROLE_CARDS = [
   {
     key: 'team',
     Icon: TeamOutlined,
-    href: '/onboarding/invitation',
+    href: '/onboarding/profile?role=team',
     accentColor: '#3B82F6', // blue-500
     gradient: 'from-blue-500 to-blue-600',
     gradientLight: 'from-blue-50 to-blue-100/50',

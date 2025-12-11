@@ -45,6 +45,7 @@ const BRAND_COLORS = {
 const ONBOARDING_STEPS = [
   { key: 'welcome', path: '/onboarding/welcome' },
   { key: 'role', path: '/onboarding/role' },
+  { key: 'profile', path: '/onboarding/profile' },
   { key: 'plans', path: '/onboarding/plans' },
   { key: 'setup', path: '/onboarding/setup' },
   { key: 'complete', path: '/onboarding/complete' },
@@ -155,7 +156,7 @@ export default function OnboardingLayout({
 
     // Handle checkout success/canceled as part of plans step
     if (pathname.includes('/checkout/')) {
-      return 2; // Plans step (index 2 after adding role)
+      return 3; // Plans step (index 3 after adding role and profile)
     }
 
     const stepIndex = ONBOARDING_STEPS.findIndex((step) => step.path.endsWith(`/${stepPath}`));

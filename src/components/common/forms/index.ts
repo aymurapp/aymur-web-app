@@ -12,3 +12,6 @@ export {
   type AddressFormSectionProps,
   type AddressFieldNames,
 } from './AddressFormSection';
+
+// Avatar upload with circular crop
+export { AvatarUpload, type AvatarUploadProps } from './AvatarUpload';
