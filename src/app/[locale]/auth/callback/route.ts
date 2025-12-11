@@ -1,0 +1,137 @@
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+import { createServerClient } from '@supabase/ssr';
+
+import type { Database } from '@/lib/types/database';
+
+/**
+ * Localized Auth Callback Route Handler
+ *
+ * Handles OAuth and email confirmation callbacks from Supabase
+ * when the URL includes a locale prefix (e.g., /en/auth/callback).
+ *
+ * This route:
+ * 1. Receives the authorization code from Supabase
+ * 2. Exchanges it for a session
+ * 3. Sets the session cookies
+ * 4. Redirects to the appropriate page with locale prefix
+ *
+ * @see https://supabase.com/docs/guides/auth/server-side/nextjs
+ */
+
+interface RouteParams {
+  params: Promise<{ locale: string }>;
+}
+
+export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
+  const { locale } = await params;
+  const requestUrl = new URL(request.url);
+
+  // Get the code and type from the URL
+  const code = requestUrl.searchParams.get('code');
+  const type = requestUrl.searchParams.get('type');
+  // Default to /shops for authenticated users
+  const next = requestUrl.searchParams.get('next') ?? '/shops';
+
+  // Error handling for OAuth errors
+  const error = requestUrl.searchParams.get('error');
+  const errorDescription = requestUrl.searchParams.get('error_description');
+
+  /**
+   * Creates a URL with the current locale prefix
+   */
+  function createLocalizedUrl(path: string): URL {
+    return new URL(`/${locale}${path}`, requestUrl.origin);
+  }
+
+  if (error) {
+    // Redirect to login with error message
+    const errorUrl = createLocalizedUrl('/login');
+    errorUrl.searchParams.set('error', error);
+    if (errorDescription) {
+      errorUrl.searchParams.set('error_description', errorDescription);
+    }
+    return NextResponse.redirect(errorUrl);
+  }
+
+  if (code) {
+    const cookieStore = await cookies();
+
+    // Create a Supabase client with cookie handling
+    const supabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // The `setAll` method was called from a Server Component.
+              // This can be ignored if you have middleware refreshing user sessions.
+            }
+          },
+        },
+      }
+    );
+
+    // Exchange the code for a session
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (exchangeError) {
+      console.error('[Auth Callback] Exchange error:', exchangeError);
+
+      // Handle specific error types
+      if (exchangeError.message.includes('expired')) {
+        const errorUrl = createLocalizedUrl('/login');
+        errorUrl.searchParams.set('error', 'link_expired');
+        errorUrl.searchParams.set(
+          'error_description',
+          'This link has expired. Please request a new one.'
+        );
+        return NextResponse.redirect(errorUrl);
+      }
+
+      // Generic error redirect
+      const errorUrl = createLocalizedUrl('/login');
+      errorUrl.searchParams.set('error', 'auth_error');
+      errorUrl.searchParams.set('error_description', exchangeError.message);
+      return NextResponse.redirect(errorUrl);
+    }
+
+    // Handle different callback types
+    switch (type) {
+      case 'signup': {
+        // Email confirmation successful - redirect to onboarding welcome page
+        return NextResponse.redirect(createLocalizedUrl('/onboarding/welcome'));
+      }
+
+      case 'recovery': {
+        // Password reset - redirect to reset password page
+        return NextResponse.redirect(createLocalizedUrl('/reset-password'));
+      }
+
+      case 'invite':
+        // Team invite - redirect to shops page
+        return NextResponse.redirect(createLocalizedUrl('/shops'));
+
+      case 'magiclink':
+        // Magic link sign-in
+        return NextResponse.redirect(createLocalizedUrl(next));
+
+      default:
+        // OAuth or unknown type - redirect to onboarding (new users) or shops (existing)
+        return NextResponse.redirect(createLocalizedUrl('/onboarding'));
+    }
+  }
+
+  // No code provided - redirect to login
+  return NextResponse.redirect(createLocalizedUrl('/login'));
+}

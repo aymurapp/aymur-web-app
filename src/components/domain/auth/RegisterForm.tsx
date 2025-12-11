@@ -240,14 +240,23 @@ export function RegisterForm({ redirectUrl }: RegisterFormProps) {
 
       {/* Error Alert */}
       {showError && error && (
-        <Alert
-          message={error.message || tCommon('messages.unexpectedError')}
-          type="error"
-          showIcon
-          closable
-          onClose={() => setShowError(false)}
-          className="mb-6"
-        />
+        <div className="auth-error-shake">
+          <Alert
+            message={
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold">Registration Failed</span>
+                <span className="text-xs text-red-600/80 font-normal">
+                  {error.message || tCommon('messages.unexpectedError')}
+                </span>
+              </div>
+            }
+            type="error"
+            showIcon
+            closable
+            onClose={() => setShowError(false)}
+            className="mb-6"
+          />
+        </div>
       )}
 
       {/* Registration Form */}

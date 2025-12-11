@@ -302,11 +302,58 @@ function FormPanel({ children }: { children: React.ReactNode }) {
           font-size: 13px !important;
         }
 
-        /* Alert styling */
+        /* Alert styling - Enhanced error states */
         .ant-alert-error {
           background-color: #fef2f2 !important;
-          border-color: #fecaca !important;
-          border-radius: 8px !important;
+          border-color: #f87171 !important;
+          border-radius: 10px !important;
+          border-width: 1px !important;
+          padding: 12px 16px !important;
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .ant-alert-error .ant-alert-icon {
+          color: #dc2626 !important;
+          font-size: 18px !important;
+        }
+
+        .ant-alert-error .ant-alert-message {
+          color: #991b1b !important;
+          font-weight: 500 !important;
+          font-size: 14px !important;
+        }
+
+        .ant-alert-error .ant-alert-close-icon {
+          color: #dc2626 !important;
+        }
+
+        .ant-alert-error .ant-alert-close-icon:hover {
+          color: #991b1b !important;
+        }
+
+        /* Shake animation for error */
+        @keyframes shake {
+          0%,
+          100% {
+            transform: translateX(0);
+          }
+          10%,
+          30%,
+          50%,
+          70%,
+          90% {
+            transform: translateX(-4px);
+          }
+          20%,
+          40%,
+          60%,
+          80% {
+            transform: translateX(4px);
+          }
+        }
+
+        .auth-error-shake {
+          animation: shake 0.5s ease-in-out;
         }
 
         /* Progress bar (password strength) */

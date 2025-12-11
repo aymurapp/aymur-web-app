@@ -136,14 +136,23 @@ export function LoginForm({ redirectUrl }: LoginFormProps) {
 
       {/* Error Alert */}
       {showError && error && (
-        <Alert
-          message={error.message || t('invalidCredentials')}
-          type="error"
-          showIcon
-          closable
-          onClose={() => setShowError(false)}
-          className="mb-6"
-        />
+        <div className="auth-error-shake">
+          <Alert
+            message={
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold">{t('invalidCredentials')}</span>
+                <span className="text-xs text-red-600/80 font-normal">
+                  {error.message || 'Please check your email and password and try again.'}
+                </span>
+              </div>
+            }
+            type="error"
+            showIcon
+            closable
+            onClose={() => setShowError(false)}
+            className="mb-6"
+          />
+        </div>
       )}
 
       {/* Login Form */}
