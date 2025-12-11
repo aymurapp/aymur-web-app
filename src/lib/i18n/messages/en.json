@@ -513,6 +513,16 @@
     "messages": {
       "shopCreated": "Shop created successfully!",
       "shopCreationFailed": "Failed to create shop"
+    },
+    "backToShops": "Back to Shops",
+    "newShopSubtitle": "Set up your new jewelry shop in just a few steps",
+    "errorTitle": "Error",
+    "upgradePlan": "Upgrade Plan",
+    "limitReached": {
+      "title": "Shop Limit Reached",
+      "currentUsage": "You currently have {current} of {max} shops allowed on your plan.",
+      "upgradeMessage": "To create more shops, please upgrade your subscription plan.",
+      "remainingSlots": "{count} shop slot(s) will remain after creation."
     }
   },
   "inventory": {
