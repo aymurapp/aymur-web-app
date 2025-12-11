@@ -87,16 +87,17 @@ function getPlanIcon(planName: string): React.ReactNode {
 
 /**
  * Get plan accent color
+ * Enterprise-grade: sophisticated, muted tones with gold accent for featured plan
  */
 function getPlanAccent(planName: string): string {
   const name = planName.toLowerCase();
   if (name.includes('enterprise')) {
-    return 'from-purple-500 to-purple-600';
+    return 'from-stone-800 to-stone-900';
   }
   if (name.includes('business')) {
-    return 'from-amber-500 to-amber-600';
+    return 'from-[#A68B1F] to-[#8B7419]';
   }
-  return 'from-blue-500 to-blue-600';
+  return 'from-stone-600 to-stone-700';
 }
 
 /**
@@ -180,7 +181,7 @@ function PlanCard({
       className={cn(
         'h-full relative overflow-hidden transition-all duration-300',
         'hover:shadow-xl hover:-translate-y-1',
-        isPopular && 'ring-2 ring-amber-500'
+        isPopular && 'ring-2 ring-[#C9A227]'
       )}
     >
       {/* Header with gradient */}
@@ -241,7 +242,7 @@ function PlanCard({
           block
           onClick={onSelect}
           loading={isLoading}
-          className={cn(isPopular && 'bg-amber-500 hover:bg-amber-600 border-amber-500')}
+          className={cn(isPopular && 'bg-[#C9A227] hover:bg-[#A68B1F] border-[#C9A227]')}
         >
           {plan.isContactSales ? t('contactSales') : t('getStarted')}
         </Button>
@@ -251,7 +252,7 @@ function PlanCard({
 
   if (isPopular) {
     return (
-      <Badge.Ribbon text={t('recommended')} color="gold">
+      <Badge.Ribbon text={t('recommended')} color="#C9A227">
         {cardContent}
       </Badge.Ribbon>
     );

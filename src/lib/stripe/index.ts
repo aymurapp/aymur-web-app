@@ -43,7 +43,7 @@ export function getStripe(): Stripe {
     return stripeClient;
   }
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+  const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
 
   if (!secretKey) {
     throw new Error(
@@ -96,7 +96,7 @@ export function getStripe(): Stripe {
  * ```
  */
 export function verifyWebhookSignature(payload: string | Buffer, signature: string): Stripe.Event {
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
 
   if (!webhookSecret) {
     throw new Error(

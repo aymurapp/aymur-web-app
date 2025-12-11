@@ -34,11 +34,12 @@ import { cn } from '@/lib/utils/cn';
 
 /**
  * Gradient configurations for each plan tier
+ * Enterprise-grade: sophisticated, muted tones with gold accent for featured plan
  */
 const PLAN_GRADIENTS = {
-  professional: 'from-blue-500 to-blue-600',
-  business: 'from-amber-500 to-amber-600',
-  enterprise: 'from-purple-500 to-purple-600',
+  professional: 'from-stone-600 to-stone-700',
+  business: 'from-[#A68B1F] to-[#8B7419]',
+  enterprise: 'from-stone-800 to-stone-900',
 } as const;
 
 // =============================================================================
@@ -222,7 +223,7 @@ function PlanCard({
         'shadow-sm hover:shadow-2xl',
         'transform hover:-translate-y-2',
         'transition-all duration-300 ease-out',
-        isPopular && 'ring-2 ring-amber-500 shadow-amber-500/20'
+        isPopular && 'ring-2 ring-[#C9A227] shadow-[#C9A227]/20'
       )}
     >
       {/* Popular Badge - Floating */}
@@ -231,7 +232,7 @@ function PlanCard({
           <span
             className={cn(
               'px-4 py-1.5 text-xs font-bold uppercase tracking-wider',
-              'bg-gradient-to-r from-amber-500 to-amber-600',
+              'bg-gradient-to-r from-[#C9A227] to-[#A68B1F]',
               'text-white rounded-b-lg shadow-lg'
             )}
           >
@@ -311,7 +312,7 @@ function PlanCard({
             'h-12 text-base font-semibold rounded-xl',
             'transition-all duration-200',
             isPopular
-              ? 'bg-gradient-to-r from-amber-500 to-amber-600 border-none hover:from-amber-600 hover:to-amber-700 shadow-lg shadow-amber-500/30'
+              ? 'bg-gradient-to-r from-[#C9A227] to-[#A68B1F] border-none hover:from-[#A68B1F] hover:to-[#8B7419] shadow-lg shadow-[#C9A227]/30'
               : 'hover:border-stone-400 hover:text-stone-900'
           )}
         >
@@ -483,13 +484,13 @@ export default function OnboardingPlansPage() {
           <div
             className={cn(
               'absolute top-10 start-10 w-64 h-64 rounded-full',
-              'bg-amber-500/5 blur-3xl'
+              'bg-[#C9A227]/5 blur-3xl'
             )}
           />
           <div
             className={cn(
               'absolute bottom-10 end-10 w-96 h-96 rounded-full',
-              'bg-purple-500/5 blur-3xl'
+              'bg-stone-500/5 blur-3xl'
             )}
           />
         </div>
