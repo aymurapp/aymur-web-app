@@ -136,7 +136,9 @@ export interface SecuritySettingsActions {
   updateSecuritySettings: (
     input: UpdateSecuritySettingsInput
   ) => Promise<SecurityActionResult<UserSecuritySettings>>;
-  enableTwoFactor: (method: TwoFactorMethod) => Promise<SecurityActionResult<TwoFactorSetupResponse>>;
+  enableTwoFactor: (
+    method: TwoFactorMethod
+  ) => Promise<SecurityActionResult<TwoFactorSetupResponse>>;
   verifyTwoFactorSetup: (code: string) => Promise<SecurityActionResult>;
   disableTwoFactor: (password: string) => Promise<SecurityActionResult>;
   generateBackupCodes: () => Promise<SecurityActionResult<BackupCodesResponse>>;
@@ -274,9 +276,7 @@ export function useUpdateSecuritySettings(
  * };
  * ```
  */
-export function useEnableTwoFactor(
-  actions: Pick<SecuritySettingsActions, 'enableTwoFactor'>
-) {
+export function useEnableTwoFactor(actions: Pick<SecuritySettingsActions, 'enableTwoFactor'>) {
   // queryClient not used here - invalidation happens after verification
   return useMutation({
     mutationFn: async (method: TwoFactorMethod) => {
@@ -327,9 +327,7 @@ export function useVerifyTwoFactorSetup(
  * @param actions - Server action functions for security operations
  * @returns Mutation for disabling 2FA
  */
-export function useDisableTwoFactor(
-  actions: Pick<SecuritySettingsActions, 'disableTwoFactor'>
-) {
+export function useDisableTwoFactor(actions: Pick<SecuritySettingsActions, 'disableTwoFactor'>) {
   const queryClient = useQueryClient();
 
   return useMutation({

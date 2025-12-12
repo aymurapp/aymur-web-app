@@ -229,9 +229,7 @@ export function useRevokeSession(actions: Pick<SessionActions, 'revokeSession'>)
  * };
  * ```
  */
-export function useRevokeAllOtherSessions(
-  actions: Pick<SessionActions, 'revokeAllOtherSessions'>
-) {
+export function useRevokeAllOtherSessions(actions: Pick<SessionActions, 'revokeAllOtherSessions'>) {
   const queryClient = useQueryClient();
 
   return useMutation({

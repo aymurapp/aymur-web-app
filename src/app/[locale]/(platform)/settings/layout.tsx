@@ -128,10 +128,7 @@ function NavItemLabel({
     <div className="flex items-center justify-between w-full">
       <span>{label}</span>
       {showIndicator && (
-        <span
-          className="w-2 h-2 rounded-full bg-amber-500"
-          aria-label="Setup needed"
-        />
+        <span className="w-2 h-2 rounded-full bg-amber-500" aria-label="Setup needed" />
       )}
     </div>
   );
@@ -157,16 +154,9 @@ function DarkModeToggle(): React.JSX.Element {
     <div className="flex items-center justify-between px-4 py-3 border-t border-stone-200 dark:border-stone-700">
       <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
         {isDark ? <MoonOutlined /> : <SunOutlined />}
-        <span className="text-sm">
-          {isDark ? t('darkMode') : t('lightMode')}
-        </span>
+        <span className="text-sm">{isDark ? t('darkMode') : t('lightMode')}</span>
       </div>
-      <Switch
-        checked={isDark}
-        onChange={toggleTheme}
-        size="small"
-        aria-label={t('theme')}
-      />
+      <Switch checked={isDark} onChange={toggleTheme} size="small" aria-label={t('theme')} />
     </div>
   );
 }
@@ -174,17 +164,15 @@ function DarkModeToggle(): React.JSX.Element {
 /**
  * Settings header with back navigation, logo, and user info
  */
-function SettingsHeader({
-  onMenuClick,
-}: {
-  onMenuClick: () => void;
-}): React.JSX.Element {
+function SettingsHeader({ onMenuClick }: { onMenuClick: () => void }): React.JSX.Element {
   const { user, isLoading } = useUser();
   const t = useTranslations('userSettings');
 
   // Get user initials for avatar fallback
   const getInitials = (name: string | null | undefined): string => {
-    if (!name) return 'U';
+    if (!name) {
+      return 'U';
+    }
     return name
       .split(' ')
       .map((n) => n[0])
@@ -213,11 +201,7 @@ function SettingsHeader({
             <div className="hidden sm:block w-px h-6 bg-stone-700" />
 
             {/* Logo */}
-            <img
-              src="/images/AYMUR-Full-Text-Logo.png"
-              alt="AYMUR"
-              className="h-8 sm:h-10"
-            />
+            <img src="/images/AYMUR-Full-Text-Logo.png" alt="AYMUR" className="h-8 sm:h-10" />
           </div>
 
           {/* Right: User info and mobile menu */}
@@ -240,10 +224,7 @@ function SettingsHeader({
                 </>
               ) : (
                 <>
-                  <Avatar
-                    icon={<UserOutlined />}
-                    className="bg-amber-600"
-                  >
+                  <Avatar icon={<UserOutlined />} className="bg-amber-600">
                     {getInitials(user?.full_name)}
                   </Avatar>
                   <span className="text-stone-200 text-sm font-medium">
@@ -285,10 +266,7 @@ function DesktopSidebar({
     key: item.key,
     icon: item.icon,
     label: (
-      <NavItemLabel
-        label={t(item.labelKey)}
-        showIndicator={item.showIndicator?.(user) ?? false}
-      />
+      <NavItemLabel label={t(item.labelKey)} showIndicator={item.showIndicator?.(user) ?? false} />
     ),
     onClick: () => onNavigate(item.path),
   }));
@@ -379,7 +357,9 @@ function MobileSidebar({
 
   // Get user initials for avatar fallback
   const getInitials = (name: string | null | undefined): string => {
-    if (!name) return 'U';
+    if (!name) {
+      return 'U';
+    }
     return name
       .split(' ')
       .map((n) => n[0])
@@ -399,10 +379,7 @@ function MobileSidebar({
             </>
           ) : (
             <>
-              <Avatar
-                icon={<UserOutlined />}
-                className="bg-amber-600"
-              >
+              <Avatar icon={<UserOutlined />} className="bg-amber-600">
                 {getInitials(user?.full_name)}
               </Avatar>
               <div>
@@ -436,9 +413,7 @@ function MobileSidebar({
         {/* Language Switcher */}
         <div className="py-3 border-t border-stone-200 dark:border-stone-700">
           <div className="flex items-center justify-between px-4">
-            <span className="text-sm text-stone-600 dark:text-stone-400">
-              {t('language')}
-            </span>
+            <span className="text-sm text-stone-600 dark:text-stone-400">{t('language')}</span>
             <LocaleSwitcher size="small" />
           </div>
         </div>
@@ -497,9 +472,7 @@ export default function UserSettingsLayout({
 
         {/* Content */}
         <main className="flex-1 min-w-0">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {children}
-          </div>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</div>
         </main>
       </div>
 

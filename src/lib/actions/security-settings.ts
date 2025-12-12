@@ -129,8 +129,7 @@ export async function getMfaStatus(): Promise<SecurityActionResult<MfaStatus>> {
     }
 
     // Get assurance level
-    const { data: aal, error: aalError } =
-      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    const { data: aal, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     if (aalError) {
       return { success: false, error: aalError.message, code: 'mfa_error' };
     }

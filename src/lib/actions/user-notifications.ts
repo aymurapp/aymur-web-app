@@ -91,7 +91,10 @@ export interface UpdateNotificationSettingsInput {
  * Security-focused defaults: security alerts enabled, marketing disabled
  * Matches database column defaults
  */
-const DEFAULT_NOTIFICATION_SETTINGS: Omit<NotificationSettings, 'id_notification_settings' | 'id_user' | 'created_at' | 'updated_at'> = {
+const DEFAULT_NOTIFICATION_SETTINGS: Omit<
+  NotificationSettings,
+  'id_notification_settings' | 'id_user' | 'created_at' | 'updated_at'
+> = {
   // Email notifications
   email_marketing: false,
   email_product_updates: true,

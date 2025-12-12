@@ -38,7 +38,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'users';
             referencedColumns: ['id_user'];
-          }
+          },
         ];
       };
       ai_conversations: {
@@ -1240,7 +1240,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'users';
             referencedColumns: ['id_user'];
-          }
+          },
         ];
       };
       item_stones: {
@@ -2586,7 +2586,7 @@ export type Database = {
             isOneToOne: true;
             referencedRelation: 'users';
             referencedColumns: ['id_user'];
-          }
+          },
         ];
       };
       users_sessions: {
@@ -2654,7 +2654,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'users';
             referencedColumns: ['id_user'];
-          }
+          },
         ];
       };
       workshop_orders: {

@@ -49,7 +49,11 @@ const BROWSER_PATTERNS: BrowserPattern[] = [
   // Order matters - more specific patterns first
   { name: 'Edge', pattern: /Edg(e|A|iOS)?\//, versionPattern: /Edg(e|A|iOS)?\/(\d+[\d.]*)/ },
   { name: 'Opera', pattern: /OPR\/|Opera\//, versionPattern: /(?:OPR|Opera)\/(\d+[\d.]*)/ },
-  { name: 'Samsung Internet', pattern: /SamsungBrowser\//, versionPattern: /SamsungBrowser\/(\d+[\d.]*)/ },
+  {
+    name: 'Samsung Internet',
+    pattern: /SamsungBrowser\//,
+    versionPattern: /SamsungBrowser\/(\d+[\d.]*)/,
+  },
   { name: 'UC Browser', pattern: /UCBrowser\//, versionPattern: /UCBrowser\/(\d+[\d.]*)/ },
   { name: 'Firefox', pattern: /Firefox\//, versionPattern: /Firefox\/(\d+[\d.]*)/ },
   { name: 'Chrome', pattern: /Chrome\//, versionPattern: /Chrome\/(\d+[\d.]*)/ },
@@ -186,23 +190,31 @@ function detectDeviceType(userAgent: string): 'desktop' | 'mobile' | 'tablet' | 
 function extractIPAddress(headersList: Headers): string | null {
   // Vercel-specific header (most reliable on Vercel)
   const vercelIP = headersList.get('x-real-ip');
-  if (vercelIP) return vercelIP;
+  if (vercelIP) {
+    return vercelIP;
+  }
 
   // Cloudflare header
   const cfIP = headersList.get('cf-connecting-ip');
-  if (cfIP) return cfIP;
+  if (cfIP) {
+    return cfIP;
+  }
 
   // Standard forwarded-for header (may contain multiple IPs)
   const forwardedFor = headersList.get('x-forwarded-for');
   if (forwardedFor) {
     // Take the first IP (original client)
     const firstIP = forwardedFor.split(',')[0]?.trim();
-    if (firstIP) return firstIP;
+    if (firstIP) {
+      return firstIP;
+    }
   }
 
   // Fallback headers
   const trueClientIP = headersList.get('true-client-ip');
-  if (trueClientIP) return trueClientIP;
+  if (trueClientIP) {
+    return trueClientIP;
+  }
 
   return null;
 }
@@ -211,7 +223,9 @@ function extractIPAddress(headersList: Headers): string | null {
  * Safely URL-decodes a string
  */
 function safeURLDecode(value: string | null): string | null {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
 
   try {
     return decodeURIComponent(value);

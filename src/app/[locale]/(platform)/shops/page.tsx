@@ -340,7 +340,11 @@ function HeroHeader({ shopCount, onJoinClick }: { shopCount: number; onJoinClick
       {/* Top-right controls: Language + User Menu */}
       <div className="absolute top-4 end-4 sm:top-6 sm:end-6 z-10 flex items-center gap-3">
         <LocaleSwitcher className="!text-stone-300 hover:!text-amber-400" />
-        <UserMenu showName={false} showAccountSettings className="!text-stone-300 hover:!bg-stone-800" />
+        <UserMenu
+          showName={false}
+          showAccountSettings
+          className="!text-stone-300 hover:!bg-stone-800"
+        />
       </div>
 
       {/* Decorative background elements */}

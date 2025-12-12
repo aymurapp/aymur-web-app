@@ -21,6 +21,7 @@
  */
 
 import { cookies } from 'next/headers';
+
 import { createHash } from 'crypto';
 
 import { createClient } from '@/lib/supabase/server';
@@ -130,23 +131,39 @@ function parseDeviceInfo(userAgent: string | null): {
   let deviceType: 'desktop' | 'mobile' | 'tablet' | 'unknown' = 'unknown';
 
   // Browser detection
-  if (userAgent.includes('Edg')) browser = 'Edge';
-  else if (userAgent.includes('OPR') || userAgent.includes('Opera')) browser = 'Opera';
-  else if (userAgent.includes('Firefox')) browser = 'Firefox';
-  else if (userAgent.includes('Chrome')) browser = 'Chrome';
-  else if (userAgent.includes('Safari')) browser = 'Safari';
+  if (userAgent.includes('Edg')) {
+    browser = 'Edge';
+  } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) {
+    browser = 'Opera';
+  } else if (userAgent.includes('Firefox')) {
+    browser = 'Firefox';
+  } else if (userAgent.includes('Chrome')) {
+    browser = 'Chrome';
+  } else if (userAgent.includes('Safari')) {
+    browser = 'Safari';
+  }
 
   // OS detection
-  if (userAgent.includes('Windows')) os = 'Windows';
-  else if (userAgent.includes('Mac OS X')) os = 'macOS';
-  else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) os = 'iOS';
-  else if (userAgent.includes('Android')) os = 'Android';
-  else if (userAgent.includes('Linux')) os = 'Linux';
+  if (userAgent.includes('Windows')) {
+    os = 'Windows';
+  } else if (userAgent.includes('Mac OS X')) {
+    os = 'macOS';
+  } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+    os = 'iOS';
+  } else if (userAgent.includes('Android')) {
+    os = 'Android';
+  } else if (userAgent.includes('Linux')) {
+    os = 'Linux';
+  }
 
   // Device type detection
-  if (/iPad|tablet|playbook/i.test(userAgent)) deviceType = 'tablet';
-  else if (/mobile|iphone|android.*mobile/i.test(userAgent)) deviceType = 'mobile';
-  else if (/windows|macintosh|linux/i.test(userAgent)) deviceType = 'desktop';
+  if (/iPad|tablet|playbook/i.test(userAgent)) {
+    deviceType = 'tablet';
+  } else if (/mobile|iphone|android.*mobile/i.test(userAgent)) {
+    deviceType = 'mobile';
+  } else if (/windows|macintosh|linux/i.test(userAgent)) {
+    deviceType = 'desktop';
+  }
 
   return { browser, os, deviceType };
 }
@@ -250,9 +267,15 @@ export async function getUserSessions(): Promise<ActionResult<UserSession[]>> {
       const deviceInfo = parseDeviceInfo(session.user_agent);
       const locationParts: string[] = [];
 
-      if (session.city) locationParts.push(session.city);
-      if (session.region) locationParts.push(session.region);
-      if (session.country_code) locationParts.push(session.country_code);
+      if (session.city) {
+        locationParts.push(session.city);
+      }
+      if (session.region) {
+        locationParts.push(session.region);
+      }
+      if (session.country_code) {
+        locationParts.push(session.country_code);
+      }
 
       return {
         id_session: session.id_session,
@@ -761,7 +784,9 @@ export async function getLoginHistory(limit: number = 20): Promise<ActionResult<
  * const result = await createSession(session.access_token);
  * ```
  */
-export async function createSession(accessToken: string): Promise<ActionResult<{ sessionId: string }>> {
+export async function createSession(
+  accessToken: string
+): Promise<ActionResult<{ sessionId: string }>> {
   try {
     const supabase = await createClient();
 
