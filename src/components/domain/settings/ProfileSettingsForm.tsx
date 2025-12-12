@@ -26,6 +26,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Form } from '@/components/ui/Form';
 import { updateProfile, uploadAvatar, deleteAvatar } from '@/lib/actions/profile';
+import { useInvalidateUser } from '@/lib/hooks/auth/useUser';
 import type { ParsedAddress } from '@/lib/types/address';
 import { profileUpdateSchema, type ProfileUpdateInput } from '@/lib/utils/validation';
 
@@ -373,6 +374,7 @@ export function ProfileSettingsForm({
 }: ProfileSettingsFormProps): React.JSX.Element {
   const t = useTranslations('userSettings');
   const [isPending, startTransition] = useTransition();
+  const { invalidate: invalidateUser } = useInvalidateUser();
 
   // Avatar state
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initialData.avatar_url);
@@ -396,6 +398,8 @@ export function ProfileSettingsForm({
           });
 
           if (result.success) {
+            // Invalidate user cache to refresh data across the app
+            await invalidateUser();
             message.success(t('profile.updateSuccess'));
             onSuccess?.();
           } else {
@@ -407,7 +411,7 @@ export function ProfileSettingsForm({
         }
       });
     },
-    [t, onSuccess]
+    [t, onSuccess, invalidateUser]
   );
 
   return (
