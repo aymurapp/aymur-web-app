@@ -103,6 +103,58 @@ export interface UseUserReturn {
   refetch: () => Promise<void>;
 }
 
+// =============================================================================
+// CONSTANTS
+// =============================================================================
+
+/**
+ * Storage bucket name for avatars
+ */
+const AVATARS_BUCKET = 'avatars';
+
+/**
+ * Signed URL expiration time in seconds (1 hour)
+ */
+const SIGNED_URL_EXPIRATION = 60 * 60; // 1 hour
+
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+/**
+ * Generates a signed URL for an avatar path using client-side Supabase
+ * Returns null if path is empty or generation fails
+ */
+async function generateSignedAvatarUrl(
+  supabase: ReturnType<typeof createClient>,
+  avatarPath: string | null
+): Promise<string | null> {
+  if (!avatarPath) {
+    return null;
+  }
+
+  // Skip if already a full URL (signed URL from server)
+  if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
+    return avatarPath;
+  }
+
+  try {
+    const { data, error } = await supabase.storage
+      .from(AVATARS_BUCKET)
+      .createSignedUrl(avatarPath, SIGNED_URL_EXPIRATION);
+
+    if (error) {
+      console.warn('[generateSignedAvatarUrl] Failed to create signed URL:', error.message);
+      return null;
+    }
+
+    return data.signedUrl;
+  } catch (err) {
+    console.warn('[generateSignedAvatarUrl] Unexpected error:', err);
+    return null;
+  }
+}
+
 /**
  * Fetches user data with shop access from Supabase
  */
@@ -165,8 +217,12 @@ async function fetchUserWithAccess(authUserId: string): Promise<UserWithAccess |
   // Type assertion for the joined data
   const shopAccess = (accessData || []) as unknown as ShopAccessRecord[];
 
+  // Generate signed URL for avatar (stored as path in database)
+  const signedAvatarUrl = await generateSignedAvatarUrl(supabase, userData.avatar_url);
+
   return {
     ...userData,
+    avatar_url: signedAvatarUrl,
     shop_access: shopAccess,
   };
 }
@@ -234,7 +290,7 @@ export function useUser(): UseUserReturn {
  * Utility to invalidate user cache
  * Call this after user profile updates
  */
-export function useInvalidateUser() {
+export function useInvalidateUser(): { invalidate: () => Promise<void> } {
   const queryClient = useQueryClient();
 
   return {

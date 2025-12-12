@@ -15,3 +15,12 @@ export {
 
 // Avatar upload with circular crop
 export { AvatarUpload, type AvatarUploadProps } from './AvatarUpload';
+
+// International phone input with country selector and validation
+export {
+  PhoneInput,
+  type PhoneInputProps,
+  type PhoneInputMeta,
+  isValidPhone,
+  formatPhoneDisplay,
+} from './PhoneInput';

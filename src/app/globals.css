@@ -909,4 +909,38 @@
     padding: 0 !important;
     margin: 0 !important;
   }
+
+  /* ============================================
+     Phone Input Component Styles
+     ============================================ */
+
+  /* Override react-international-phone default styles */
+  .phone-input-container {
+    --react-international-phone-border-radius: 0.5rem;
+    --react-international-phone-border-color: var(--neutral-300);
+    --react-international-phone-background-color: transparent;
+    --react-international-phone-text-color: var(--neutral-900);
+    --react-international-phone-font-size: 1rem;
+    --react-international-phone-height: 40px;
+    --react-international-phone-country-selector-background-color-hover: var(--neutral-100);
+    --react-international-phone-disabled-background-color: var(--neutral-100);
+  }
+
+  .dark .phone-input-container {
+    --react-international-phone-border-color: var(--neutral-600);
+    --react-international-phone-text-color: var(--neutral-100);
+    --react-international-phone-country-selector-background-color-hover: var(--neutral-800);
+    --react-international-phone-disabled-background-color: var(--neutral-800);
+  }
+
+  /* Force LTR direction for phone number input */
+  .phone-input-container input[type='tel'] {
+    direction: ltr !important;
+    text-align: start;
+  }
+
+  /* RTL adjustments for phone input */
+  [dir='rtl'] .phone-input-container {
+    direction: ltr;
+  }
 }

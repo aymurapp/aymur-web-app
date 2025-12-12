@@ -23,6 +23,7 @@ import { useFormContext } from 'react-hook-form';
 
 import { AddressAutocomplete } from '@/components/common/forms/AddressAutocomplete';
 import { AvatarUpload } from '@/components/common/forms/AvatarUpload';
+import { PhoneInput, type PhoneInputMeta } from '@/components/common/forms/PhoneInput';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Form } from '@/components/ui/Form';
@@ -153,9 +154,21 @@ function ProfileFormContent({
               <Input size="large" disabled className="bg-stone-50 dark:bg-stone-800" />
             </Form.Item>
 
-            {/* Phone */}
+            {/* Phone - Using international phone input with country code */}
             <Form.Item<ProfileUpdateInput> name="phone" label={t('profile.phone')}>
-              <Input size="large" placeholder={t('profile.phonePlaceholder')} maxLength={20} />
+              {({ field, fieldState }) => (
+                <PhoneInput
+                  value={field.value || ''}
+                  onChange={(phone: string, _meta: PhoneInputMeta) => {
+                    // Store phone with country code (E.164 format)
+                    field.onChange(phone);
+                  }}
+                  onBlur={field.onBlur}
+                  size="large"
+                  status={fieldState.error ? 'error' : undefined}
+                  placeholder={t('profile.phonePlaceholder')}
+                />
+              )}
             </Form.Item>
           </div>
         </Card>

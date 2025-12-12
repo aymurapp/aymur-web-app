@@ -59,6 +59,7 @@
     "react-dropzone": "^14.3.8",
     "react-google-autocomplete": "^2.7.5",
     "react-hook-form": "^7.67.0",
+    "react-international-phone": "^4.6.1",
     "react-joyride": "^2.9.3",
     "react-markdown": "^10.1.0",
     "react-to-print": "^2.15.1",
