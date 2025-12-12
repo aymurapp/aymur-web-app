@@ -210,13 +210,14 @@
     "analytics": "التحليلات",
     "reports": "التقارير",
     "aiAssistant": "مساعد الذكاء الاصطناعي",
-    "settings": {
+    "shopSettings": {
       "_label": "الاعدادات",
       "general": "الاعدادات العامة",
       "catalog": "الفهرس",
       "team": "الفريق",
       "roles": "الادوار والصلاحيات"
     },
+    "settings": "الاعدادات",
     "help": "المساعدة",
     "support": "الدعم",
     "feedback": "الملاحظات",

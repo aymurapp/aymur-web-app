@@ -193,13 +193,14 @@
     "analytics": "Analytics",
     "reports": "Rapporten",
     "aiAssistant": "AI Assistent",
-    "settings": {
+    "shopSettings": {
       "_label": "Instellingen",
       "general": "Algemene instellingen",
       "catalog": "Catalogus",
       "team": "Team",
       "roles": "Rollen en rechten"
     },
+    "settings": "Instellingen",
     "help": "Help",
     "support": "Ondersteuning",
     "feedback": "Feedback",

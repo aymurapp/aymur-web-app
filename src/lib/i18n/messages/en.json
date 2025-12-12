@@ -229,13 +229,14 @@
     "analytics": "Analytics",
     "reports": "Reports",
     "aiAssistant": "AI Assistant",
-    "settings": {
+    "shopSettings": {
       "_label": "Settings",
       "general": "General Settings",
       "catalog": "Catalog",
       "team": "Team",
       "roles": "Roles & Permissions"
     },
+    "settings": "Settings",
     "help": "Help",
     "support": "Support",
     "feedback": "Feedback",
