@@ -79,22 +79,35 @@ export function isValidPhone(phone: string | null | undefined): boolean {
   }
 }
 
+// Get ValidationResult enum for checking TOO_LONG
+const ValidationResult = PhoneNumberUtil.ValidationResult;
+
 /**
- * Gets the expected phone number length for a country (national number only)
- * @param countryIso2 - Country ISO2 code
- * @returns Expected length or null if unknown
+ * Checks if a phone number is too long using libphonenumber's metadata
+ * Uses isPossibleNumberWithReason which dynamically checks against country rules
+ *
+ * @param phone - Full phone number in E.164 format (e.g., "+966501234567")
+ * @returns true if the number exceeds the maximum length for its country
  */
-function getExpectedPhoneLength(countryIso2: string): number | null {
-  try {
-    const exampleNumber = phoneUtil.getExampleNumber(countryIso2.toUpperCase());
-    if (exampleNumber) {
-      const nationalNumber = exampleNumber.getNationalNumber();
-      return nationalNumber ? nationalNumber.toString().length : null;
-    }
-  } catch {
-    // Ignore errors
+function isPhoneTooLong(phone: string): boolean {
+  if (!phone || phone.length < 4) {
+    return false;
   }
-  return null;
+  try {
+    const parsed = phoneUtil.parseAndKeepRawInput(phone);
+    const reason = phoneUtil.isPossibleNumberWithReason(parsed);
+    return reason === ValidationResult.TOO_LONG;
+  } catch {
+    // If parsing fails, don't block input
+    return false;
+  }
+}
+
+/**
+ * Extracts only digits from a string
+ */
+function extractDigits(str: string): string {
+  return str.replace(/\D/g, '');
 }
 
 // =============================================================================
@@ -355,8 +368,31 @@ export function PhoneInput({
     },
   });
 
-  // Calculate max length based on country
-  const maxLength = getExpectedPhoneLength(country.iso2) ?? 15;
+  // Custom input handler that blocks input if number would be too long
+  // Uses libphonenumber's isPossibleNumberWithReason for dynamic validation
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      const newDigits = extractDigits(newValue);
+      const currentDigits = extractDigits(inputValue);
+
+      // If user is deleting, always allow
+      if (newDigits.length <= currentDigits.length) {
+        handlePhoneValueChange(e);
+        return;
+      }
+
+      // Construct full E.164 phone to check if it would be too long
+      const fullPhone = `+${country.dialCode}${newDigits}`;
+
+      // Check if this number would be too long using libphonenumber
+      if (!isPhoneTooLong(fullPhone)) {
+        handlePhoneValueChange(e);
+      }
+      // If too long, simply don't process the change (blocks input)
+    },
+    [handlePhoneValueChange, inputValue, country.dialCode]
+  );
 
   // Handle focus
   const handleFocus = useCallback(() => {
@@ -473,13 +509,12 @@ export function PhoneInput({
         ref={inputRef}
         type="tel"
         value={inputValue}
-        onChange={handlePhoneValueChange}
+        onChange={handleInputChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder={placeholder || 'Enter phone number'}
         disabled={disabled}
         readOnly={readOnly}
-        maxLength={maxLength + 5} // Allow some buffer for formatting characters
         className={cn(
           'flex-1 min-w-0 bg-transparent outline-none',
           'text-stone-900 dark:text-stone-100',
