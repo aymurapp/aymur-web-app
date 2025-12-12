@@ -631,13 +631,18 @@ export async function getUserSubscriptionLimitsAction(): Promise<
       };
     }
 
-    // Get user's active subscription
-    const { data: subscription } = await supabase
+    // Get user's most recent active subscription
+    // Using order by created_at DESC and limit 1 to handle edge cases
+    // where user might have multiple active subscriptions (e.g., failed upgrade cleanup)
+    const { data: subscriptions } = await supabase
       .from('subscriptions')
       .select('id_subscription, id_plan, status')
       .eq('id_user', userRecord.id_user)
       .eq('status', 'active')
-      .maybeSingle();
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    const subscription = subscriptions?.[0] ?? null;
 
     // Get plan details if subscription exists (limits from database)
     let plan: {

@@ -101,6 +101,7 @@ function logWebhook(
 /**
  * Handles customer.subscription.created event
  * Creates a new subscription record in the database
+ * Also cancels any existing active subscriptions for the user (upgrade scenario)
  */
 async function handleSubscriptionCreated(
   supabase: ReturnType<typeof createAdminClient>,
@@ -145,6 +146,47 @@ async function handleSubscriptionCreated(
     return;
   }
 
+  // Cancel any existing active subscriptions for this user (upgrade scenario)
+  // This handles cases where user subscribes to a new plan without canceling the old one
+  const { data: oldSubscriptions, error: oldSubError } = await supabase
+    .from('subscriptions')
+    .select('id_subscription, stripe_subscription_id')
+    .eq('id_user', userId)
+    .eq('status', 'active');
+
+  if (!oldSubError && oldSubscriptions && oldSubscriptions.length > 0) {
+    logWebhook(
+      eventId,
+      'customer.subscription.created',
+      'Found existing active subscriptions, marking as canceled',
+      {
+        count: oldSubscriptions.length,
+      }
+    );
+
+    // Mark old subscriptions as canceled in our database
+    const { error: cancelError } = await supabase
+      .from('subscriptions')
+      .update({
+        status: 'canceled' as SubscriptionStatus,
+        canceled_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id_user', userId)
+      .eq('status', 'active');
+
+    if (cancelError) {
+      logWebhook(
+        eventId,
+        'customer.subscription.created',
+        'Warning: Failed to cancel old subscriptions',
+        {
+          error: cancelError.message,
+        }
+      );
+    }
+  }
+
   // Get billing periods from the first subscription item (API 2025+ structure)
   const firstItem = subscription.items.data[0];
   const currentPeriodStart = firstItem?.current_period_start;
@@ -155,18 +197,46 @@ async function handleSubscriptionCreated(
   }
 
   // Insert new subscription
-  const { error: insertError } = await supabase.from('subscriptions').insert({
-    id_user: userId,
-    id_plan: plan.id_plan,
-    stripe_subscription_id: subscription.id,
-    status: mapSubscriptionStatus(subscription.status),
-    current_period_start: unixToISO(currentPeriodStart),
-    current_period_end: unixToISO(currentPeriodEnd),
-    cancel_at_period_end: subscription.cancel_at_period_end,
-  });
+  const { data: newSubscription, error: insertError } = await supabase
+    .from('subscriptions')
+    .insert({
+      id_user: userId,
+      id_plan: plan.id_plan,
+      stripe_subscription_id: subscription.id,
+      status: mapSubscriptionStatus(subscription.status),
+      current_period_start: unixToISO(currentPeriodStart),
+      current_period_end: unixToISO(currentPeriodEnd),
+      cancel_at_period_end: subscription.cancel_at_period_end,
+    })
+    .select('id_subscription')
+    .single();
 
   if (insertError) {
     throw new Error(`Failed to create subscription: ${insertError.message}`);
+  }
+
+  // Update any shops owned by this user to point to the new subscription
+  if (newSubscription) {
+    const { error: shopUpdateError } = await supabase
+      .from('shops')
+      .update({
+        id_subscription: newSubscription.id_subscription,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id_owner', userId);
+
+    if (shopUpdateError) {
+      logWebhook(
+        eventId,
+        'customer.subscription.created',
+        'Warning: Failed to update shop subscription',
+        {
+          error: shopUpdateError.message,
+        }
+      );
+    } else {
+      logWebhook(eventId, 'customer.subscription.created', 'Updated shop subscription references');
+    }
   }
 
   logWebhook(eventId, 'customer.subscription.created', 'Subscription created successfully', {
