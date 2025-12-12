@@ -17,51 +17,22 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
+import type { ActionResult } from '@/lib/actions/auth';
+import type { UserSession as ActionUserSession } from '@/lib/actions/sessions';
+
 // =============================================================================
 // TYPES
 // =============================================================================
 
 /**
- * User session data
+ * User session data - re-exported from actions for consistency
  */
-export interface UserSession {
-  /** Unique session identifier */
-  id_session: string;
-  /** User ID this session belongs to */
-  id_user: string;
-  /** Device/browser information */
-  user_agent: string | null;
-  /** IP address of the session */
-  ip_address: string | null;
-  /** Parsed device type (e.g., 'Desktop', 'Mobile', 'Tablet') */
-  device_type: string | null;
-  /** Parsed browser name */
-  browser: string | null;
-  /** Parsed operating system */
-  os: string | null;
-  /** Geographic location based on IP */
-  location: string | null;
-  /** When the session was created */
-  created_at: string;
-  /** Last activity timestamp */
-  last_active_at: string;
-  /** When the session expires */
-  expires_at: string | null;
-  /** Whether this session has been revoked */
-  is_revoked: boolean;
-  /** When the session was revoked (if applicable) */
-  revoked_at: string | null;
-}
+export type UserSession = ActionUserSession;
 
 /**
- * Action result type for session operations
+ * Action result type for session operations - uses ActionResult from auth
  */
-export interface SessionActionResult<T = void> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  code?: string;
-}
+export type SessionActionResult<T = void> = ActionResult<T>;
 
 /**
  * Server action functions interface
