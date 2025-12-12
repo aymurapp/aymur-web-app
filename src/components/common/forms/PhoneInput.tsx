@@ -248,19 +248,6 @@ interface CountryDropdownProps {
 }
 
 /**
- * Get all unique first letters from country names
- */
-function getAlphabetLetters(): string[] {
-  const letters = new Set<string>();
-  defaultCountries.forEach((c) => {
-    const parsed = parseCountry(c);
-    const firstLetter = parsed.name.charAt(0).toUpperCase();
-    letters.add(firstLetter);
-  });
-  return Array.from(letters).sort();
-}
-
-/**
  * Sort countries alphabetically by name
  */
 function getSortedCountries() {
@@ -271,7 +258,6 @@ function getSortedCountries() {
   });
 }
 
-const ALPHABET_LETTERS = getAlphabetLetters();
 const SORTED_COUNTRIES = getSortedCountries();
 
 function CountryDropdown({
@@ -284,7 +270,7 @@ function CountryDropdown({
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const letterRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Filter countries based on search
@@ -335,8 +321,14 @@ function CountryDropdown({
     // Reset search when opening
     setSearchQuery('');
 
-    // Close on scroll
-    const handleScroll = () => onClose();
+    // Close on OUTSIDE scroll only (not dropdown internal scroll)
+    const handleScroll = (e: Event) => {
+      // Check if scroll is happening inside the dropdown
+      if (dropdownRef.current?.contains(e.target as Node)) {
+        return; // Don't close on internal scroll
+      }
+      onClose();
+    };
     window.addEventListener('scroll', handleScroll, true);
     return () => window.removeEventListener('scroll', handleScroll, true);
   }, [isOpen, triggerRef, onClose]);
@@ -353,7 +345,7 @@ function CountryDropdown({
         return;
       }
 
-      // Quick letter jump (when not focused on search)
+      // Quick letter jump (when not focused on search input)
       if (
         document.activeElement !== searchInputRef.current &&
         e.key.length === 1 &&
@@ -371,14 +363,6 @@ function CountryDropdown({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Scroll to letter
-  const scrollToLetter = (letter: string) => {
-    const letterEl = letterRefs.current[letter];
-    if (letterEl) {
-      letterEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
-    }
-  };
-
   if (!isOpen || typeof window === 'undefined') {
     return null;
   }
@@ -390,8 +374,9 @@ function CountryDropdown({
 
       {/* Dropdown */}
       <div
+        ref={dropdownRef}
         className={cn(
-          'fixed z-[9999] flex',
+          'fixed z-[9999] flex flex-col',
           'bg-white dark:bg-stone-800',
           'border border-stone-200 dark:border-stone-600',
           'rounded-lg shadow-xl overflow-hidden'
@@ -399,101 +384,76 @@ function CountryDropdown({
         style={{
           top: position.top,
           left: position.left,
-          width: 320,
+          width: 280,
           maxHeight: 350,
         }}
       >
-        {/* Main content */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Search input */}
-          <div className="p-2 border-b border-stone-200 dark:border-stone-600">
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search country..."
-              className={cn(
-                'w-full px-3 py-1.5 text-sm',
-                'bg-stone-50 dark:bg-stone-700',
-                'border border-stone-200 dark:border-stone-600 rounded',
-                'text-stone-900 dark:text-stone-100',
-                'placeholder:text-stone-400 dark:placeholder:text-stone-500',
-                'focus:outline-none focus:ring-1 focus:ring-amber-500'
-              )}
-            />
-          </div>
-
-          {/* Country list */}
-          <div ref={listRef} className="flex-1 overflow-y-auto">
-            {Object.keys(groupedCountries).length === 0 ? (
-              <div className="p-4 text-center text-sm text-stone-500">No countries found</div>
-            ) : (
-              Object.entries(groupedCountries).map(([letter, countries]) => (
-                <div
-                  key={letter}
-                  ref={(el) => {
-                    letterRefs.current[letter] = el;
-                  }}
-                >
-                  {/* Letter header */}
-                  <div className="sticky top-0 px-3 py-1 text-xs font-semibold text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-700">
-                    {letter}
-                  </div>
-                  {/* Countries in this letter group */}
-                  {countries.map((countryData) => {
-                    const parsed = parseCountry(countryData);
-                    return (
-                      <button
-                        key={parsed.iso2}
-                        type="button"
-                        onClick={() => {
-                          onSelect(parsed.iso2);
-                          onClose();
-                        }}
-                        className={cn(
-                          'w-full flex items-center gap-2 px-3 py-2 text-start',
-                          'hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors',
-                          selectedCountry === parsed.iso2 && 'bg-amber-50 dark:bg-amber-900/20'
-                        )}
-                      >
-                        <FlagImage iso2={parsed.iso2} size="20px" />
-                        <span className="flex-1 text-sm text-stone-900 dark:text-stone-100 truncate">
-                          {parsed.name}
-                        </span>
-                        <span className="text-xs text-stone-500 dark:text-stone-400">
-                          +{parsed.dialCode}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              ))
+        {/* Search input */}
+        <div className="p-2 border-b border-stone-200 dark:border-stone-600">
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search country..."
+            className={cn(
+              'w-full px-3 py-1.5 text-sm',
+              'bg-stone-50 dark:bg-stone-700',
+              'border border-stone-200 dark:border-stone-600 rounded',
+              'text-stone-900 dark:text-stone-100',
+              'placeholder:text-stone-400 dark:placeholder:text-stone-500',
+              'focus:outline-none focus:ring-1 focus:ring-amber-500'
             )}
-          </div>
+          />
         </div>
 
-        {/* Alphabet sidebar */}
-        {!searchQuery && (
-          <div className="w-6 bg-stone-50 dark:bg-stone-700 border-s border-stone-200 dark:border-stone-600 flex flex-col items-center py-1 overflow-y-auto">
-            {ALPHABET_LETTERS.map((letter) => (
-              <button
+        {/* Country list */}
+        <div className="flex-1 overflow-y-auto">
+          {Object.keys(groupedCountries).length === 0 ? (
+            <div className="p-4 text-center text-sm text-stone-500">No countries found</div>
+          ) : (
+            Object.entries(groupedCountries).map(([letter, countries]) => (
+              <div
                 key={letter}
-                type="button"
-                onClick={() => scrollToLetter(letter)}
-                className={cn(
-                  'w-5 h-5 text-[10px] font-medium rounded',
-                  'text-stone-600 dark:text-stone-300',
-                  'hover:bg-amber-100 dark:hover:bg-amber-900/30',
-                  'hover:text-amber-700 dark:hover:text-amber-400',
-                  'transition-colors'
-                )}
+                ref={(el) => {
+                  letterRefs.current[letter] = el;
+                }}
               >
-                {letter}
-              </button>
-            ))}
-          </div>
-        )}
+                {/* Letter header */}
+                <div className="sticky top-0 px-3 py-1 text-xs font-semibold text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-700">
+                  {letter}
+                </div>
+                {/* Countries in this letter group */}
+                {countries.map((countryData) => {
+                  const parsed = parseCountry(countryData);
+                  return (
+                    <button
+                      key={parsed.iso2}
+                      type="button"
+                      onClick={() => {
+                        onSelect(parsed.iso2);
+                        onClose();
+                      }}
+                      className={cn(
+                        'w-full flex items-center gap-2 px-3 py-2 text-start',
+                        'hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors',
+                        selectedCountry === parsed.iso2 && 'bg-amber-50 dark:bg-amber-900/20'
+                      )}
+                    >
+                      <FlagImage iso2={parsed.iso2} size="20px" />
+                      <span className="flex-1 text-sm text-stone-900 dark:text-stone-100 truncate">
+                        {parsed.name}
+                      </span>
+                      <span className="text-xs text-stone-500 dark:text-stone-400">
+                        +{parsed.dialCode}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </>,
     document.body
