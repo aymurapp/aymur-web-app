@@ -83,6 +83,12 @@ const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
  */
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
+/**
+ * Signed URL expiration time in seconds (1 hour)
+ * Users will need to refresh after this time to get a new signed URL
+ */
+const SIGNED_URL_EXPIRATION = 60 * 60; // 1 hour
+
 // =============================================================================
 // HELPER FUNCTIONS
 // =============================================================================
@@ -116,6 +122,35 @@ function generateAvatarFilename(userId: string, originalName: string): string {
   const extension = originalName.split('.').pop()?.toLowerCase() || 'jpg';
   const timestamp = Date.now();
   return `${userId}/${timestamp}.${extension}`;
+}
+
+/**
+ * Generates a signed URL for an avatar path
+ * Returns null if path is empty or generation fails
+ */
+async function generateSignedAvatarUrl(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  avatarPath: string | null
+): Promise<string | null> {
+  if (!avatarPath) {
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabase.storage
+      .from(AVATARS_BUCKET)
+      .createSignedUrl(avatarPath, SIGNED_URL_EXPIRATION);
+
+    if (error) {
+      console.warn('[generateSignedAvatarUrl] Failed to create signed URL:', error.message);
+      return null;
+    }
+
+    return data.signedUrl;
+  } catch (err) {
+    console.warn('[generateSignedAvatarUrl] Unexpected error:', err);
+    return null;
+  }
 }
 
 // =============================================================================
@@ -188,14 +223,16 @@ export async function getProfile(): Promise<ActionResult<UserProfile>> {
       };
     }
 
-    // 3. Use avatar_url from public.users table (fallback to auth metadata for backwards compatibility)
-    const avatarUrl = profile.avatar_url || user.user_metadata?.avatar_url || null;
+    // 3. Generate signed URL for avatar (stored path in avatar_url field)
+    // The avatar_url field now stores the file PATH, not the full URL
+    const avatarPath = profile.avatar_url || null;
+    const signedAvatarUrl = await generateSignedAvatarUrl(supabase, avatarPath);
 
     return {
       success: true,
       data: {
         ...profile,
-        avatar_url: avatarUrl,
+        avatar_url: signedAvatarUrl,
       },
     };
   } catch (err) {
@@ -341,14 +378,23 @@ export async function updateProfile(data: UpdateProfileInput): Promise<ActionRes
     // 6. Revalidate relevant paths
     revalidatePath('/[locale]/[shopId]/profile', 'page');
 
-    // 7. Get avatar URL from auth metadata
-    const avatarUrl = user.user_metadata?.avatar_url || null;
+    // 7. Fetch avatar path and generate signed URL
+    const { data: userWithAvatar } = await supabase
+      .from('users')
+      .select('avatar_url')
+      .eq('auth_id', user.id)
+      .single();
+
+    const signedAvatarUrl = await generateSignedAvatarUrl(
+      supabase,
+      userWithAvatar?.avatar_url || null
+    );
 
     return {
       success: true,
       data: {
         ...updatedProfile,
-        avatar_url: avatarUrl,
+        avatar_url: signedAvatarUrl,
       },
       message: 'Profile updated successfully.',
     };
@@ -369,11 +415,12 @@ export async function updateProfile(data: UpdateProfileInput): Promise<ActionRes
 /**
  * Uploads a new avatar image for the current user.
  *
- * Uploads the image to Supabase Storage (avatars bucket) and updates
- * the user's auth metadata with the new avatar URL.
+ * Uploads the image to Supabase Storage (private avatars bucket) and stores
+ * the file PATH in the public.users table. Returns a signed URL for immediate use.
+ * The bucket is private - images can only be accessed via signed URLs.
  *
  * @param formData - FormData containing the avatar file with key 'avatar'
- * @returns ActionResult with the new avatar URL
+ * @returns ActionResult with a signed URL for the uploaded avatar
  *
  * @example
  * ```tsx
@@ -456,26 +503,23 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult<Ava
       };
     }
 
-    // 6. Get the public URL
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from(AVATARS_BUCKET).getPublicUrl(uploadData.path);
+    // 6. Store the file PATH (not public URL) - bucket is private, we use signed URLs
+    const avatarPath = uploadData.path;
 
-    // 7. Update auth.users metadata with new avatar URL
-    const { error: metaError } = await supabase.auth.updateUser({
-      data: { avatar_url: publicUrl },
-    });
+    // 7. Get old avatar path from users table for cleanup
+    const { data: currentUser } = await supabase
+      .from('users')
+      .select('avatar_url')
+      .eq('auth_id', user.id)
+      .single();
 
-    if (metaError) {
-      console.error('[uploadAvatar] Failed to update auth metadata:', metaError.message);
-      // Don't fail - the file was uploaded successfully
-    }
+    const oldAvatarPath = currentUser?.avatar_url;
 
-    // 7b. Also update public.users table with avatar URL (for persistence after session refresh)
+    // 8. Update public.users table with avatar PATH
     const { error: updateError } = await supabase
       .from('users')
       .update({
-        avatar_url: publicUrl,
+        avatar_url: avatarPath,
         updated_at: new Date().toISOString(),
       })
       .eq('auth_id', user.id);
@@ -485,30 +529,26 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult<Ava
       // Don't fail - the file was uploaded successfully
     }
 
-    // 8. Delete old avatar if exists (cleanup)
-    // Get old avatar path from metadata
-    const oldAvatarUrl = user.user_metadata?.avatar_url;
-    if (oldAvatarUrl && oldAvatarUrl.includes(AVATARS_BUCKET)) {
+    // 9. Delete old avatar if exists (cleanup)
+    if (oldAvatarPath) {
       try {
-        // Extract path from URL
-        const urlParts = oldAvatarUrl.split(`${AVATARS_BUCKET}/`);
-        if (urlParts[1]) {
-          const oldPath = decodeURIComponent(urlParts[1]);
-          await supabase.storage.from(AVATARS_BUCKET).remove([oldPath]);
-        }
+        await supabase.storage.from(AVATARS_BUCKET).remove([oldAvatarPath]);
       } catch (cleanupError) {
         console.warn('[uploadAvatar] Failed to cleanup old avatar:', cleanupError);
         // Don't fail the operation
       }
     }
 
-    // 9. Revalidate relevant paths
+    // 10. Generate signed URL for immediate use
+    const signedUrl = await generateSignedAvatarUrl(supabase, avatarPath);
+
+    // 11. Revalidate relevant paths
     revalidatePath('/[locale]/[shopId]/profile', 'page');
 
     return {
       success: true,
       data: {
-        avatar_url: publicUrl,
+        avatar_url: signedUrl || '',
       },
       message: 'Avatar uploaded successfully.',
     };
@@ -529,8 +569,8 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult<Ava
 /**
  * Deletes the current user's avatar.
  *
- * Removes the avatar from Supabase Storage and clears the avatar URL
- * from auth.users metadata.
+ * Removes the avatar from Supabase Storage and clears the avatar path
+ * from public.users table.
  *
  * @returns ActionResult indicating success or failure
  *
@@ -560,50 +600,47 @@ export async function deleteAvatar(): Promise<ActionResult> {
       };
     }
 
-    // 2. Get current avatar URL
-    const avatarUrl = user.user_metadata?.avatar_url;
+    // 2. Get current avatar path from users table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('avatar_url')
+      .eq('auth_id', user.id)
+      .single();
 
-    if (!avatarUrl) {
+    if (userError) {
+      console.error('[deleteAvatar] Failed to get user data:', userError.message);
+      return {
+        success: false,
+        error: 'Failed to retrieve avatar information.',
+        code: 'database_error',
+      };
+    }
+
+    const avatarPath = userData?.avatar_url;
+
+    if (!avatarPath) {
       return {
         success: true,
         message: 'No avatar to delete.',
       };
     }
 
-    // 3. Delete from storage if it's our bucket
-    if (avatarUrl.includes(AVATARS_BUCKET)) {
-      try {
-        const urlParts = avatarUrl.split(`${AVATARS_BUCKET}/`);
-        if (urlParts[1]) {
-          const path = decodeURIComponent(urlParts[1]);
-          const { error: deleteError } = await supabase.storage.from(AVATARS_BUCKET).remove([path]);
+    // 3. Delete from storage using the path
+    try {
+      const { error: deleteError } = await supabase.storage
+        .from(AVATARS_BUCKET)
+        .remove([avatarPath]);
 
-          if (deleteError) {
-            console.warn('[deleteAvatar] Storage delete error:', deleteError.message);
-            // Continue anyway - we'll still clear the metadata
-          }
-        }
-      } catch (storageError) {
-        console.warn('[deleteAvatar] Failed to delete from storage:', storageError);
-        // Continue anyway
+      if (deleteError) {
+        console.warn('[deleteAvatar] Storage delete error:', deleteError.message);
+        // Continue anyway - we'll still clear the database
       }
+    } catch (storageError) {
+      console.warn('[deleteAvatar] Failed to delete from storage:', storageError);
+      // Continue anyway
     }
 
-    // 4. Clear avatar URL from auth metadata
-    const { error: metaError } = await supabase.auth.updateUser({
-      data: { avatar_url: null },
-    });
-
-    if (metaError) {
-      console.error('[deleteAvatar] Failed to clear auth metadata:', metaError.message);
-      return {
-        success: false,
-        error: 'Failed to remove avatar.',
-        code: 'metadata_error',
-      };
-    }
-
-    // 4b. Clear avatar URL from public.users table
+    // 4. Clear avatar path from public.users table
     const { error: updateError } = await supabase
       .from('users')
       .update({
@@ -614,7 +651,11 @@ export async function deleteAvatar(): Promise<ActionResult> {
 
     if (updateError) {
       console.error('[deleteAvatar] Failed to clear users table:', updateError.message);
-      // Don't fail - auth metadata was already cleared
+      return {
+        success: false,
+        error: 'Failed to remove avatar.',
+        code: 'database_error',
+      };
     }
 
     // 5. Revalidate relevant paths
@@ -629,6 +670,87 @@ export async function deleteAvatar(): Promise<ActionResult> {
     return {
       success: false,
       error: 'An unexpected error occurred while deleting your avatar.',
+      code: 'unexpected_error',
+    };
+  }
+}
+
+// =============================================================================
+// GET AVATAR SIGNED URL (for client-side use)
+// =============================================================================
+
+/**
+ * Generates a signed URL for the current user's avatar.
+ *
+ * Use this when you have the avatar path (from useUser hook) and need
+ * a signed URL to display the image. Signed URLs expire after 1 hour.
+ *
+ * @returns ActionResult with the signed avatar URL
+ *
+ * @example
+ * ```tsx
+ * const result = await getAvatarSignedUrl();
+ * if (result.success && result.data) {
+ *   setAvatarUrl(result.data.avatar_url);
+ * }
+ * ```
+ */
+export async function getAvatarSignedUrl(): Promise<ActionResult<AvatarUploadResult>> {
+  try {
+    const supabase = await createClient();
+
+    // 1. Verify authentication
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return {
+        success: false,
+        error: 'You must be logged in.',
+        code: 'unauthorized',
+      };
+    }
+
+    // 2. Get avatar path from users table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('avatar_url')
+      .eq('auth_id', user.id)
+      .single();
+
+    if (userError) {
+      return {
+        success: false,
+        error: 'Failed to retrieve user data.',
+        code: 'database_error',
+      };
+    }
+
+    const avatarPath = userData?.avatar_url;
+
+    if (!avatarPath) {
+      return {
+        success: true,
+        data: { avatar_url: '' },
+      };
+    }
+
+    // 3. Generate signed URL
+    const signedUrl = await generateSignedAvatarUrl(supabase, avatarPath);
+
+    return {
+      success: true,
+      data: {
+        avatar_url: signedUrl || '',
+      },
+    };
+  } catch (err) {
+    console.error('[getAvatarSignedUrl] Unexpected error:', err);
+    return {
+      success: false,
+      error: 'An unexpected error occurred.',
       code: 'unexpected_error',
     };
   }

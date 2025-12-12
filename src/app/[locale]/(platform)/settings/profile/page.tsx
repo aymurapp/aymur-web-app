@@ -479,7 +479,7 @@ export default function ProfileSettingsPage(): React.JSX.Element {
           full_name: user.full_name || '',
           email: user.email || '',
           phone: user.phone || null,
-          avatar_url: null, // Avatar is stored in Supabase Auth metadata, fetched separately
+          avatar_url: user.avatar_url || null,
           country: user.country || null,
           province: user.province || null,
           city: user.city || null,
