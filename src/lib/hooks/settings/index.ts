@@ -142,7 +142,7 @@ export {
   // Query keys
   billingKeys,
   // Types
-  type Plan,
+  type BillingPlan,
   type SubscriptionLimits,
   type SubscriptionUsage,
   type UrlResult,

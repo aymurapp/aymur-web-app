@@ -23,9 +23,10 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 // =============================================================================
 
 /**
- * Available subscription plan
+ * Available subscription plan for billing UI
+ * Note: Named BillingPlan to avoid conflict with Plan from data/useSubscription
  */
-export interface Plan {
+export interface BillingPlan {
   id: string;
   name: string;
   stripePriceId: string | null;
@@ -101,7 +102,7 @@ export interface BillingActionResult<T = void> {
  * Server action functions interface
  */
 export interface BillingActions {
-  getAvailablePlansAction: () => Promise<BillingActionResult<Plan[]>>;
+  getAvailablePlansAction: () => Promise<BillingActionResult<BillingPlan[]>>;
   getUserSubscriptionLimitsAction: () => Promise<BillingActionResult<SubscriptionLimits>>;
   getSubscriptionUsageAction: (shopId: string) => Promise<BillingActionResult<SubscriptionUsage>>;
   createCheckoutSessionAction: (
