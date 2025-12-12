@@ -5,8 +5,8 @@
  *
  * A form component for editing user profile information.
  * Features:
- * - Avatar upload with preview
- * - Profile fields (name, phone, address)
+ * - Two-card layout: Avatar card + Basic Info card (side by side)
+ * - Address section with Google Places autocomplete
  * - Zod validation
  * - Server action integration
  * - Loading states and error handling
@@ -17,13 +17,15 @@
 import React, { useCallback, useState, useTransition } from 'react';
 
 import { UserOutlined, CameraOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
-import { Avatar, Input, Upload, message, Spin, Divider, Space } from 'antd';
+import { Avatar, Input, Upload, message, Spin } from 'antd';
 import { useTranslations } from 'next-intl';
 
+import { AddressAutocomplete } from '@/components/common/forms/AddressAutocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Form } from '@/components/ui/Form';
 import { updateProfile, uploadAvatar, deleteAvatar } from '@/lib/actions/profile';
+import type { ParsedAddress } from '@/lib/types/address';
 import { profileUpdateSchema, type ProfileUpdateInput } from '@/lib/utils/validation';
 
 import type { RcFile, UploadProps } from 'antd/es/upload';
@@ -84,13 +86,16 @@ export function ProfileSettingsForm({
   initialData,
   onSuccess,
 }: ProfileSettingsFormProps): JSX.Element {
-  const t = useTranslations();
+  const t = useTranslations('userSettings');
   const [isPending, startTransition] = useTransition();
 
   // Avatar state
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initialData.avatar_url);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isDeletingAvatar, setIsDeletingAvatar] = useState(false);
+
+  // Address state for Google Places autocomplete
+  const [addressValue, setAddressValue] = useState(initialData.address || '');
 
   /**
    * Handle avatar file upload
@@ -206,129 +211,212 @@ export function ProfileSettingsForm({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Avatar Section */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-stone-900 mb-4">{t('profile.avatar')}</h3>
+    <Form<ProfileUpdateInput>
+      schema={profileUpdateSchema}
+      onSubmit={handleSubmit}
+      defaultValues={{
+        full_name: initialData.full_name,
+        email: initialData.email,
+        phone: initialData.phone || '',
+        country: initialData.country || '',
+        province: initialData.province || '',
+        city: initialData.city || '',
+        address: initialData.address || '',
+      }}
+      className="space-y-6"
+    >
+      {({ setValue }) => {
+        /**
+         * Handle address selection from Google Places autocomplete
+         */
+        const handleAddressSelect = (parsedAddress: ParsedAddress): void => {
+          // Set the full address
+          if (parsedAddress.fullAddress) {
+            setAddressValue(parsedAddress.fullAddress);
+            setValue('address', parsedAddress.fullAddress, { shouldDirty: true });
+          }
 
-        <div className="flex items-center gap-6">
-          {/* Avatar Preview */}
-          <div className="relative">
-            <Avatar
-              size={96}
-              src={avatarUrl}
-              icon={!avatarUrl && <UserOutlined />}
-              className="bg-amber-100 text-amber-600"
-            />
-            {(isUploadingAvatar || isDeletingAvatar) && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-full">
-                <Spin indicator={<LoadingOutlined className="text-white" spin />} />
+          // Set city
+          if (parsedAddress.city) {
+            setValue('city', parsedAddress.city, { shouldDirty: true });
+          }
+
+          // Set province/area
+          if (parsedAddress.area) {
+            setValue('province', parsedAddress.area, { shouldDirty: true });
+          }
+
+          // Set country
+          if (parsedAddress.country) {
+            setValue('country', parsedAddress.country, { shouldDirty: true });
+          }
+        };
+
+        return (
+          <>
+            {/* Top Section: Avatar Card + Basic Info Card (side by side) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Avatar Card */}
+              <Card className="p-6 lg:col-span-1">
+                <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-4">
+                  {t('profile.avatar')}
+                </h3>
+
+                <div className="flex flex-col items-center gap-4">
+                  {/* Avatar Preview */}
+                  <div className="relative">
+                    <Avatar
+                      size={120}
+                      src={avatarUrl}
+                      icon={!avatarUrl && <UserOutlined />}
+                      className="bg-amber-100 text-amber-600"
+                    />
+                    {(isUploadingAvatar || isDeletingAvatar) && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-full">
+                        <Spin indicator={<LoadingOutlined className="text-white" spin />} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Avatar Actions */}
+                  <div className="flex flex-col gap-2 w-full">
+                    <Upload {...uploadProps} className="w-full">
+                      <Button
+                        icon={<CameraOutlined />}
+                        loading={isUploadingAvatar}
+                        disabled={isDeletingAvatar}
+                        className="w-full"
+                      >
+                        {t('profile.uploadAvatar')}
+                      </Button>
+                    </Upload>
+
+                    {avatarUrl && (
+                      <Button
+                        icon={<DeleteOutlined />}
+                        danger
+                        onClick={handleAvatarDelete}
+                        loading={isDeletingAvatar}
+                        disabled={isUploadingAvatar}
+                        className="w-full"
+                      >
+                        {t('profile.removeAvatar')}
+                      </Button>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-stone-500 dark:text-stone-400 text-center">
+                    {t('profile.avatarHint')}
+                  </p>
+                </div>
+              </Card>
+
+              {/* Basic Info Card */}
+              <Card className="p-6 lg:col-span-2">
+                <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-4">
+                  {t('profile.personalInfo')}
+                </h3>
+
+                <div className="space-y-4">
+                  {/* Full Name */}
+                  <Form.Item<ProfileUpdateInput>
+                    name="full_name"
+                    label={t('profile.fullName')}
+                    required
+                  >
+                    <Input
+                      size="large"
+                      placeholder={t('profile.fullNamePlaceholder')}
+                      maxLength={100}
+                    />
+                  </Form.Item>
+
+                  {/* Email (Read-only) */}
+                  <Form.Item<ProfileUpdateInput> name="email" label={t('profile.email')}>
+                    <Input size="large" disabled className="bg-stone-50 dark:bg-stone-800" />
+                  </Form.Item>
+
+                  {/* Phone */}
+                  <Form.Item<ProfileUpdateInput> name="phone" label={t('profile.phone')}>
+                    <Input
+                      size="large"
+                      placeholder={t('profile.phonePlaceholder')}
+                      maxLength={20}
+                    />
+                  </Form.Item>
+                </div>
+              </Card>
+            </div>
+
+            {/* Address Section */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-4">
+                {t('profile.addressInfo')}
+              </h3>
+
+              <div className="space-y-4">
+                {/* Address with Google Places Autocomplete */}
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
+                    {t('profile.address')}
+                  </label>
+                  <AddressAutocomplete
+                    onAddressSelect={handleAddressSelect}
+                    value={addressValue}
+                    onChange={(value) => {
+                      setAddressValue(value);
+                      setValue('address', value, { shouldDirty: true });
+                    }}
+                    placeholder={t('profile.addressPlaceholder')}
+                    size="large"
+                  />
+                  <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                    {t('profile.addressHint')}
+                  </p>
+                </div>
+
+                {/* City, Province, Country - 3 columns */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* City */}
+                  <Form.Item<ProfileUpdateInput> name="city" label={t('profile.city')}>
+                    <Input
+                      size="large"
+                      placeholder={t('profile.cityPlaceholder')}
+                      maxLength={100}
+                    />
+                  </Form.Item>
+
+                  {/* Province */}
+                  <Form.Item<ProfileUpdateInput> name="province" label={t('profile.province')}>
+                    <Input
+                      size="large"
+                      placeholder={t('profile.provincePlaceholder')}
+                      maxLength={100}
+                    />
+                  </Form.Item>
+
+                  {/* Country */}
+                  <Form.Item<ProfileUpdateInput> name="country" label={t('profile.country')}>
+                    <Input
+                      size="large"
+                      placeholder={t('profile.countryPlaceholder')}
+                      maxLength={100}
+                    />
+                  </Form.Item>
+                </div>
               </div>
-            )}
-          </div>
 
-          {/* Avatar Actions */}
-          <div className="flex flex-col gap-2">
-            <Space>
-              <Upload {...uploadProps}>
-                <Button
-                  icon={<CameraOutlined />}
-                  loading={isUploadingAvatar}
-                  disabled={isDeletingAvatar}
-                >
-                  {t('profile.uploadAvatar')}
+              {/* Submit Button */}
+              <Form.Submit className="pt-6">
+                <Button type="primary" size="large" loading={isPending} className="min-w-[160px]">
+                  {isPending ? t('profile.saving') : t('profile.saveChanges')}
                 </Button>
-              </Upload>
-
-              {avatarUrl && (
-                <Button
-                  icon={<DeleteOutlined />}
-                  danger
-                  onClick={handleAvatarDelete}
-                  loading={isDeletingAvatar}
-                  disabled={isUploadingAvatar}
-                >
-                  {t('profile.removeAvatar')}
-                </Button>
-              )}
-            </Space>
-
-            <p className="text-sm text-stone-500">{t('profile.avatarHint')}</p>
-          </div>
-        </div>
-      </Card>
-
-      {/* Profile Form */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-stone-900 mb-4">{t('profile.personalInfo')}</h3>
-
-        <Form<ProfileUpdateInput>
-          schema={profileUpdateSchema}
-          onSubmit={handleSubmit}
-          defaultValues={{
-            full_name: initialData.full_name,
-            email: initialData.email,
-            phone: initialData.phone || '',
-            country: initialData.country || '',
-            province: initialData.province || '',
-            city: initialData.city || '',
-            address: initialData.address || '',
-          }}
-          className="space-y-4"
-        >
-          {/* Full Name */}
-          <Form.Item<ProfileUpdateInput> name="full_name" label={t('profile.fullName')} required>
-            <Input size="large" placeholder={t('profile.fullNamePlaceholder')} maxLength={100} />
-          </Form.Item>
-
-          {/* Email (Read-only) */}
-          <Form.Item<ProfileUpdateInput> name="email" label={t('profile.email')}>
-            <Input size="large" disabled className="bg-stone-50" />
-          </Form.Item>
-
-          {/* Phone */}
-          <Form.Item<ProfileUpdateInput> name="phone" label={t('profile.phone')}>
-            <Input size="large" placeholder={t('profile.phonePlaceholder')} maxLength={20} />
-          </Form.Item>
-
-          <Divider className="my-6" />
-
-          <h4 className="text-base font-medium text-stone-800 mb-4">{t('profile.addressInfo')}</h4>
-
-          {/* Country */}
-          <Form.Item<ProfileUpdateInput> name="country" label={t('profile.country')}>
-            <Input size="large" placeholder={t('profile.countryPlaceholder')} maxLength={100} />
-          </Form.Item>
-
-          {/* Province */}
-          <Form.Item<ProfileUpdateInput> name="province" label={t('profile.province')}>
-            <Input size="large" placeholder={t('profile.provincePlaceholder')} maxLength={100} />
-          </Form.Item>
-
-          {/* City */}
-          <Form.Item<ProfileUpdateInput> name="city" label={t('profile.city')}>
-            <Input size="large" placeholder={t('profile.cityPlaceholder')} maxLength={100} />
-          </Form.Item>
-
-          {/* Address */}
-          <Form.Item<ProfileUpdateInput> name="address" label={t('profile.address')}>
-            <Input.TextArea
-              rows={3}
-              placeholder={t('profile.addressPlaceholder')}
-              maxLength={500}
-              showCount
-            />
-          </Form.Item>
-
-          {/* Submit Button */}
-          <Form.Submit className="pt-4">
-            <Button type="primary" size="large" loading={isPending} className="min-w-[160px]">
-              {isPending ? t('common.actions.saving') : t('common.actions.saveChanges')}
-            </Button>
-          </Form.Submit>
-        </Form>
-      </Card>
-    </div>
+              </Form.Submit>
+            </Card>
+          </>
+        );
+      }}
+    </Form>
   );
 }
 
