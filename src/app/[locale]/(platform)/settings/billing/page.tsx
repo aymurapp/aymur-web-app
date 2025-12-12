@@ -14,7 +14,7 @@
  * @module app/(platform)/[locale]/settings/billing/page
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -535,7 +535,11 @@ function PlanCard({
 // MAIN COMPONENT
 // =============================================================================
 
-export default function BillingSettingsPage(): React.JSX.Element {
+/**
+ * Inner billing content component that uses useSearchParams
+ * Must be wrapped in Suspense boundary
+ */
+function BillingSettingsContent(): React.JSX.Element {
   const t = useTranslations('userSettings');
   const searchParams = useSearchParams();
   const { isLoading: userLoading } = useUser();
@@ -690,5 +694,17 @@ export default function BillingSettingsPage(): React.JSX.Element {
         </div>
       </Card>
     </div>
+  );
+}
+
+/**
+ * Billing Settings Page
+ * Wraps content in Suspense boundary for useSearchParams compatibility
+ */
+export default function BillingSettingsPage(): React.JSX.Element {
+  return (
+    <Suspense fallback={<BillingSkeleton />}>
+      <BillingSettingsContent />
+    </Suspense>
   );
 }
