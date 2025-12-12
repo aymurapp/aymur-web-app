@@ -40,9 +40,9 @@ export type SessionActionResult<T = void> = ActionResult<T>;
  */
 export interface SessionActions {
   getUserSessions: () => Promise<SessionActionResult<UserSession[]>>;
-  getCurrentSessionId: () => Promise<SessionActionResult<string>>;
+  getCurrentSessionId: () => Promise<string | null>;
   revokeSession: (sessionId: string) => Promise<SessionActionResult>;
-  revokeAllOtherSessions: () => Promise<SessionActionResult<number>>;
+  revokeAllOtherSessions: () => Promise<SessionActionResult<{ count: number }>>;
 }
 
 // =============================================================================
