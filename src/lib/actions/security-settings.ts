@@ -395,7 +395,9 @@ export async function getLoginHistory(
     // Get login history from sessions
     const { data: sessions, error: sessionsError } = await supabase
       .from('users_sessions')
-      .select('id_session, created_at, ip_address, user_agent, browser, os, location, is_revoked')
+      .select(
+        'id_session, created_at, ip_address, user_agent, city, region, country_code, revoked_at'
+      )
       .eq('id_user', userRecord.id_user)
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -404,16 +406,30 @@ export async function getLoginHistory(
       return { success: false, error: sessionsError.message, code: 'fetch_error' };
     }
 
-    const history: LoginHistoryRecord[] = (sessions || []).map((s) => ({
-      id: s.id_session,
-      timestamp: s.created_at,
-      ipAddress: s.ip_address,
-      userAgent: s.user_agent,
-      browser: s.browser,
-      os: s.os,
-      location: s.location,
-      success: !s.is_revoked, // Treat non-revoked sessions as successful logins
-    }));
+    const history: LoginHistoryRecord[] = (sessions || []).map((s) => {
+      // Build location from available fields
+      const locationParts: string[] = [];
+      if (s.city) {
+        locationParts.push(s.city);
+      }
+      if (s.region) {
+        locationParts.push(s.region);
+      }
+      if (s.country_code) {
+        locationParts.push(s.country_code);
+      }
+
+      return {
+        id: s.id_session,
+        timestamp: s.created_at,
+        ipAddress: s.ip_address,
+        userAgent: s.user_agent,
+        browser: null, // Browser info not stored in DB, would need parsing from user_agent
+        os: null, // OS info not stored in DB, would need parsing from user_agent
+        location: locationParts.length > 0 ? locationParts.join(', ') : null,
+        success: s.revoked_at === null, // Non-revoked sessions are successful logins
+      };
+    });
 
     return { success: true, data: history };
   } catch (error) {
