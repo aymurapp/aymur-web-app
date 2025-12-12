@@ -3,6 +3,44 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      account_deletion_tokens: {
+        Row: {
+          created_at: string;
+          expires_at: string;
+          id_token: string;
+          id_user: string;
+          reason: string | null;
+          token_hash: string;
+          used_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          expires_at: string;
+          id_token?: string;
+          id_user: string;
+          reason?: string | null;
+          token_hash: string;
+          used_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          expires_at?: string;
+          id_token?: string;
+          id_user?: string;
+          reason?: string | null;
+          token_hash?: string;
+          used_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'account_deletion_tokens_id_user_fkey';
+            columns: ['id_user'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id_user'];
+          }
+        ];
+      };
       ai_conversations: {
         Row: {
           created_at: string;
@@ -1163,6 +1201,47 @@ export type Database = {
           weight_grams?: number;
         };
         Relationships: [];
+      };
+      login_attempts: {
+        Row: {
+          created_at: string;
+          failure_reason: string | null;
+          id_attempt: string;
+          id_user: string | null;
+          identifier: string;
+          ip_address: unknown | null;
+          success: boolean;
+          user_agent: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          failure_reason?: string | null;
+          id_attempt?: string;
+          id_user?: string | null;
+          identifier: string;
+          ip_address?: unknown | null;
+          success: boolean;
+          user_agent?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          failure_reason?: string | null;
+          id_attempt?: string;
+          id_user?: string | null;
+          identifier?: string;
+          ip_address?: unknown | null;
+          success?: boolean;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'login_attempts_id_user_fkey';
+            columns: ['id_user'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id_user'];
+          }
+        ];
       };
       item_stones: {
         Row: {
@@ -2450,6 +2529,133 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      user_global_notification_settings: {
+        Row: {
+          created_at: string;
+          email_billing_alerts: boolean;
+          email_marketing: boolean;
+          email_product_updates: boolean;
+          email_security_alerts: boolean;
+          id_notification_settings: string;
+          id_user: string;
+          push_billing_alerts: boolean;
+          push_enabled: boolean;
+          push_security_alerts: boolean;
+          quiet_hours_enabled: boolean;
+          quiet_hours_end: string | null;
+          quiet_hours_start: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          email_billing_alerts?: boolean;
+          email_marketing?: boolean;
+          email_product_updates?: boolean;
+          email_security_alerts?: boolean;
+          id_notification_settings?: string;
+          id_user: string;
+          push_billing_alerts?: boolean;
+          push_enabled?: boolean;
+          push_security_alerts?: boolean;
+          quiet_hours_enabled?: boolean;
+          quiet_hours_end?: string | null;
+          quiet_hours_start?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          email_billing_alerts?: boolean;
+          email_marketing?: boolean;
+          email_product_updates?: boolean;
+          email_security_alerts?: boolean;
+          id_notification_settings?: string;
+          id_user?: string;
+          push_billing_alerts?: boolean;
+          push_enabled?: boolean;
+          push_security_alerts?: boolean;
+          quiet_hours_enabled?: boolean;
+          quiet_hours_end?: string | null;
+          quiet_hours_start?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'user_global_notification_settings_id_user_fkey';
+            columns: ['id_user'];
+            isOneToOne: true;
+            referencedRelation: 'users';
+            referencedColumns: ['id_user'];
+          }
+        ];
+      };
+      users_sessions: {
+        Row: {
+          city: string | null;
+          country: string | null;
+          country_code: string | null;
+          created_at: string;
+          device_fingerprint: string | null;
+          device_info: string | null;
+          expires_at: string;
+          id_session: string;
+          id_user: string;
+          ip_address: string | null;
+          is_active: boolean;
+          is_trusted_device: boolean | null;
+          last_activity_at: string | null;
+          region: string | null;
+          revoked_at: string | null;
+          session_token_hash: string | null;
+          user_agent: string | null;
+        };
+        Insert: {
+          city?: string | null;
+          country?: string | null;
+          country_code?: string | null;
+          created_at?: string;
+          device_fingerprint?: string | null;
+          device_info?: string | null;
+          expires_at: string;
+          id_session?: string;
+          id_user: string;
+          ip_address?: string | null;
+          is_active?: boolean;
+          is_trusted_device?: boolean | null;
+          last_activity_at?: string | null;
+          region?: string | null;
+          revoked_at?: string | null;
+          session_token_hash?: string | null;
+          user_agent?: string | null;
+        };
+        Update: {
+          city?: string | null;
+          country?: string | null;
+          country_code?: string | null;
+          created_at?: string;
+          device_fingerprint?: string | null;
+          device_info?: string | null;
+          expires_at?: string;
+          id_session?: string;
+          id_user?: string;
+          ip_address?: string | null;
+          is_active?: boolean;
+          is_trusted_device?: boolean | null;
+          last_activity_at?: string | null;
+          region?: string | null;
+          revoked_at?: string | null;
+          session_token_hash?: string | null;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'users_sessions_id_user_fkey';
+            columns: ['id_user'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id_user'];
+          }
+        ];
       };
       workshop_orders: {
         Row: {

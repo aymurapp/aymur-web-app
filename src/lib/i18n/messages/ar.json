@@ -1803,5 +1803,360 @@
       "enableAllTooltip": "تفعيل جميع الصلاحيات في هذه المجموعة",
       "disableAllTooltip": "تعطيل جميع الصلاحيات في هذه المجموعة"
     }
+  },
+  "userSettings": {
+    "title": "اعدادات الحساب",
+    "subtitle": "ادارة تفضيلات حسابك والامان",
+    "backToShops": "العودة الى المتاجر",
+    "user": "مستخدم",
+    "menu": "القائمة",
+    "language": "اللغة",
+    "allRightsReserved": "جميع الحقوق محفوظة.",
+    "navigation": {
+      "profile": "الملف الشخصي",
+      "billing": "الفوترة",
+      "security": "الامان",
+      "sessions": "الجلسات",
+      "notifications": "الاشعارات"
+    },
+    "profile": {
+      "title": "اعدادات الملف الشخصي",
+      "subtitle": "ادارة معلوماتك الشخصية وتفضيلاتك",
+      "personalInfo": "المعلومات الشخصية",
+      "avatar": "صورة الملف الشخصي",
+      "changeAvatar": "تغيير الصورة",
+      "removeAvatar": "ازالة الصورة",
+      "fullName": "الاسم الكامل",
+      "email": "البريد الالكتروني",
+      "phone": "رقم الهاتف",
+      "country": "البلد",
+      "city": "المدينة",
+      "timezone": "المنطقة الزمنية",
+      "saveChanges": "حفظ التغييرات",
+      "saved": "تم تحديث الملف الشخصي بنجاح",
+      "dangerZone": {
+        "title": "منطقة الخطر",
+        "description": "حذف حسابك وجميع البيانات المرتبطة به نهائيا. لا يمكن التراجع عن هذا الإجراء.",
+        "deleteButton": "حذف الحساب",
+        "modalTitle": "حذف الحساب",
+        "modalDescription": "هذا الإجراء لا رجعة فيه. يرجى قراءة ما يلي بعناية قبل المتابعة.",
+        "warningTitle": "ما سيتم حذفه:",
+        "warningItem1": "ملفك الشخصي وجميع معلوماتك الشخصية",
+        "warningItem2": "جميع المتاجر التي تملكها وبياناتها",
+        "warningItem3": "وصولك إلى جميع المتاجر المشتركة",
+        "reasonLabel": "لماذا تغادر؟",
+        "selectReasonPlaceholder": "اختر سبباً",
+        "selectReason": "يرجى اختيار سبب لحذف حسابك",
+        "feedbackLabel": "ملاحظات إضافية (اختياري)",
+        "feedbackPlaceholder": "ساعدنا على فهم كيف يمكننا التحسين...",
+        "passwordLabel": "أدخل كلمة المرور للمتابعة",
+        "passwordPlaceholder": "كلمة المرور الحالية",
+        "passwordRequired": "يرجى إدخال كلمة المرور للمتابعة",
+        "confirmDelete": "حذف حسابي",
+        "deletionRequested": "تم طلب حذف الحساب. لديك 30 يوماً لإلغاء هذا الطلب.",
+        "deletionError": "فشل في طلب حذف الحساب. يرجى المحاولة مرة أخرى.",
+        "pendingDeletionTitle": "حذف الحساب معلق",
+        "pendingDeletionDescription": "تم جدولة حسابك للحذف. يمكنك إلغاء هذا الطلب خلال 30 يوماً.",
+        "cancelDeletion": "إلغاء الحذف",
+        "confirmDeletionButton": "تأكيد الحذف",
+        "confirmModalTitle": "تأكيد حذف الحساب",
+        "confirmDescription": "لقد طلبت بالفعل حذف الحساب. لإكمال هذا الإجراء، يرجى التأكيد بكتابة عنوان بريدك الإلكتروني أدناه.",
+        "finalWarning": "هذا الإجراء دائم ولا يمكن التراجع عنه. سيتم حذف جميع بياناتك نهائياً.",
+        "typeEmailLabel": "اكتب عنوان بريدك الإلكتروني ({email}) للتأكيد",
+        "emailRequired": "يرجى إدخال عنوان بريدك الإلكتروني",
+        "emailMismatch": "عنوان البريد الإلكتروني غير متطابق",
+        "requestDeletion": "طلب الحذف",
+        "accountDeleted": "تم حذف حسابك بنجاح",
+        "deletionCancelled": "تم إلغاء طلب حذف الحساب",
+        "cancelError": "فشل في إلغاء طلب الحذف. يرجى المحاولة مرة أخرى.",
+        "reasons": {
+          "noLongerNeeded": "لم أعد بحاجة إلى هذه الخدمة",
+          "privacyConcerns": "لدي مخاوف تتعلق بالخصوصية",
+          "switchingService": "أنتقل إلى خدمة أخرى",
+          "tooExpensive": "الخدمة مكلفة جداً",
+          "missingFeatures": "ميزات مفقودة أحتاجها",
+          "tooComplex": "الخدمة معقدة جداً للاستخدام",
+          "other": "سبب آخر"
+        }
+      }
+    },
+    "billing": {
+      "title": "الفوترة والاشتراك",
+      "subtitle": "إدارة خطة اشتراكك وطرق الدفع",
+      "currentPlan": "الخطة الحالية",
+      "noPlan": "لا توجد خطة",
+      "active": "نشط",
+      "nextBilling": "الفاتورة القادمة",
+      "month": "شهر",
+      "manageSubscription": "إدارة الاشتراك",
+      "openingPortal": "جاري فتح بوابة الفوترة...",
+      "portalError": "فشل في فتح بوابة الفوترة",
+      "redirectingToCheckout": "جاري إعادة التوجيه للدفع...",
+      "checkoutError": "فشل في بدء عملية الدفع",
+      "checkoutSuccess": "تم تحديث الاشتراك بنجاح!",
+      "checkoutCanceled": "تم إلغاء عملية الدفع. لم يتم إجراء أي تغييرات.",
+      "noPriceId": "هذه الخطة غير متاحة للشراء",
+      "changePlan": "تغيير الخطة",
+      "cancelSubscription": "إلغاء الاشتراك",
+      "paymentMethods": "طرق الدفع",
+      "addPaymentMethod": "إضافة طريقة دفع",
+      "billingHistory": "سجل الفوترة",
+      "nextBillingDate": "تاريخ الفاتورة القادمة",
+      "noBillingHistory": "لا يوجد سجل فوترة بعد",
+      "availablePlans": "الخطط المتاحة",
+      "popular": "الأكثر شعبية",
+      "custom": "مخصص",
+      "contactSales": "تواصل معنا للتسعير",
+      "contactSalesBtn": "تواصل مع المبيعات",
+      "includes": "يتضمن",
+      "upgrade": "ترقية",
+      "guarantee": "ضمان استرداد الأموال لمدة 30 يوماً. بدون أسئلة.",
+      "status": {
+        "active": "نشط",
+        "trialing": "تجربة",
+        "pastDue": "متأخر",
+        "canceled": "ملغى"
+      },
+      "renewsOn": "يتجدد في {date}",
+      "endsOn": "ينتهي في {date}",
+      "usage": {
+        "title": "إحصائيات الاستخدام",
+        "shops": "المتاجر",
+        "storage": "التخزين",
+        "aiCredits": "رصيد الذكاء الاصطناعي",
+        "unlimited": "غير محدود"
+      },
+      "features": {
+        "unlimitedShops": "متاجر غير محدودة",
+        "shopsLimit": "حتى {count} متاجر",
+        "unlimitedStaff": "أعضاء فريق غير محدودين",
+        "staffLimit": "{count} أعضاء فريق لكل متجر",
+        "unlimitedAI": "رصيد ذكاء اصطناعي غير محدود",
+        "aiCredits": "{count} رصيد ذكاء اصطناعي/شهر",
+        "unlimitedStorage": "تخزين غير محدود",
+        "storage": "{gb} جيجابايت تخزين",
+        "prioritySupport": "دعم ذو أولوية",
+        "dedicatedManager": "مدير حساب مخصص",
+        "slaGuarantee": "ضمان توفر 99.9%"
+      },
+      "plans": {
+        "title": "الخطط المتاحة",
+        "current": "الخطة الحالية",
+        "popular": "الأكثر شعبية",
+        "perMonth": "/شهر",
+        "selectPlan": "اختر الخطة",
+        "contactSales": "تواصل مع المبيعات",
+        "features": {
+          "shops": "{count} متاجر",
+          "shopsUnlimited": "متاجر غير محدودة",
+          "storage": "{amount} تخزين",
+          "storageUnlimited": "تخزين غير محدود",
+          "aiCredits": "{count} رصيد ذكاء اصطناعي",
+          "aiCreditsUnlimited": "رصيد ذكاء اصطناعي غير محدود",
+          "support": "دعم {type}",
+          "supportBasic": "اساسي",
+          "supportPriority": "اولوية",
+          "supportDedicated": "مخصص"
+        }
+      },
+      "stripePortal": {
+        "title": "ادارة الفوترة",
+        "description": "عرض وادارة اشتراكك وطرق الدفع وسجل الفوترة",
+        "button": "فتح بوابة الفوترة",
+        "loading": "جاري الفتح..."
+      }
+    },
+    "security": {
+      "title": "إعدادات الأمان",
+      "subtitle": "حماية حسابك بتدابير أمان إضافية",
+      "twoFactorNotEnabled": "المصادقة الثنائية غير مفعلة",
+      "password": {
+        "title": "كلمة المرور",
+        "description": "غيّر كلمة المرور بانتظام للحفاظ على أمان حسابك",
+        "currentPassword": "كلمة المرور الحالية",
+        "currentPlaceholder": "أدخل كلمة المرور الحالية",
+        "currentRequired": "يرجى إدخال كلمة المرور الحالية",
+        "newPassword": "كلمة المرور الجديدة",
+        "newPlaceholder": "أدخل كلمة مرور جديدة",
+        "newRequired": "يرجى إدخال كلمة مرور جديدة",
+        "minLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "confirmPassword": "تأكيد كلمة المرور الجديدة",
+        "confirmPlaceholder": "أكد كلمة المرور الجديدة",
+        "confirmRequired": "يرجى تأكيد كلمة المرور الجديدة",
+        "mismatch": "كلمات المرور غير متطابقة",
+        "changeButton": "تحديث كلمة المرور",
+        "changeSuccess": "تم تحديث كلمة المرور بنجاح",
+        "changeError": "فشل في تحديث كلمة المرور"
+      },
+      "twoFactor": {
+        "title": "المصادقة الثنائية",
+        "description": "أضف طبقة أمان إضافية لحسابك",
+        "enabled": "مفعّلة",
+        "disabled": "غير مفعّلة",
+        "currentMethod": "الطريقة الحالية",
+        "enableButton": "تفعيل المصادقة الثنائية",
+        "disableButton": "تعطيل المصادقة الثنائية",
+        "changeMethod": "تغيير الطريقة",
+        "setupTitle": "إعداد المصادقة الثنائية",
+        "setupDescription": "اختر كيف تريد استلام رموز التحقق عند تسجيل الدخول.",
+        "methods": {
+          "authenticator": "تطبيق المصادقة",
+          "authenticatorDesc": "استخدم Google Authenticator أو تطبيق مشابه",
+          "sms": "رسالة نصية",
+          "smsDesc": "استلم الرموز عبر الرسائل النصية",
+          "email": "البريد الإلكتروني",
+          "emailDesc": "استلم الرموز عبر البريد الإلكتروني"
+        },
+        "scanQrCode": "امسح رمز QR هذا بتطبيق المصادقة",
+        "verificationCode": "رمز التحقق",
+        "enterCode": "يرجى إدخال رمز التحقق",
+        "verifyAndEnable": "تحقق وتفعيل",
+        "enableSuccess": "تم تفعيل المصادقة الثنائية بنجاح",
+        "enableError": "فشل في تفعيل المصادقة الثنائية",
+        "disableTitle": "تعطيل المصادقة الثنائية",
+        "disableWarning": "تعطيل المصادقة الثنائية سيجعل حسابك أقل أماناً. هل أنت متأكد من الاستمرار؟",
+        "confirmDisable": "نعم، تعطيل المصادقة الثنائية",
+        "disableSuccess": "تم تعطيل المصادقة الثنائية",
+        "disableError": "فشل في تعطيل المصادقة الثنائية",
+        "cantScan": "لا يمكنك مسح رمز QR؟",
+        "showSecret": "إظهار المفتاح السري",
+        "hideSecret": "إخفاء المفتاح السري",
+        "secretCopied": "تم نسخ المفتاح السري إلى الحافظة",
+        "copySecret": "نسخ المفتاح السري"
+      },
+      "loginHistory": {
+        "title": "سجل تسجيل الدخول",
+        "description": "نشاط تسجيل الدخول الأخير على حسابك",
+        "status": "الحالة",
+        "device": "الجهاز",
+        "location": "الموقع",
+        "date": "التاريخ",
+        "suspicious": "تم اكتشاف نشاط مشبوه",
+        "noHistory": "لا يوجد سجل تسجيل دخول متاح"
+      },
+      "trustedDevices": {
+        "title": "الأجهزة الموثوقة",
+        "description": "الأجهزة التي يمكنها تخطي التحقق الثنائي",
+        "lastUsed": "آخر استخدام",
+        "removeSuccess": "تمت إزالة الجهاز بنجاح",
+        "removeError": "فشل في إزالة الجهاز",
+        "noDevices": "لا توجد أجهزة موثوقة"
+      }
+    },
+    "sessions": {
+      "title": "الجلسات النشطة",
+      "subtitle": "ادارة الاجهزة والجلسات التي سجلت الدخول منها",
+      "currentSession": "الجلسة الحالية",
+      "otherSessions": "الجلسات الاخرى",
+      "signOutAll": "تسجيل الخروج من جميع الجلسات الاخرى",
+      "signOut": "تسجيل الخروج",
+      "lastActive": "اخر نشاط",
+      "device": "الجهاز",
+      "location": "الموقع",
+      "browser": "المتصفح",
+      "noOtherSessions": "لا توجد جلسات نشطة اخرى",
+      "thisDevice": "هذا الجهاز",
+      "activeNow": "نشط الان",
+      "signedIn": "تم تسجيل الدخول",
+      "revokeAllOther": "الغاء جميع الجلسات الاخرى",
+      "revoke": "الغاء",
+      "revokeConfirmTitle": "الغاء هذه الجلسة؟",
+      "revokeConfirmDescription": "سيتم تسجيل الخروج من هذا الجهاز فورا.",
+      "revokeSuccess": "تم الغاء الجلسة بنجاح",
+      "revokeError": "فشل في الغاء الجلسة",
+      "revokeAllModalTitle": "الغاء جميع الجلسات الاخرى",
+      "revokeAllModalDescription": "سيتم تسجيل الخروج من {count} جلسات اخرى. ستحتاج الى تسجيل الدخول مرة اخرى.",
+      "revokeAllWarning": "ستبقى مسجلا الدخول من هذا الجهاز فقط.",
+      "revokeAllConfirm": "الغاء جميع الجلسات",
+      "revokeAllSuccess": "تم الغاء جميع الجلسات الاخرى",
+      "revokeAllError": "فشل في الغاء الجلسات",
+      "searchPlaceholder": "البحث في الجلسات...",
+      "noMatchingSessions": "لا توجد جلسات مطابقة لبحثك",
+      "securityTip": {
+        "title": "نصيحة امنية",
+        "description": "اذا لاحظت اي جلسات غير مالوفة، قم بالغائها فورا وغير كلمة المرور."
+      }
+    },
+    "notifications": {
+      "title": "تفضيلات الاشعارات",
+      "subtitle": "اختر كيف ومتى تريد ان يتم اشعارك",
+      "saveChanges": "حفظ التغييرات",
+      "saveSuccess": "تم حفظ تفضيلات الاشعارات",
+      "saveError": "فشل في حفظ التفضيلات",
+      "loadError": "فشل في تحميل تفضيلات الاشعارات",
+      "email": {
+        "title": "اشعارات البريد الالكتروني",
+        "description": "اختر رسائل البريد الالكتروني التي تريد استلامها"
+      },
+      "push": {
+        "title": "الاشعارات الفورية",
+        "description": "احصل على اشعارات على جهازك"
+      },
+      "quietHours": {
+        "title": "ساعات الهدوء",
+        "description": "ايقاف الاشعارات خلال ساعات محددة",
+        "startTime": "وقت البدء",
+        "endTime": "وقت الانتهاء",
+        "to": "الى",
+        "note": "سيتم تسليم تنبيهات الامان الحرجة خلال ساعات الهدوء."
+      },
+      "marketing": {
+        "title": "اتصالات التسويق",
+        "description": "استلم تحديثات حول الميزات الجديدة والنصائح والعروض الخاصة"
+      },
+      "categories": {
+        "orders": {
+          "title": "الطلبات",
+          "description": "طلبات جديدة وتحديثات حالة الطلب وطلبات العملاء"
+        },
+        "inventory": {
+          "title": "المخزون",
+          "description": "تنبيهات انخفاض المخزون وتحديثات المخزون"
+        },
+        "team": {
+          "title": "الفريق",
+          "description": "دعوات اعضاء الفريق والنشاط"
+        },
+        "billing": {
+          "title": "الفوترة",
+          "description": "تاكيدات الدفع وتحديثات الاشتراك"
+        },
+        "security": {
+          "title": "الامان",
+          "description": "تنبيهات تسجيل الدخول واشعارات الامان"
+        },
+        "productUpdates": {
+          "title": "تحديثات المنتج",
+          "description": "ميزات جديدة وتحسينات واعلانات المنصة"
+        }
+      },
+      "info": {
+        "title": "حول الاشعارات",
+        "description": "لا يمكن تعطيل بعض الاشعارات لاسباب تتعلق بالامان والامتثال."
+      },
+      "saved": "تم حفظ تفضيلات الاشعارات"
+    }
+  },
+  "settings": {
+    "nav": {
+      "profile": "الملف الشخصي",
+      "billing": "الفوترة",
+      "security": "الامان",
+      "sessions": "الجلسات",
+      "notifications": "الاشعارات"
+    },
+    "backToShops": "العودة الى المتاجر",
+    "security": {
+      "twoFactorNotEnabled": "المصادقة الثنائية غير مفعلة"
+    },
+    "theme": {
+      "light": "الوضع الفاتح",
+      "dark": "الوضع الداكن"
+    },
+    "appearance": {
+      "theme": "المظهر",
+      "darkMode": "الوضع الداكن",
+      "lightMode": "الوضع الفاتح"
+    }
   }
 }

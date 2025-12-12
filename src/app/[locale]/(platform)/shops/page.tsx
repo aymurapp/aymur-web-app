@@ -35,6 +35,8 @@ import {
 import { Tag, Skeleton, Modal, Input, Alert, message, Progress, Tooltip } from 'antd';
 import { useTranslations } from 'next-intl';
 
+import { LocaleSwitcher } from '@/components/layout/LocaleSwitcher';
+import { UserMenu } from '@/components/layout/UserMenu';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -335,6 +337,12 @@ function HeroHeader({ shopCount, onJoinClick }: { shopCount: number; onJoinClick
         'py-12 sm:py-16'
       )}
     >
+      {/* Top-right controls: Language + User Menu */}
+      <div className="absolute top-4 end-4 sm:top-6 sm:end-6 z-10 flex items-center gap-3">
+        <LocaleSwitcher className="!text-stone-300 hover:!text-amber-400" />
+        <UserMenu showName={false} showAccountSettings className="!text-stone-300 hover:!bg-stone-800" />
+      </div>
+
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         {/* Radial gradient overlay with gold */}

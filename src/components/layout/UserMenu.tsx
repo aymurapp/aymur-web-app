@@ -39,6 +39,8 @@ const { Text } = Typography;
 export interface UserMenuProps {
   /** Show user name next to avatar (hidden on mobile by default) */
   showName?: boolean;
+  /** Show account settings links (for non-shop context like shops page) */
+  showAccountSettings?: boolean;
   /** Additional CSS class name */
   className?: string;
 }
@@ -113,10 +115,27 @@ function getAvatarColor(name: string | null | undefined): string {
  * // With visible name
  * <UserMenu showName={true} />
  */
-export function UserMenu({ showName = true, className }: UserMenuProps): React.JSX.Element {
+export function UserMenu({
+  showName = true,
+  showAccountSettings = false,
+  className,
+}: UserMenuProps): React.JSX.Element {
   const t = useTranslations();
   const { user, isLoading } = useUser();
   const currentShopId = useShopStore((state) => state.currentShopId);
+
+  // Determine link paths based on context
+  const getSettingsPath = (suffix: string): string => {
+    if (currentShopId) {
+      return `/${currentShopId}/settings${suffix}`;
+    }
+    if (showAccountSettings) {
+      return `/settings${suffix}`;
+    }
+    return '/shops';
+  };
+  const profilePath = getSettingsPath('/profile');
+  const settingsPath = getSettingsPath('');
 
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -157,10 +176,7 @@ export function UserMenu({ showName = true, className }: UserMenuProps): React.J
       key: 'profile',
       icon: <UserOutlined />,
       label: (
-        <Link
-          href={currentShopId ? `/${currentShopId}/settings/profile` : '/shops'}
-          className="block"
-        >
+        <Link href={profilePath} className="block">
           {t('navigation.profile')}
         </Link>
       ),
@@ -170,7 +186,7 @@ export function UserMenu({ showName = true, className }: UserMenuProps): React.J
       key: 'settings',
       icon: <SettingOutlined />,
       label: (
-        <Link href={currentShopId ? `/${currentShopId}/settings` : '/shops'} className="block">
+        <Link href={settingsPath} className="block">
           {t('navigation.settings')}
         </Link>
       ),

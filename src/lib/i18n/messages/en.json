@@ -3512,5 +3512,319 @@
     "ctaSubtitle": "Join thousands of jewelry businesses already using Aymur to streamline their operations.",
     "getStartedFree": "Get Started for Free",
     "allRightsReserved": "All rights reserved."
+  },
+  "userSettings": {
+    "title": "Account Settings",
+    "subtitle": "Manage your account preferences and security",
+    "backToShops": "Back to Shops",
+    "user": "User",
+    "menu": "Menu",
+    "language": "Language",
+    "allRightsReserved": "All rights reserved.",
+    "navigation": {
+      "profile": "Profile",
+      "billing": "Billing",
+      "security": "Security",
+      "sessions": "Sessions",
+      "notifications": "Notifications"
+    },
+    "profile": {
+      "title": "Profile Settings",
+      "subtitle": "Manage your personal information and preferences",
+      "personalInfo": "Personal Information",
+      "avatar": "Profile Photo",
+      "changeAvatar": "Change Photo",
+      "removeAvatar": "Remove Photo",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "country": "Country",
+      "city": "City",
+      "timezone": "Timezone",
+      "saveChanges": "Save Changes",
+      "saved": "Profile updated successfully",
+      "dangerZone": {
+        "title": "Danger Zone",
+        "description": "Permanently delete your account and all associated data. This action cannot be undone.",
+        "deleteButton": "Delete Account",
+        "modalTitle": "Delete Account",
+        "modalDescription": "This action is irreversible. Please read the following carefully before proceeding.",
+        "warningTitle": "What will be deleted:",
+        "warningItem1": "Your profile and all personal information",
+        "warningItem2": "All shops you own and their data",
+        "warningItem3": "Your access to all shared shops",
+        "reasonLabel": "Why are you leaving?",
+        "selectReasonPlaceholder": "Select a reason",
+        "selectReason": "Please select a reason for deleting your account",
+        "feedbackLabel": "Additional feedback (optional)",
+        "feedbackPlaceholder": "Help us understand how we can improve...",
+        "passwordLabel": "Enter your password to continue",
+        "passwordPlaceholder": "Your current password",
+        "passwordRequired": "Please enter your password to continue",
+        "confirmDelete": "Delete My Account",
+        "deletionRequested": "Account deletion requested. You have 30 days to cancel this request.",
+        "deletionError": "Failed to request account deletion. Please try again.",
+        "pendingDeletionTitle": "Account Deletion Pending",
+        "pendingDeletionDescription": "Your account is scheduled for deletion. You can cancel this request within 30 days.",
+        "cancelDeletion": "Cancel Deletion",
+        "confirmDeletionButton": "Confirm Deletion",
+        "confirmModalTitle": "Confirm Account Deletion",
+        "confirmDescription": "You have already requested account deletion. To complete this action, please confirm by typing your email address below.",
+        "finalWarning": "This action is permanent and cannot be undone. All your data will be permanently deleted.",
+        "typeEmailLabel": "Type your email address ({email}) to confirm",
+        "emailRequired": "Please enter your email address",
+        "emailMismatch": "Email address does not match",
+        "requestDeletion": "Request Deletion",
+        "accountDeleted": "Your account has been deleted successfully",
+        "deletionCancelled": "Account deletion request has been cancelled",
+        "cancelError": "Failed to cancel deletion request. Please try again.",
+        "reasons": {
+          "noLongerNeeded": "I no longer need this service",
+          "privacyConcerns": "I have privacy concerns",
+          "switchingService": "I'm switching to another service",
+          "tooExpensive": "The service is too expensive",
+          "missingFeatures": "Missing features I need",
+          "tooComplex": "The service is too complex to use",
+          "other": "Other reason"
+        }
+      }
+    },
+    "billing": {
+      "title": "Billing & Subscription",
+      "subtitle": "Manage your subscription plan and payment methods",
+      "currentPlan": "Current Plan",
+      "noPlan": "No Plan",
+      "active": "Active",
+      "nextBilling": "Next billing",
+      "month": "month",
+      "manageSubscription": "Manage Subscription",
+      "openingPortal": "Opening billing portal...",
+      "portalError": "Failed to open billing portal",
+      "redirectingToCheckout": "Redirecting to checkout...",
+      "checkoutError": "Failed to start checkout",
+      "checkoutSuccess": "Subscription updated successfully!",
+      "checkoutCanceled": "Checkout was canceled. No changes were made.",
+      "noPriceId": "This plan is not available for purchase",
+      "changePlan": "Change Plan",
+      "cancelSubscription": "Cancel Subscription",
+      "paymentMethods": "Payment Methods",
+      "addPaymentMethod": "Add Payment Method",
+      "billingHistory": "Billing History",
+      "nextBillingDate": "Next Billing Date",
+      "noBillingHistory": "No billing history yet",
+      "availablePlans": "Available Plans",
+      "popular": "Most Popular",
+      "custom": "Custom",
+      "contactSales": "Contact us for pricing",
+      "contactSalesBtn": "Contact Sales",
+      "includes": "Includes",
+      "upgrade": "Upgrade",
+      "guarantee": "30-day money-back guarantee. No questions asked.",
+      "usage": {
+        "title": "Usage Statistics",
+        "shops": "Shops",
+        "storage": "Storage",
+        "aiCredits": "AI Credits",
+        "unlimited": "Unlimited"
+      },
+      "features": {
+        "unlimitedShops": "Unlimited shops",
+        "shopsLimit": "Up to {count} shops",
+        "unlimitedStaff": "Unlimited team members",
+        "staffLimit": "{count} team members per shop",
+        "unlimitedAI": "Unlimited AI credits",
+        "aiCredits": "{count} AI credits/month",
+        "unlimitedStorage": "Unlimited storage",
+        "storage": "{gb} GB storage",
+        "prioritySupport": "Priority support",
+        "dedicatedManager": "Dedicated account manager",
+        "slaGuarantee": "99.9% SLA guarantee"
+      }
+    },
+    "security": {
+      "title": "Security Settings",
+      "subtitle": "Protect your account with additional security measures",
+      "twoFactorNotEnabled": "Two-factor authentication is not enabled",
+      "password": {
+        "title": "Password",
+        "description": "Change your password regularly to keep your account secure",
+        "currentPassword": "Current Password",
+        "currentPlaceholder": "Enter your current password",
+        "currentRequired": "Please enter your current password",
+        "newPassword": "New Password",
+        "newPlaceholder": "Enter a new password",
+        "newRequired": "Please enter a new password",
+        "minLength": "Password must be at least 8 characters",
+        "confirmPassword": "Confirm New Password",
+        "confirmPlaceholder": "Confirm your new password",
+        "confirmRequired": "Please confirm your new password",
+        "mismatch": "Passwords do not match",
+        "changeButton": "Update Password",
+        "changeSuccess": "Password updated successfully",
+        "changeError": "Failed to update password"
+      },
+      "twoFactor": {
+        "title": "Two-Factor Authentication",
+        "description": "Add an extra layer of security to your account",
+        "enabled": "Enabled",
+        "disabled": "Not Enabled",
+        "currentMethod": "Current method",
+        "enableButton": "Enable 2FA",
+        "disableButton": "Disable 2FA",
+        "changeMethod": "Change Method",
+        "setupTitle": "Setup Two-Factor Authentication",
+        "setupDescription": "Choose how you want to receive verification codes when signing in.",
+        "methods": {
+          "authenticator": "Authenticator App",
+          "authenticatorDesc": "Use Google Authenticator or similar app",
+          "sms": "SMS",
+          "smsDesc": "Receive codes via text message",
+          "email": "Email",
+          "emailDesc": "Receive codes via email"
+        },
+        "scanQrCode": "Scan this QR code with your authenticator app",
+        "verificationCode": "Verification Code",
+        "enterCode": "Please enter the verification code",
+        "verifyAndEnable": "Verify & Enable",
+        "enableSuccess": "Two-factor authentication enabled successfully",
+        "enableError": "Failed to enable two-factor authentication",
+        "disableTitle": "Disable Two-Factor Authentication",
+        "disableWarning": "Disabling 2FA will make your account less secure. Are you sure you want to continue?",
+        "confirmDisable": "Yes, Disable 2FA",
+        "disableSuccess": "Two-factor authentication disabled",
+        "disableError": "Failed to disable two-factor authentication",
+        "cantScan": "Can't scan the QR code?",
+        "showSecret": "Show secret key",
+        "hideSecret": "Hide secret key",
+        "secretCopied": "Secret key copied to clipboard",
+        "copySecret": "Copy secret key"
+      },
+      "loginHistory": {
+        "title": "Login History",
+        "description": "Recent login activity on your account",
+        "status": "Status",
+        "device": "Device",
+        "location": "Location",
+        "date": "Date",
+        "suspicious": "Suspicious activity detected",
+        "noHistory": "No login history available"
+      },
+      "trustedDevices": {
+        "title": "Trusted Devices",
+        "description": "Devices that can skip 2FA verification",
+        "lastUsed": "Last used",
+        "removeSuccess": "Device removed successfully",
+        "removeError": "Failed to remove device",
+        "noDevices": "No trusted devices"
+      }
+    },
+    "sessions": {
+      "title": "Active Sessions",
+      "subtitle": "Manage devices and sessions where you are logged in",
+      "currentSession": "Current Session",
+      "active": "Active",
+      "otherSessions": "Other Sessions",
+      "signedIn": "Signed in",
+      "lastActive": "Last active",
+      "revokeAllOther": "Revoke All Other Sessions",
+      "revoke": "Revoke",
+      "revokeConfirmTitle": "Revoke this session?",
+      "revokeConfirmDescription": "This device will be signed out immediately.",
+      "revokeSuccess": "Session revoked successfully",
+      "revokeError": "Failed to revoke session",
+      "revokeAllModalTitle": "Revoke All Other Sessions",
+      "revokeAllModalDescription": "This will sign out {count} other sessions. They will need to sign in again.",
+      "revokeAllWarning": "You will remain signed in on this device only.",
+      "revokeAllConfirm": "Revoke All Sessions",
+      "revokeAllSuccess": "All other sessions have been revoked",
+      "revokeAllError": "Failed to revoke sessions",
+      "searchPlaceholder": "Search sessions...",
+      "noMatchingSessions": "No sessions match your search",
+      "noOtherSessions": "No other active sessions",
+      "securityTip": {
+        "title": "Security Tip",
+        "description": "If you notice any unfamiliar sessions, revoke them immediately and change your password."
+      }
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "subtitle": "Choose how and when you want to be notified",
+      "saveChanges": "Save Changes",
+      "saveSuccess": "Notification preferences saved",
+      "saveError": "Failed to save preferences",
+      "loadError": "Failed to load notification preferences",
+      "email": {
+        "title": "Email Notifications",
+        "description": "Choose which emails you want to receive"
+      },
+      "push": {
+        "title": "Push Notifications",
+        "description": "Get notifications on your device"
+      },
+      "quietHours": {
+        "title": "Quiet Hours",
+        "description": "Pause notifications during specific hours",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "to": "to",
+        "note": "Critical security alerts will still be delivered during quiet hours."
+      },
+      "marketing": {
+        "title": "Marketing Communications",
+        "description": "Receive updates about new features, tips, and special offers"
+      },
+      "categories": {
+        "orders": {
+          "title": "Orders",
+          "description": "New orders, order status updates, and customer requests"
+        },
+        "inventory": {
+          "title": "Inventory",
+          "description": "Low stock alerts and inventory updates"
+        },
+        "team": {
+          "title": "Team",
+          "description": "Team member invitations and activity"
+        },
+        "billing": {
+          "title": "Billing",
+          "description": "Payment confirmations and subscription updates"
+        },
+        "security": {
+          "title": "Security",
+          "description": "Login alerts and security notifications"
+        },
+        "productUpdates": {
+          "title": "Product Updates",
+          "description": "New features, improvements, and platform announcements"
+        }
+      },
+      "info": {
+        "title": "About Notifications",
+        "description": "Some notifications cannot be disabled for security and compliance reasons."
+      }
+    }
+  },
+  "settings": {
+    "nav": {
+      "profile": "Profile",
+      "billing": "Billing",
+      "security": "Security",
+      "sessions": "Sessions",
+      "notifications": "Notifications"
+    },
+    "backToShops": "Back to Shops",
+    "security": {
+      "twoFactorNotEnabled": "Two-factor authentication is not enabled"
+    },
+    "theme": {
+      "light": "Light Mode",
+      "dark": "Dark Mode"
+    },
+    "appearance": {
+      "theme": "Theme",
+      "darkMode": "Dark Mode",
+      "lightMode": "Light Mode"
+    }
   }
 }

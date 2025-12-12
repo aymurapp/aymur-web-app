@@ -20,3 +20,6 @@ export * from './ui';
 
 // Utility hooks
 export * from './utils';
+
+// Settings hooks (sessions, notifications, security, account deletion)
+export * from './settings';
