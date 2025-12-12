@@ -72,12 +72,8 @@ export interface AvatarUploadProps {
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
-const SIZE_CLASSES = {
-  small: 'w-16 h-16',
-  medium: 'w-24 h-24',
-  large: 'w-32 h-32',
-  xlarge: 'w-40 h-40',
-};
+// Note: Size classes moved inline to PIXEL_SIZES in the component
+// to use explicit pixel values for better antd Upload compatibility
 
 const ICON_SIZES = {
   small: 'text-xl',
@@ -279,8 +275,82 @@ export function AvatarUpload({
     showUploadList: false, // We use custom rendering
   };
 
+  // Get pixel size for explicit width/height
+  const PIXEL_SIZES = {
+    small: 64,
+    medium: 96,
+    large: 128,
+    xlarge: 160,
+  };
+  const pixelSize = PIXEL_SIZES[size];
+
+  /**
+   * Renders the avatar content based on state (loading, has image, or placeholder)
+   */
+  const renderAvatarContent = (): React.JSX.Element => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center w-full h-full bg-stone-100">
+          <LoadingOutlined className={cn('text-amber-500', ICON_SIZES[size])} />
+        </div>
+      );
+    }
+
+    if (hasImage) {
+      return (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={currentImageUrl} alt="Avatar" className="w-full h-full object-cover" />
+          {/* Hover overlay */}
+          {!disabled && (
+            <div
+              className={cn(
+                'absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100',
+                'flex items-center justify-center transition-opacity duration-200'
+              )}
+            >
+              <CameraOutlined className="text-white text-xl" />
+            </div>
+          )}
+        </>
+      );
+    }
+
+    // Placeholder - show initial or user icon
+    return (
+      <div className="flex items-center justify-center w-full h-full bg-stone-200">
+        {userInitial ? (
+          <span className={cn('font-semibold text-stone-500 select-none', INITIAL_SIZES[size])}>
+            {userInitial}
+          </span>
+        ) : (
+          <UserOutlined className={cn('text-stone-400', ICON_SIZES[size])} />
+        )}
+        {/* Hover overlay for placeholder */}
+        {!disabled && (
+          <div
+            className={cn(
+              'absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100',
+              'flex items-center justify-center transition-opacity duration-200'
+            )}
+          >
+            <CameraOutlined className="text-white text-xl" />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className={cn('avatar-upload flex flex-col items-center gap-3', className)}>
+    <div
+      className={cn('avatar-upload flex flex-col items-center gap-3', className)}
+      style={
+        {
+          // CSS variable for avatar size used by global styles
+          '--avatar-size': `${pixelSize}px`,
+        } as React.CSSProperties
+      }
+    >
       <ImgCrop
         rotationSlider
         showGrid
@@ -300,58 +370,16 @@ export function AvatarUpload({
               'transition-all duration-200',
               'hover:border-[#C9A227] hover:shadow-md',
               'group',
-              SIZE_CLASSES[size],
               disabled && 'opacity-50 cursor-not-allowed hover:border-stone-200 hover:shadow-none'
             )}
+            style={{
+              width: pixelSize,
+              height: pixelSize,
+              minWidth: pixelSize,
+              minHeight: pixelSize,
+            }}
           >
-            {/* Avatar content */}
-            {isLoading ? (
-              // Loading state
-              <div className="flex items-center justify-center w-full h-full bg-stone-100">
-                <LoadingOutlined className={cn('text-amber-500', ICON_SIZES[size])} />
-              </div>
-            ) : hasImage ? (
-              // Image display
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={currentImageUrl} alt="Avatar" className="w-full h-full object-cover" />
-                {/* Hover overlay */}
-                {!disabled && (
-                  <div
-                    className={cn(
-                      'absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100',
-                      'flex items-center justify-center transition-opacity duration-200'
-                    )}
-                  >
-                    <CameraOutlined className="text-white text-xl" />
-                  </div>
-                )}
-              </>
-            ) : (
-              // Placeholder - show initial or user icon
-              <div className="flex items-center justify-center w-full h-full bg-stone-200">
-                {userInitial ? (
-                  <span
-                    className={cn('font-semibold text-stone-500 select-none', INITIAL_SIZES[size])}
-                  >
-                    {userInitial}
-                  </span>
-                ) : (
-                  <UserOutlined className={cn('text-stone-400', ICON_SIZES[size])} />
-                )}
-                {/* Hover overlay for placeholder */}
-                {!disabled && (
-                  <div
-                    className={cn(
-                      'absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100',
-                      'flex items-center justify-center transition-opacity duration-200'
-                    )}
-                  >
-                    <CameraOutlined className="text-white text-xl" />
-                  </div>
-                )}
-              </div>
-            )}
+            {renderAvatarContent()}
           </div>
         </Upload>
       </ImgCrop>

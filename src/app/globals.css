@@ -874,4 +874,39 @@
     width: 9rem !important;
     height: 9rem !important;
   }
+
+  /* ============================================
+     Avatar Upload Component Styles
+     ============================================ */
+  /* Override antd Upload wrapper to respect avatar size */
+  .avatar-upload .ant-upload-wrapper,
+  .avatar-upload .ant-upload-list,
+  .avatar-upload .ant-upload.ant-upload-select {
+    width: var(--avatar-size, 160px) !important;
+    height: var(--avatar-size, 160px) !important;
+  }
+
+  /* Remove antd's default picture-card border and background */
+  .avatar-upload .ant-upload.ant-upload-select {
+    border: none !important;
+    background: transparent !important;
+    border-radius: 50% !important;
+  }
+
+  /* Ensure the upload wrapper centers content */
+  .avatar-upload .ant-upload-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  /* Remove any padding/margin from picture-card list */
+  .avatar-upload .ant-upload-list-picture-card {
+    gap: 0 !important;
+    margin: 0 !important;
+  }
+
+  .avatar-upload .ant-upload-list-picture-card .ant-upload-list-item {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 }

@@ -156,7 +156,7 @@ export async function getProfile(): Promise<ActionResult<UserProfile>> {
       };
     }
 
-    // 2. Fetch user profile from public.users
+    // 2. Fetch user profile from public.users (including avatar_url)
     const { data: profile, error: profileError } = await supabase
       .from('users')
       .select(
@@ -166,6 +166,7 @@ export async function getProfile(): Promise<ActionResult<UserProfile>> {
         full_name,
         email,
         phone,
+        avatar_url,
         country,
         province,
         city,
@@ -187,8 +188,8 @@ export async function getProfile(): Promise<ActionResult<UserProfile>> {
       };
     }
 
-    // 3. Get avatar URL from auth.users metadata
-    const avatarUrl = user.user_metadata?.avatar_url || null;
+    // 3. Use avatar_url from public.users table (fallback to auth metadata for backwards compatibility)
+    const avatarUrl = profile.avatar_url || user.user_metadata?.avatar_url || null;
 
     return {
       success: true,
@@ -419,7 +420,7 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult<Ava
     if (!validation.valid) {
       return {
         success: false,
-        error: validation.error!,
+        error: validation.error ?? 'Invalid file.',
         code: 'validation_error',
       };
     }
@@ -467,6 +468,20 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult<Ava
 
     if (metaError) {
       console.error('[uploadAvatar] Failed to update auth metadata:', metaError.message);
+      // Don't fail - the file was uploaded successfully
+    }
+
+    // 7b. Also update public.users table with avatar URL (for persistence after session refresh)
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        avatar_url: publicUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('auth_id', user.id);
+
+    if (updateError) {
+      console.error('[uploadAvatar] Failed to update users table:', updateError.message);
       // Don't fail - the file was uploaded successfully
     }
 
@@ -586,6 +601,20 @@ export async function deleteAvatar(): Promise<ActionResult> {
         error: 'Failed to remove avatar.',
         code: 'metadata_error',
       };
+    }
+
+    // 4b. Clear avatar URL from public.users table
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        avatar_url: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('auth_id', user.id);
+
+    if (updateError) {
+      console.error('[deleteAvatar] Failed to clear users table:', updateError.message);
+      // Don't fail - auth metadata was already cleared
     }
 
     // 5. Revalidate relevant paths
