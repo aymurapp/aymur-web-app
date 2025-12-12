@@ -36,7 +36,7 @@ const { Title } = Typography;
 /**
  * Gold theme color palette for charts
  */
-const GOLD_PALETTE = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f'];
+const GOLD_PALETTE = ['#C9A227', '#A68B1F', '#8B7419', '#6B5A14', '#4A3E0E'];
 
 /**
  * BarChart data item type
@@ -153,7 +153,7 @@ export const BarChart: React.FC<BarChartProps> = ({
   // Gradient fill configuration
   const gradientStyle = gradient
     ? {
-        fill: 'linear-gradient(180deg, #f59e0b 0%, #d97706 50%, #b45309 100%)',
+        fill: 'linear-gradient(180deg, #C9A227 0%, #A68B1F 50%, #8B7419 100%)',
         fillOpacity: 0.9,
       }
     : {

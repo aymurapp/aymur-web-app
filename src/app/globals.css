@@ -12,18 +12,18 @@
 @layer base {
   :root {
     /* ----------------------------------------
-       Primary - Gold Palette (Jewelry Brand)
+       Primary - Gold Palette (AYMUR Brand #C9A227)
        ---------------------------------------- */
-    --primary-50: #fffbeb;
-    --primary-100: #fef3c7;
-    --primary-200: #fde68a;
-    --primary-300: #fcd34d;
-    --primary-400: #fbbf24;
-    --primary-500: #f59e0b; /* Main gold */
-    --primary-600: #d97706;
-    --primary-700: #b45309;
-    --primary-800: #92400e;
-    --primary-900: #78350f;
+    --primary-50: #fffdf5;
+    --primary-100: #fef9e7;
+    --primary-200: #fcefc4;
+    --primary-300: #f5e0a0;
+    --primary-400: #e5c76b;
+    --primary-500: #c9a227; /* Main gold - AYMUR brand */
+    --primary-600: #a68b1f;
+    --primary-700: #8b7419;
+    --primary-800: #6b5a14;
+    --primary-900: #4a3e0e;
 
     /* ----------------------------------------
        Neutral - Warm Grays
@@ -98,7 +98,7 @@
     --input-focus: #fef3c7;
 
     /* Focus ring */
-    --ring: #f59e0b;
+    --ring: #c9a227;
 
     /* ----------------------------------------
        Typography
@@ -130,19 +130,19 @@
     --input-focus: #44403c;
 
     /* Focus ring - brighter gold for dark mode */
-    --ring: #fbbf24;
+    --ring: #e5c76b;
 
-    /* Adjusted primary for better dark mode contrast */
-    --primary-50: #78350f;
-    --primary-100: #92400e;
-    --primary-200: #b45309;
-    --primary-300: #d97706;
-    --primary-400: #f59e0b;
-    --primary-500: #fbbf24;
-    --primary-600: #fcd34d;
-    --primary-700: #fde68a;
-    --primary-800: #fef3c7;
-    --primary-900: #fffbeb;
+    /* Adjusted gold primary for better dark mode contrast (inverted scale) */
+    --primary-50: #4a3e0e;
+    --primary-100: #6b5a14;
+    --primary-200: #8b7419;
+    --primary-300: #a68b1f;
+    --primary-400: #c9a227;
+    --primary-500: #e5c76b;
+    --primary-600: #f5e0a0;
+    --primary-700: #fcefc4;
+    --primary-800: #fef9e7;
+    --primary-900: #fffdf5;
   }
 
   /* ----------------------------------------
@@ -191,7 +191,7 @@
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    @apply outline-none ring-2 ring-amber-500 ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-[#C9A227] ring-offset-2 ring-offset-background;
   }
 
   .dark button:focus-visible,
@@ -200,13 +200,13 @@
   .dark input:focus-visible,
   .dark select:focus-visible,
   .dark textarea:focus-visible {
-    @apply ring-amber-400 ring-offset-stone-900;
+    @apply ring-[#E5C76B] ring-offset-stone-900;
   }
 
   /* Skip link for keyboard navigation */
   .skip-link {
     @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4;
-    @apply focus:z-50 focus:px-4 focus:py-2 focus:bg-amber-500 focus:text-white;
+    @apply focus:z-50 focus:px-4 focus:py-2 focus:bg-[#C9A227] focus:text-white;
     @apply focus:rounded-md focus:font-medium focus:shadow-lg;
   }
 
@@ -701,23 +701,23 @@
 
   /* Focus ring utilities with gold accent */
   .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227];
     @apply focus-visible:ring-offset-2 focus-visible:ring-offset-white;
-    @apply dark:focus-visible:ring-amber-400 dark:focus-visible:ring-offset-stone-900;
+    @apply dark:focus-visible:ring-[#E5C76B] dark:focus-visible:ring-offset-stone-900;
   }
 
   /* Focus ring for interactive cards */
   .focus-ring-card {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227];
     @apply focus-visible:ring-offset-4 focus-visible:ring-offset-white;
-    @apply dark:focus-visible:ring-amber-400 dark:focus-visible:ring-offset-stone-900;
+    @apply dark:focus-visible:ring-[#E5C76B] dark:focus-visible:ring-offset-stone-900;
   }
 
   /* Focus ring inset (for elements within containers) */
   .focus-ring-inset {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227];
     @apply focus-visible:ring-inset;
-    @apply dark:focus-visible:ring-amber-400;
+    @apply dark:focus-visible:ring-[#E5C76B];
   }
 
   /* Reduced motion preference */
@@ -773,11 +773,11 @@
 @layer components {
   /* Ensure Ant Design buttons have visible focus */
   .ant-btn:focus-visible {
-    @apply outline-none ring-2 ring-amber-500 ring-offset-2;
+    @apply outline-none ring-2 ring-[#C9A227] ring-offset-2;
   }
 
   .dark .ant-btn:focus-visible {
-    @apply ring-amber-400 ring-offset-stone-900;
+    @apply ring-[#E5C76B] ring-offset-stone-900;
   }
 
   /* Ensure Ant Design inputs have visible focus */
@@ -785,25 +785,25 @@
   .ant-input-affix-wrapper:focus-visible,
   .ant-select-selector:focus-visible,
   .ant-picker:focus-visible {
-    @apply outline-none ring-2 ring-amber-500 ring-offset-2;
+    @apply outline-none ring-2 ring-[#C9A227] ring-offset-2;
   }
 
   .dark .ant-input:focus-visible,
   .dark .ant-input-affix-wrapper:focus-visible,
   .dark .ant-select-selector:focus-visible,
   .dark .ant-picker:focus-visible {
-    @apply ring-amber-400 ring-offset-stone-900;
+    @apply ring-[#E5C76B] ring-offset-stone-900;
   }
 
   /* Ensure Ant Design menu items have visible focus */
   .ant-menu-item:focus-visible,
   .ant-menu-submenu-title:focus-visible {
-    @apply outline-none ring-2 ring-amber-500 ring-inset;
+    @apply outline-none ring-2 ring-[#C9A227] ring-inset;
   }
 
   .dark .ant-menu-item:focus-visible,
   .dark .ant-menu-submenu-title:focus-visible {
-    @apply ring-amber-400;
+    @apply ring-[#E5C76B];
   }
 
   /* Modal focus trap indicator */
@@ -818,20 +818,20 @@
 
   /* Table row focus for keyboard navigation */
   .ant-table-row:focus-visible {
-    @apply outline-none ring-2 ring-amber-500 ring-inset;
+    @apply outline-none ring-2 ring-[#C9A227] ring-inset;
   }
 
   .dark .ant-table-row:focus-visible {
-    @apply ring-amber-400;
+    @apply ring-[#E5C76B];
   }
 
   /* Dropdown focus indicators */
   .ant-dropdown-menu-item:focus-visible {
-    @apply outline-none ring-2 ring-amber-500 ring-inset;
+    @apply outline-none ring-2 ring-[#C9A227] ring-inset;
   }
 
   .dark .ant-dropdown-menu-item:focus-visible {
-    @apply ring-amber-400;
+    @apply ring-[#E5C76B];
   }
 
   /* ============================================

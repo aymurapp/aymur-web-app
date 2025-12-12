@@ -37,7 +37,7 @@ const { Title } = Typography;
 /**
  * Gold theme color palette for charts
  */
-const GOLD_PALETTE = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f'];
+const GOLD_PALETTE = ['#C9A227', '#A68B1F', '#8B7419', '#6B5A14', '#4A3E0E'];
 
 /**
  * AreaChart data item type

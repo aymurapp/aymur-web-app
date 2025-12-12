@@ -41,41 +41,86 @@ import { cn } from '@/lib/utils/cn';
 
 /**
  * Loading skeleton for profile settings
+ * Matches the structure of ProfileSettingsForm component
  */
 function ProfileSkeleton(): React.JSX.Element {
   return (
     <div className="space-y-6">
       {/* Header skeleton */}
       <div>
-        <div className="h-8 bg-stone-200 rounded w-48 mb-2 animate-pulse" />
-        <div className="h-5 bg-stone-200 rounded w-72 animate-pulse" />
+        <div className="h-8 bg-stone-200 dark:bg-stone-700 rounded w-48 mb-2 animate-pulse" />
+        <div className="h-5 bg-stone-200 dark:bg-stone-700 rounded w-72 animate-pulse" />
       </div>
 
-      {/* Avatar card skeleton */}
-      <Card className="p-6">
-        <div className="h-5 bg-stone-200 rounded w-32 mb-4 animate-pulse" />
-        <div className="flex items-center gap-6">
-          <div className="w-24 h-24 rounded-full bg-stone-200 animate-pulse" />
-          <div className="space-y-2">
-            <div className="flex gap-2">
-              <div className="h-8 bg-stone-200 rounded w-32 animate-pulse" />
-              <div className="h-8 bg-stone-200 rounded w-24 animate-pulse" />
-            </div>
-            <div className="h-4 bg-stone-200 rounded w-48 animate-pulse" />
+      {/* Top Section: Avatar Card + Basic Info Card (side by side) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Avatar Card skeleton */}
+        <Card className="p-6 lg:col-span-1">
+          <div className="h-5 bg-stone-200 dark:bg-stone-700 rounded w-24 mb-4 animate-pulse" />
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-40 h-40 rounded-full bg-stone-200 dark:bg-stone-700 animate-pulse" />
+            <div className="h-3 bg-stone-200 dark:bg-stone-700 rounded w-32 mt-2 animate-pulse" />
           </div>
+        </Card>
+
+        {/* Basic Info Card skeleton */}
+        <Card className="p-6 lg:col-span-2">
+          <div className="h-5 bg-stone-200 dark:bg-stone-700 rounded w-40 mb-4 animate-pulse" />
+          <div className="space-y-4">
+            {/* Full Name */}
+            <div>
+              <div className="h-4 bg-stone-200 dark:bg-stone-700 rounded w-24 mb-2 animate-pulse" />
+              <div className="h-10 bg-stone-200 dark:bg-stone-700 rounded w-full animate-pulse" />
+            </div>
+            {/* Email */}
+            <div>
+              <div className="h-4 bg-stone-200 dark:bg-stone-700 rounded w-16 mb-2 animate-pulse" />
+              <div className="h-10 bg-stone-100 dark:bg-stone-800 rounded w-full animate-pulse" />
+            </div>
+            {/* Phone */}
+            <div>
+              <div className="h-4 bg-stone-200 dark:bg-stone-700 rounded w-20 mb-2 animate-pulse" />
+              <div className="h-10 bg-stone-200 dark:bg-stone-700 rounded w-full animate-pulse" />
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Address Section skeleton */}
+      <Card className="p-6">
+        <div className="h-5 bg-stone-200 dark:bg-stone-700 rounded w-40 mb-4 animate-pulse" />
+        <div className="space-y-4">
+          {/* Address input */}
+          <div>
+            <div className="h-4 bg-stone-200 dark:bg-stone-700 rounded w-20 mb-2 animate-pulse" />
+            <div className="h-10 bg-stone-200 dark:bg-stone-700 rounded w-full animate-pulse" />
+            <div className="h-3 bg-stone-200 dark:bg-stone-700 rounded w-64 mt-1 animate-pulse" />
+          </div>
+          {/* City, Province, Country - 3 columns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i}>
+                <div className="h-4 bg-stone-200 dark:bg-stone-700 rounded w-20 mb-2 animate-pulse" />
+                <div className="h-10 bg-stone-200 dark:bg-stone-700 rounded w-full animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Submit button skeleton */}
+        <div className="pt-6">
+          <div className="h-10 bg-stone-200 dark:bg-stone-700 rounded w-40 animate-pulse" />
         </div>
       </Card>
 
-      {/* Form card skeleton */}
-      <Card className="p-6">
-        <div className="h-5 bg-stone-200 rounded w-40 mb-4 animate-pulse" />
-        <div className="space-y-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i}>
-              <div className="h-4 bg-stone-200 rounded w-24 mb-2 animate-pulse" />
-              <div className="h-10 bg-stone-200 rounded w-full animate-pulse" />
-            </div>
-          ))}
+      {/* Danger Zone skeleton */}
+      <Card className="p-6 border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 animate-pulse" />
+          <div className="flex-1">
+            <div className="h-5 bg-red-200 dark:bg-red-800/50 rounded w-32 mb-2 animate-pulse" />
+            <div className="h-4 bg-red-200 dark:bg-red-800/50 rounded w-64 mb-4 animate-pulse" />
+            <div className="h-9 bg-red-200 dark:bg-red-800/50 rounded w-36 animate-pulse" />
+          </div>
         </div>
       </Card>
     </div>

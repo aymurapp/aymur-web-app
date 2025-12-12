@@ -6,38 +6,43 @@ import type { ThemeConfig } from 'antd';
  * Gold-themed luxury design tokens that align with the platform's
  * jewelry business branding and CSS variable system.
  *
- * Primary Gold Color: #f59e0b (Amber-500)
+ * Primary Gold Color: #C9A227 (AYMUR Brand Gold)
+ *
+ * Gold Palette:
+ * - 50:  #FFFDF5 (lightest)
+ * - 100: #FEF9E7
+ * - 200: #FCEFC4
+ * - 300: #F5E0A0
+ * - 400: #E5C76B
+ * - 500: #C9A227 (main brand gold)
+ * - 600: #A68B1F
+ * - 700: #8B7419
+ * - 800: #6B5A14
+ * - 900: #4A3E0E (darkest)
  *
  * WCAG AA Accessibility Compliance:
  * - Text contrast ratio >= 4.5:1 for normal text
  * - Text contrast ratio >= 3:1 for large text (18px+ or 14px+ bold)
  * - Focus indicators visible against all backgrounds
  * - Interactive element states clearly distinguishable
- *
- * Color contrast notes:
- * - Primary text #1c1917 on white: 15.5:1 (passes AAA)
- * - Secondary text #57534e on white: 6.7:1 (passes AA)
- * - Tertiary text #78716c on white: 4.7:1 (passes AA)
- * - Primary gold #f59e0b on white: 2.0:1 (decorative only, not for text)
- * - For gold text, use #b45309 (5.5:1) or darker for accessibility
  */
 
 export const antdTheme: ThemeConfig = {
   token: {
     // =========================================
-    // Primary Gold Palette
+    // Primary Gold Palette (AYMUR Brand)
     // =========================================
-    colorPrimary: '#f59e0b',
-    colorPrimaryHover: '#d97706',
-    colorPrimaryActive: '#b45309',
-    colorPrimaryBg: '#fffbeb',
-    colorPrimaryBgHover: '#fef3c7',
-    colorPrimaryBorder: '#fde68a',
-    colorPrimaryBorderHover: '#fcd34d',
+    colorPrimary: '#C9A227',
+    colorPrimaryHover: '#A68B1F',
+    colorPrimaryActive: '#8B7419',
+    colorPrimaryBg: '#FFFDF5',
+    colorPrimaryBgHover: '#FEF9E7',
+    colorPrimaryBorder: '#FCEFC4',
+    colorPrimaryBorderHover: '#F5E0A0',
     // WCAG AA: Using darker gold for text (4.5:1+ contrast on white)
-    colorPrimaryText: '#b45309', // Changed from #f59e0b (2.0:1) to #b45309 (5.5:1)
-    colorPrimaryTextHover: '#92400e', // Darker for better hover contrast
-    colorPrimaryTextActive: '#78350f', // Darkest for active state
+    colorPrimaryText: '#8B7419',
+    colorPrimaryTextHover: '#6B5A14',
+    colorPrimaryTextActive: '#4A3E0E',
 
     // =========================================
     // Status Colors (WCAG AA compliant)
@@ -190,16 +195,16 @@ export const antdTheme: ThemeConfig = {
   // =========================================
   components: {
     Button: {
-      primaryShadow: '0 2px 8px rgba(245, 158, 11, 0.35)',
+      primaryShadow: '0 2px 8px rgba(201, 162, 39, 0.35)',
       defaultBorderColor: '#e7e5e4',
       defaultColor: '#1c1917',
       defaultBg: '#ffffff',
       defaultHoverBg: '#fafaf9',
-      defaultHoverColor: '#f59e0b',
-      defaultHoverBorderColor: '#fcd34d',
+      defaultHoverColor: '#C9A227',
+      defaultHoverBorderColor: '#F5E0A0',
       defaultActiveBg: '#f5f5f4',
-      defaultActiveColor: '#d97706',
-      defaultActiveBorderColor: '#f59e0b',
+      defaultActiveColor: '#A68B1F',
+      defaultActiveBorderColor: '#C9A227',
       fontWeight: 500,
       contentFontSize: 14,
       contentFontSizeLG: 16,
@@ -243,14 +248,14 @@ export const antdTheme: ThemeConfig = {
     },
 
     Menu: {
-      itemSelectedBg: '#fffbeb',
-      itemSelectedColor: '#f59e0b',
+      itemSelectedBg: '#FFFDF5',
+      itemSelectedColor: '#C9A227',
       itemHoverBg: '#fafaf9',
       itemHoverColor: '#1c1917',
-      itemActiveBg: '#fef3c7',
+      itemActiveBg: '#FEF9E7',
       subMenuItemBg: 'transparent',
       darkItemSelectedBg: '#44403c',
-      darkItemSelectedColor: '#fbbf24',
+      darkItemSelectedColor: '#E5C76B',
       darkItemHoverBg: '#292524',
       itemBorderRadius: 6,
       itemMarginBlock: 4,
@@ -262,9 +267,9 @@ export const antdTheme: ThemeConfig = {
     },
 
     Input: {
-      activeBorderColor: '#f59e0b',
-      hoverBorderColor: '#fcd34d',
-      activeShadow: '0 0 0 2px rgba(245, 158, 11, 0.2)',
+      activeBorderColor: '#C9A227',
+      hoverBorderColor: '#F5E0A0',
+      activeShadow: '0 0 0 2px rgba(201, 162, 39, 0.2)',
       addonBg: '#fafaf9',
       paddingBlock: 8,
       paddingBlockLG: 12,
@@ -275,8 +280,8 @@ export const antdTheme: ThemeConfig = {
     },
 
     Select: {
-      optionSelectedBg: '#fffbeb',
-      optionSelectedColor: '#f59e0b',
+      optionSelectedBg: '#FFFDF5',
+      optionSelectedColor: '#C9A227',
       optionActiveBg: '#fafaf9',
       selectorBg: '#ffffff',
       multipleItemBg: '#f5f5f4',
@@ -326,21 +331,21 @@ export const antdTheme: ThemeConfig = {
     },
 
     Tabs: {
-      itemSelectedColor: '#f59e0b',
-      itemHoverColor: '#d97706',
-      itemActiveColor: '#b45309',
-      inkBarColor: '#f59e0b',
+      itemSelectedColor: '#C9A227',
+      itemHoverColor: '#A68B1F',
+      itemActiveColor: '#8B7419',
+      inkBarColor: '#C9A227',
       horizontalItemPadding: '12px 16px',
       horizontalItemPaddingLG: '16px 24px',
       horizontalItemPaddingSM: '8px 12px',
     },
 
     Steps: {
-      colorPrimary: '#f59e0b',
+      colorPrimary: '#C9A227',
     },
 
     Progress: {
-      defaultColor: '#f59e0b',
+      defaultColor: '#C9A227',
       remainingColor: '#f5f5f4',
     },
 
@@ -368,13 +373,13 @@ export const antdTheme: ThemeConfig = {
       itemColor: '#78716c',
       lastItemColor: '#1c1917',
       linkColor: '#57534e',
-      linkHoverColor: '#f59e0b',
+      linkHoverColor: '#C9A227',
       separatorColor: '#a8a29e',
       separatorMargin: 8,
     },
 
     Pagination: {
-      itemActiveBg: '#f59e0b',
+      itemActiveBg: '#C9A227',
       itemActiveColorDisabled: '#a8a29e',
       itemBg: '#ffffff',
       itemInputBg: '#ffffff',
@@ -412,36 +417,36 @@ export const antdTheme: ThemeConfig = {
     },
 
     Switch: {
-      colorPrimary: '#f59e0b',
-      colorPrimaryHover: '#d97706',
+      colorPrimary: '#C9A227',
+      colorPrimaryHover: '#A68B1F',
     },
 
     Checkbox: {
-      colorPrimary: '#f59e0b',
-      colorPrimaryHover: '#d97706',
-      colorPrimaryBorder: '#fcd34d',
+      colorPrimary: '#C9A227',
+      colorPrimaryHover: '#A68B1F',
+      colorPrimaryBorder: '#F5E0A0',
     },
 
     Radio: {
-      colorPrimary: '#f59e0b',
-      colorPrimaryHover: '#d97706',
-      colorPrimaryBorder: '#fcd34d',
+      colorPrimary: '#C9A227',
+      colorPrimaryHover: '#A68B1F',
+      colorPrimaryBorder: '#F5E0A0',
       dotSize: 8,
       radioSize: 16,
     },
 
     Slider: {
-      trackBg: '#f59e0b',
-      trackHoverBg: '#d97706',
-      handleColor: '#f59e0b',
-      handleActiveColor: '#d97706',
-      dotActiveBorderColor: '#f59e0b',
+      trackBg: '#C9A227',
+      trackHoverBg: '#A68B1F',
+      handleColor: '#C9A227',
+      handleActiveColor: '#A68B1F',
+      dotActiveBorderColor: '#C9A227',
       railBg: '#e7e5e4',
       railHoverBg: '#d6d3d1',
     },
 
     Rate: {
-      starColor: '#f59e0b',
+      starColor: '#C9A227',
       starSize: 20,
     },
 
@@ -481,10 +486,10 @@ export const antdTheme: ThemeConfig = {
     },
 
     Tree: {
-      nodeSelectedBg: '#fffbeb',
+      nodeSelectedBg: '#FFFDF5',
       nodeHoverBg: '#fafaf9',
-      directoryNodeSelectedBg: '#fef3c7',
-      directoryNodeSelectedColor: '#b45309',
+      directoryNodeSelectedBg: '#FEF9E7',
+      directoryNodeSelectedColor: '#8B7419',
     },
 
     Transfer: {
@@ -602,19 +607,19 @@ export const antdDarkTheme: ThemeConfig = {
     colorFillQuaternary: '#0c0a09',
 
     // =========================================
-    // Brighter Primary for Dark Mode Contrast
+    // Brighter Gold for Dark Mode Contrast
     // =========================================
-    colorPrimary: '#fbbf24',
-    colorPrimaryHover: '#fcd34d',
-    colorPrimaryActive: '#f59e0b',
+    colorPrimary: '#E5C76B',
+    colorPrimaryHover: '#F5E0A0',
+    colorPrimaryActive: '#C9A227',
     colorPrimaryBg: '#44403c',
     colorPrimaryBgHover: '#57534e',
     colorPrimaryBorder: '#78716c',
     colorPrimaryBorderHover: '#a8a29e',
-    // Gold text on dark: #fbbf24 on #1c1917 = 9.4:1 (passes AAA)
-    colorPrimaryText: '#fbbf24',
-    colorPrimaryTextHover: '#fcd34d',
-    colorPrimaryTextActive: '#fde68a',
+    // Gold text on dark: #E5C76B on #1c1917 = 8.9:1 (passes AAA)
+    colorPrimaryText: '#E5C76B',
+    colorPrimaryTextHover: '#F5E0A0',
+    colorPrimaryTextActive: '#FCEFC4',
 
     // =========================================
     // Dark Mode Status Colors (WCAG AA compliant)
@@ -635,15 +640,15 @@ export const antdDarkTheme: ThemeConfig = {
 
     Button: {
       ...antdTheme.components?.Button,
-      primaryShadow: '0 2px 8px rgba(251, 191, 36, 0.35)',
+      primaryShadow: '0 2px 8px rgba(229, 199, 107, 0.35)',
       defaultBorderColor: '#44403c',
       defaultColor: '#fafaf9',
       defaultBg: '#1c1917',
       defaultHoverBg: '#292524',
-      defaultHoverColor: '#fbbf24',
+      defaultHoverColor: '#E5C76B',
       defaultHoverBorderColor: '#78716c',
       defaultActiveBg: '#44403c',
-      defaultActiveColor: '#fcd34d',
+      defaultActiveColor: '#F5E0A0',
       defaultActiveBorderColor: '#a8a29e',
     },
 
@@ -672,7 +677,7 @@ export const antdDarkTheme: ThemeConfig = {
     Menu: {
       ...antdTheme.components?.Menu,
       itemSelectedBg: '#44403c',
-      itemSelectedColor: '#fbbf24',
+      itemSelectedColor: '#E5C76B',
       itemHoverBg: '#292524',
       itemHoverColor: '#fafaf9',
       itemActiveBg: '#57534e',
@@ -681,16 +686,16 @@ export const antdDarkTheme: ThemeConfig = {
 
     Input: {
       ...antdTheme.components?.Input,
-      activeBorderColor: '#fbbf24',
+      activeBorderColor: '#E5C76B',
       hoverBorderColor: '#78716c',
-      activeShadow: '0 0 0 2px rgba(251, 191, 36, 0.2)',
+      activeShadow: '0 0 0 2px rgba(229, 199, 107, 0.2)',
       addonBg: '#292524',
     },
 
     Select: {
       ...antdTheme.components?.Select,
       optionSelectedBg: '#44403c',
-      optionSelectedColor: '#fbbf24',
+      optionSelectedColor: '#E5C76B',
       optionActiveBg: '#292524',
       selectorBg: '#1c1917',
       multipleItemBg: '#292524',
@@ -762,7 +767,7 @@ export const antdDarkTheme: ThemeConfig = {
       nodeSelectedBg: '#44403c',
       nodeHoverBg: '#292524',
       directoryNodeSelectedBg: '#57534e',
-      directoryNodeSelectedColor: '#fbbf24',
+      directoryNodeSelectedColor: '#E5C76B',
     },
 
     Segmented: {
@@ -790,21 +795,21 @@ export const antdDarkTheme: ThemeConfig = {
 
     Switch: {
       ...antdTheme.components?.Switch,
-      colorPrimary: '#fbbf24',
-      colorPrimaryHover: '#fcd34d',
+      colorPrimary: '#E5C76B',
+      colorPrimaryHover: '#F5E0A0',
     },
 
     Checkbox: {
       ...antdTheme.components?.Checkbox,
-      colorPrimary: '#fbbf24',
-      colorPrimaryHover: '#fcd34d',
+      colorPrimary: '#E5C76B',
+      colorPrimaryHover: '#F5E0A0',
       colorPrimaryBorder: '#78716c',
     },
 
     Radio: {
       ...antdTheme.components?.Radio,
-      colorPrimary: '#fbbf24',
-      colorPrimaryHover: '#fcd34d',
+      colorPrimary: '#E5C76B',
+      colorPrimaryHover: '#F5E0A0',
       colorPrimaryBorder: '#78716c',
     },
 

@@ -5,12 +5,12 @@
  * All charts support responsive sizing, loading states, and consistent
  * styling that matches the luxury aesthetic of the Aymur platform.
  *
- * Color Palette:
- * - Primary: #f59e0b (amber-500)
- * - Secondary: #d97706 (amber-600)
- * - Tertiary: #b45309 (amber-700)
- * - Quaternary: #92400e (amber-800)
- * - Quinary: #78350f (amber-900)
+ * Color Palette (AYMUR Brand Gold):
+ * - Primary: #C9A227 (gold-500 - main brand)
+ * - Secondary: #A68B1F (gold-600)
+ * - Tertiary: #8B7419 (gold-700)
+ * - Quaternary: #6B5A14 (gold-800)
+ * - Quinary: #4A3E0E (gold-900)
  *
  * @example
  * // Regular imports (larger bundle, immediate load)
@@ -57,11 +57,12 @@ export { LazyLineChart, LazyBarChart, LazyPieChart, LazyAreaChart, LazyChartWrap
 
 /**
  * Gold color palette used across all chart components
+ * Uses AYMUR brand gold palette for consistency
  */
 export const CHART_GOLD_PALETTE = [
-  '#f59e0b', // amber-500
-  '#d97706', // amber-600
-  '#b45309', // amber-700
-  '#92400e', // amber-800
-  '#78350f', // amber-900
+  '#C9A227', // gold-500 (main brand)
+  '#A68B1F', // gold-600
+  '#8B7419', // gold-700
+  '#6B5A14', // gold-800
+  '#4A3E0E', // gold-900
 ] as const;

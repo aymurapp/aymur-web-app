@@ -25,6 +25,21 @@ const config: Config = {
           900: 'var(--primary-900)',
           DEFAULT: 'var(--primary-500)',
         },
+        // Override Tailwind's amber with our gold palette
+        // This ensures all amber-* classes use the AYMUR brand gold
+        amber: {
+          50: '#FFFDF5',
+          100: '#FEF9E7',
+          200: '#FCEFC4',
+          300: '#F5E0A0',
+          400: '#E5C76B',
+          500: '#C9A227', // Main brand gold
+          600: '#A68B1F',
+          700: '#8B7419',
+          800: '#6B5A14',
+          900: '#4A3E0E',
+          950: '#3A300A',
+        },
         // Neutral - Warm grays
         neutral: {
           50: 'var(--neutral-50)',
@@ -141,14 +156,14 @@ const config: Config = {
         '5xl': '2.5rem',
       },
       boxShadow: {
-        // Luxury shadows with gold tint
-        'gold-sm': '0 1px 2px 0 rgba(245, 158, 11, 0.05)',
-        gold: '0 1px 3px 0 rgba(245, 158, 11, 0.1), 0 1px 2px -1px rgba(245, 158, 11, 0.1)',
-        'gold-md': '0 4px 6px -1px rgba(245, 158, 11, 0.1), 0 2px 4px -2px rgba(245, 158, 11, 0.1)',
+        // Luxury shadows with gold tint (RGB: 201, 162, 39 = #C9A227)
+        'gold-sm': '0 1px 2px 0 rgba(201, 162, 39, 0.05)',
+        gold: '0 1px 3px 0 rgba(201, 162, 39, 0.1), 0 1px 2px -1px rgba(201, 162, 39, 0.1)',
+        'gold-md': '0 4px 6px -1px rgba(201, 162, 39, 0.1), 0 2px 4px -2px rgba(201, 162, 39, 0.1)',
         'gold-lg':
-          '0 10px 15px -3px rgba(245, 158, 11, 0.1), 0 4px 6px -4px rgba(245, 158, 11, 0.1)',
+          '0 10px 15px -3px rgba(201, 162, 39, 0.1), 0 4px 6px -4px rgba(201, 162, 39, 0.1)',
         'gold-xl':
-          '0 20px 25px -5px rgba(245, 158, 11, 0.1), 0 8px 10px -6px rgba(245, 158, 11, 0.1)',
+          '0 20px 25px -5px rgba(201, 162, 39, 0.1), 0 8px 10px -6px rgba(201, 162, 39, 0.1)',
         // Elevated shadows for cards
         elevated: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
         'elevated-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
