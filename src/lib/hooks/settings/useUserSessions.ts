@@ -129,11 +129,9 @@ export function useCurrentSessionId(actions: Pick<SessionActions, 'getCurrentSes
   return useQuery({
     queryKey: sessionKeys.current,
     queryFn: async () => {
-      const result = await actions.getCurrentSessionId();
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to get current session');
-      }
-      return result.data ?? null;
+      // getCurrentSessionId returns string | null directly, not wrapped in ActionResult
+      const sessionId = await actions.getCurrentSessionId();
+      return sessionId;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
