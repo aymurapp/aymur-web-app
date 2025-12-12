@@ -6,6 +6,7 @@
  * A form component for editing user profile information.
  * Features:
  * - Two-card layout: Avatar card + Basic Info card (side by side)
+ * - Avatar upload with image cropping (using AvatarUpload component)
  * - Address section with Google Places autocomplete
  * - Zod validation
  * - Server action integration
@@ -16,21 +17,19 @@
 
 import React, { useCallback, useState, useTransition } from 'react';
 
-import { UserOutlined, CameraOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
-import { Avatar, Input, Upload, message, Spin } from 'antd';
+import { Input, message } from 'antd';
 import { useTranslations } from 'next-intl';
 import { useFormContext } from 'react-hook-form';
 
 import { AddressAutocomplete } from '@/components/common/forms/AddressAutocomplete';
+import { AvatarUpload } from '@/components/common/forms/AvatarUpload';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Form } from '@/components/ui/Form';
-import { updateProfile, uploadAvatar, deleteAvatar } from '@/lib/actions/profile';
+import { updateProfile } from '@/lib/actions/profile';
 import { useInvalidateUser } from '@/lib/hooks/auth/useUser';
 import type { ParsedAddress } from '@/lib/types/address';
 import { profileUpdateSchema, type ProfileUpdateInput } from '@/lib/utils/validation';
-
-import type { RcFile, UploadProps } from 'antd/es/upload';
 
 // =============================================================================
 // TYPES
@@ -61,20 +60,6 @@ export interface ProfileSettingsFormProps {
 }
 
 // =============================================================================
-// CONSTANTS
-// =============================================================================
-
-/**
- * Maximum file size for avatar (2MB)
- */
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
-/**
- * Allowed file types for avatar
- */
-const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-
-// =============================================================================
 // INNER FORM COMPONENT
 // =============================================================================
 
@@ -84,20 +69,12 @@ const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'
 function ProfileFormContent({
   initialData,
   avatarUrl,
-  setAvatarUrl,
-  isUploadingAvatar,
-  setIsUploadingAvatar,
-  isDeletingAvatar,
-  setIsDeletingAvatar,
+  onAvatarChange,
   isPending,
 }: {
   initialData: ProfileSettingsFormProps['initialData'];
   avatarUrl: string | null;
-  setAvatarUrl: React.Dispatch<React.SetStateAction<string | null>>;
-  isUploadingAvatar: boolean;
-  setIsUploadingAvatar: React.Dispatch<React.SetStateAction<boolean>>;
-  isDeletingAvatar: boolean;
-  setIsDeletingAvatar: React.Dispatch<React.SetStateAction<boolean>>;
+  onAvatarChange: (url: string | null) => void;
   isPending: boolean;
 }): React.JSX.Element {
   const t = useTranslations('userSettings');
@@ -105,77 +82,6 @@ function ProfileFormContent({
 
   // Address state for Google Places autocomplete
   const [addressValue, setAddressValue] = useState(initialData.address || '');
-
-  /**
-   * Handle avatar file upload
-   */
-  const handleAvatarUpload = useCallback(
-    async (file: RcFile): Promise<boolean> => {
-      // Validate file type
-      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-        message.error(t('profile.avatarInvalidType'));
-        return false;
-      }
-
-      // Validate file size
-      if (file.size > MAX_FILE_SIZE) {
-        message.error(t('profile.avatarTooLarge'));
-        return false;
-      }
-
-      setIsUploadingAvatar(true);
-
-      try {
-        const formData = new FormData();
-        formData.append('avatar', file);
-
-        const result = await uploadAvatar(formData);
-
-        if (result.success && result.data) {
-          setAvatarUrl(result.data.avatar_url);
-          message.success(t('profile.avatarUploadSuccess'));
-        } else if (!result.success) {
-          message.error(result.error || t('profile.avatarUploadError'));
-        }
-      } catch (error) {
-        console.error('[ProfileSettingsForm] Avatar upload error:', error);
-        message.error(t('profile.avatarUploadError'));
-      } finally {
-        setIsUploadingAvatar(false);
-      }
-
-      // Return false to prevent default upload behavior
-      return false;
-    },
-    [t, setIsUploadingAvatar, setAvatarUrl]
-  );
-
-  /**
-   * Handle avatar deletion
-   */
-  const handleAvatarDelete = useCallback(async () => {
-    if (!avatarUrl) {
-      return;
-    }
-
-    setIsDeletingAvatar(true);
-
-    try {
-      const result = await deleteAvatar();
-
-      if (result.success) {
-        setAvatarUrl(null);
-        message.success(t('profile.avatarDeleteSuccess'));
-      } else {
-        message.error(result.error || t('profile.avatarDeleteError'));
-      }
-    } catch (error) {
-      console.error('[ProfileSettingsForm] Avatar delete error:', error);
-      message.error(t('profile.avatarDeleteError'));
-    } finally {
-      setIsDeletingAvatar(false);
-    }
-  }, [avatarUrl, t, setIsDeletingAvatar, setAvatarUrl]);
 
   /**
    * Handle address selection from Google Places autocomplete
@@ -206,17 +112,6 @@ function ProfileFormContent({
     [setValue]
   );
 
-  /**
-   * Upload component props
-   */
-  const uploadProps: UploadProps = {
-    name: 'avatar',
-    showUploadList: false,
-    accept: ALLOWED_FILE_TYPES.join(','),
-    beforeUpload: handleAvatarUpload,
-    disabled: isUploadingAvatar || isDeletingAvatar,
-  };
-
   return (
     <>
       {/* Top Section: Avatar Card + Basic Info Card (side by side) */}
@@ -227,50 +122,15 @@ function ProfileFormContent({
             {t('profile.avatar')}
           </h3>
 
-          <div className="flex flex-col items-center gap-4">
-            {/* Avatar Preview */}
-            <div className="relative">
-              <Avatar
-                size={120}
-                src={avatarUrl}
-                icon={!avatarUrl && <UserOutlined />}
-                className="bg-amber-100 text-amber-600"
-              />
-              {(isUploadingAvatar || isDeletingAvatar) && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-full">
-                  <Spin indicator={<LoadingOutlined className="text-white" spin />} />
-                </div>
-              )}
-            </div>
+          <div className="flex flex-col items-center gap-2">
+            <AvatarUpload
+              value={avatarUrl}
+              onChange={onAvatarChange}
+              userName={initialData.full_name}
+              size="xlarge"
+            />
 
-            {/* Avatar Actions */}
-            <div className="flex flex-col gap-2 w-full">
-              <Upload {...uploadProps} className="w-full">
-                <Button
-                  icon={<CameraOutlined />}
-                  loading={isUploadingAvatar}
-                  disabled={isDeletingAvatar}
-                  className="w-full"
-                >
-                  {t('profile.uploadAvatar')}
-                </Button>
-              </Upload>
-
-              {avatarUrl && (
-                <Button
-                  icon={<DeleteOutlined />}
-                  danger
-                  onClick={handleAvatarDelete}
-                  loading={isDeletingAvatar}
-                  disabled={isUploadingAvatar}
-                  className="w-full"
-                >
-                  {t('profile.removeAvatar')}
-                </Button>
-              )}
-            </div>
-
-            <p className="text-xs text-stone-500 dark:text-stone-400 text-center">
+            <p className="text-xs text-stone-500 dark:text-stone-400 text-center mt-2">
               {t('profile.avatarHint')}
             </p>
           </div>
@@ -376,10 +236,20 @@ export function ProfileSettingsForm({
   const [isPending, startTransition] = useTransition();
   const { invalidate: invalidateUser } = useInvalidateUser();
 
-  // Avatar state
+  // Avatar state - managed here so we can invalidate cache on change
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initialData.avatar_url);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const [isDeletingAvatar, setIsDeletingAvatar] = useState(false);
+
+  /**
+   * Handle avatar change - updates state and invalidates cache
+   */
+  const handleAvatarChange = useCallback(
+    async (url: string | null) => {
+      setAvatarUrl(url);
+      // Invalidate user cache so avatar updates reflect across the app
+      await invalidateUser();
+    },
+    [invalidateUser]
+  );
 
   /**
    * Handle form submission
@@ -432,11 +302,7 @@ export function ProfileSettingsForm({
       <ProfileFormContent
         initialData={initialData}
         avatarUrl={avatarUrl}
-        setAvatarUrl={setAvatarUrl}
-        isUploadingAvatar={isUploadingAvatar}
-        setIsUploadingAvatar={setIsUploadingAvatar}
-        isDeletingAvatar={isDeletingAvatar}
-        setIsDeletingAvatar={setIsDeletingAvatar}
+        onAvatarChange={handleAvatarChange}
         isPending={isPending}
       />
     </Form>
