@@ -125,12 +125,14 @@ export function UserMenu({
   const currentShopId = useShopStore((state) => state.currentShopId);
 
   // Determine link paths based on context
+  // When showAccountSettings is true (e.g., on shops page), always use account settings path
+  // regardless of any stale currentShopId in the store
   const getSettingsPath = (suffix: string): string => {
-    if (currentShopId) {
-      return `/${currentShopId}/settings${suffix}`;
-    }
     if (showAccountSettings) {
       return `/settings${suffix}`;
+    }
+    if (currentShopId) {
+      return `/${currentShopId}/settings${suffix}`;
     }
     return '/shops';
   };
