@@ -45,7 +45,7 @@ import {
   useUserSubscriptionLimits,
   useCreateCheckoutSession,
   useCreatePortalSession,
-  type Plan,
+  type BillingPlan,
 } from '@/lib/hooks/settings';
 import { cn } from '@/lib/utils/cn';
 
@@ -148,7 +148,7 @@ function CurrentPlanCard({
   planName: string | null;
   subscriptionStatus: string | null;
   isContactSales: boolean;
-  currentPlan: Plan | null;
+  currentPlan: BillingPlan | null;
   onManageSubscription: () => void;
   isLoading: boolean;
   t: ReturnType<typeof useTranslations>;
@@ -337,7 +337,7 @@ function PlanCard({
   isLoading,
   t,
 }: {
-  plan: Plan;
+  plan: BillingPlan;
   isCurrent: boolean;
   onSelect: () => void;
   isLoading: boolean;
@@ -594,7 +594,7 @@ export default function BillingSettingsPage(): React.JSX.Element {
     });
   };
 
-  const handleSelectPlan = (plan: Plan) => {
+  const handleSelectPlan = (plan: BillingPlan) => {
     if (plan.isContactSales) {
       window.location.href = 'mailto:sales@aymur.com?subject=Enterprise Plan Inquiry';
       return;
