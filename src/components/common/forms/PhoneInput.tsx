@@ -5,15 +5,18 @@
  *
  * A reusable international phone number input with country selector and validation.
  * Uses react-international-phone for country detection, formatting, and validation.
+ * Uses google-libphonenumber for accurate per-country phone validation.
  *
  * Features:
  * - Country selector with flags (Twemoji)
+ * - Separated dial code display (non-editable, shown between flag and input)
  * - Auto-formats phone numbers based on country
  * - Country auto-detection from phone number
  * - E.164 format output (includes country code)
- * - Validation support via isPhoneValid utility
+ * - Proper validation via google-libphonenumber
  * - Ant Design styling integration
  * - RTL support
+ * - Portal-based dropdown (escapes overflow:hidden containers)
  *
  * @example
  * // Basic usage
@@ -36,8 +39,10 @@
  * @module components/common/forms/PhoneInput
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { PhoneNumberUtil } from 'google-libphonenumber';
+import { createPortal } from 'react-dom';
 import {
   defaultCountries,
   FlagImage,
@@ -48,6 +53,49 @@ import {
 import 'react-international-phone/style.css';
 
 import { cn } from '@/lib/utils/cn';
+
+// =============================================================================
+// PHONE VALIDATION UTILITY
+// =============================================================================
+
+const phoneUtil = PhoneNumberUtil.getInstance();
+
+/**
+ * Validates a phone number using google-libphonenumber
+ * This provides accurate per-country validation
+ *
+ * @param phone - Phone number to validate (e.g., "+966501234567")
+ * @returns Whether the phone number is valid for its country
+ */
+export function isValidPhone(phone: string | null | undefined): boolean {
+  if (!phone || phone.length < 4) {
+    return false;
+  }
+  try {
+    const parsedNumber = phoneUtil.parseAndKeepRawInput(phone);
+    return phoneUtil.isValidNumber(parsedNumber);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Gets the expected phone number length for a country (national number only)
+ * @param countryIso2 - Country ISO2 code
+ * @returns Expected length or null if unknown
+ */
+function getExpectedPhoneLength(countryIso2: string): number | null {
+  try {
+    const exampleNumber = phoneUtil.getExampleNumber(countryIso2.toUpperCase());
+    if (exampleNumber) {
+      const nationalNumber = exampleNumber.getNationalNumber();
+      return nationalNumber ? nationalNumber.toString().length : null;
+    }
+  } catch {
+    // Ignore errors
+  }
+  return null;
+}
 
 // =============================================================================
 // TYPES
@@ -148,12 +196,6 @@ export interface PhoneInputProps {
   onBlur?: () => void;
 
   /**
-   * Whether to hide the dial code in the input
-   * @default false
-   */
-  hideDialCode?: boolean;
-
-  /**
    * Auto-detect country from phone number
    * @default true
    */
@@ -179,7 +221,7 @@ const INPUT_SIZE_CLASSES = {
   large: 'py-1.5 px-3',
 } as const;
 
-const DROPDOWN_SIZE_CLASSES = {
+const BUTTON_SIZE_CLASSES = {
   small: 'py-0 px-1.5',
   middle: 'py-1 px-2',
   large: 'py-1.5 px-2',
@@ -189,6 +231,84 @@ const DROPDOWN_SIZE_CLASSES = {
  * Default preferred countries for the region
  */
 const DEFAULT_PREFERRED_COUNTRIES: CountryIso2[] = ['sa', 'ae', 'eg', 'jo', 'kw', 'bh', 'qa', 'om'];
+
+// =============================================================================
+// DROPDOWN PORTAL COMPONENT
+// =============================================================================
+
+interface DropdownPortalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  triggerRef: React.RefObject<HTMLButtonElement>;
+  children: React.ReactNode;
+}
+
+function DropdownPortal({
+  isOpen,
+  onClose,
+  triggerRef,
+  children,
+}: DropdownPortalProps): React.JSX.Element | null {
+  const [position, setPosition] = useState({ top: 0, left: 0, width: 256 });
+
+  useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: 256,
+      });
+    }
+  }, [isOpen, triggerRef]);
+
+  // Handle escape key
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || typeof window === 'undefined') {
+    return null;
+  }
+
+  return createPortal(
+    <>
+      {/* Backdrop */}
+      <div className="fixed inset-0 z-[9998]" onClick={onClose} />
+
+      {/* Dropdown */}
+      <div
+        className={cn(
+          'fixed z-[9999]',
+          'max-h-60 overflow-y-auto',
+          'bg-white dark:bg-stone-800',
+          'border border-stone-200 dark:border-stone-600',
+          'rounded-lg shadow-xl',
+          'py-1'
+        )}
+        style={{
+          top: position.top,
+          left: position.left,
+          width: position.width,
+        }}
+      >
+        {children}
+      </div>
+    </>,
+    document.body
+  );
+}
 
 // =============================================================================
 // COMPONENT
@@ -209,29 +329,23 @@ export function PhoneInput({
   preferredCountries = DEFAULT_PREFERRED_COUNTRIES,
   onFocus,
   onBlur,
-  hideDialCode = false,
   autoDetectCountry = true,
 }: PhoneInputProps): React.JSX.Element {
   const [isFocused, setIsFocused] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Use the phone input hook
-  const {
-    inputValue,
-    phone: _phone, // Phone value available but we use data.phone in onChange
-    country,
-    setCountry,
-    handlePhoneValueChange,
-    inputRef,
-  } = usePhoneInput({
+  // Use the phone input hook with separated dial code
+  const { inputValue, country, setCountry, handlePhoneValueChange, inputRef } = usePhoneInput({
     defaultCountry,
     value: value || '',
     countries: defaultCountries,
     disableCountryGuess: !autoDetectCountry,
-    disableDialCodePrefill: hideDialCode,
+    forceDialCode: true,
+    disableDialCodeAndPrefix: true,
     onChange: (data) => {
-      // Validate the phone number
-      const isValid = data.phone.length > 4 && /^\+\d{7,15}$/.test(data.phone);
+      // Validate using google-libphonenumber
+      const isValid = isValidPhone(data.phone);
 
       onChange?.(data.phone, {
         country: data.country.iso2,
@@ -240,6 +354,9 @@ export function PhoneInput({
       });
     },
   });
+
+  // Calculate max length based on country
+  const maxLength = getExpectedPhoneLength(country.iso2) ?? 15;
 
   // Handle focus
   const handleFocus = useCallback(() => {
@@ -252,6 +369,11 @@ export function PhoneInput({
     setIsFocused(false);
     onBlur?.();
   }, [onBlur]);
+
+  // Close dropdown
+  const closeDropdown = useCallback(() => {
+    setIsDropdownOpen(false);
+  }, []);
 
   // Get status classes
   const getStatusClasses = (): string => {
@@ -301,103 +423,52 @@ export function PhoneInput({
         className
       )}
     >
-      {/* Country Selector */}
+      {/* Country Selector Button */}
       {showCountrySelector && (
-        <div className="relative">
-          <button
-            type="button"
-            disabled={disabled || disableCountrySelector}
-            onClick={() =>
-              !disabled && !disableCountrySelector && setIsDropdownOpen(!isDropdownOpen)
-            }
-            className={cn(
-              'flex items-center gap-1.5 border-e border-stone-200 dark:border-stone-600',
-              'hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors rounded-s-lg',
-              DROPDOWN_SIZE_CLASSES[size],
-              (disabled || disableCountrySelector) && 'cursor-not-allowed'
-            )}
-          >
-            <FlagImage iso2={country.iso2} size="20px" />
-            <span className="text-stone-500 dark:text-stone-400 text-xs">+{country.dialCode}</span>
-            <svg
-              className={cn(
-                'w-3 h-3 text-stone-400 transition-transform',
-                isDropdownOpen && 'rotate-180'
-              )}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
-          {/* Country Dropdown */}
-          {isDropdownOpen && (
-            <>
-              {/* Backdrop */}
-              <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
-
-              {/* Dropdown */}
-              <div
-                className={cn(
-                  'absolute top-full start-0 mt-1 z-50',
-                  'w-64 max-h-60 overflow-y-auto',
-                  'bg-white dark:bg-stone-800',
-                  'border border-stone-200 dark:border-stone-600',
-                  'rounded-lg shadow-lg',
-                  'py-1'
-                )}
-              >
-                {sortedCountries.map((countryData, index) => {
-                  const parsed = parseCountry(countryData);
-                  const isPreferred = preferredCountries.includes(parsed.iso2);
-                  const isLastPreferred =
-                    isPreferred &&
-                    !preferredCountries.includes(
-                      parseCountry(sortedCountries[index + 1] || countryData).iso2
-                    );
-
-                  return (
-                    <React.Fragment key={parsed.iso2}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCountry(parsed.iso2);
-                          setIsDropdownOpen(false);
-                        }}
-                        className={cn(
-                          'w-full flex items-center gap-2 px-3 py-2 text-start',
-                          'hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors',
-                          country.iso2 === parsed.iso2 && 'bg-amber-50 dark:bg-amber-900/20'
-                        )}
-                      >
-                        <FlagImage iso2={parsed.iso2} size="20px" />
-                        <span className="flex-1 text-sm text-stone-900 dark:text-stone-100 truncate">
-                          {parsed.name}
-                        </span>
-                        <span className="text-xs text-stone-500 dark:text-stone-400">
-                          +{parsed.dialCode}
-                        </span>
-                      </button>
-                      {isLastPreferred && (
-                        <div className="border-b border-stone-200 dark:border-stone-600 my-1" />
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-            </>
+        <button
+          ref={buttonRef}
+          type="button"
+          disabled={disabled || disableCountrySelector}
+          onClick={() => !disabled && !disableCountrySelector && setIsDropdownOpen(!isDropdownOpen)}
+          className={cn(
+            'flex items-center gap-1 border-e border-stone-200 dark:border-stone-600',
+            'hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors rounded-s-lg',
+            BUTTON_SIZE_CLASSES[size],
+            (disabled || disableCountrySelector) && 'cursor-not-allowed'
           )}
-        </div>
+          aria-label="Select country"
+          aria-expanded={isDropdownOpen}
+          aria-haspopup="listbox"
+        >
+          <FlagImage iso2={country.iso2} size="20px" />
+          <svg
+            className={cn(
+              'w-3 h-3 text-stone-400 transition-transform',
+              isDropdownOpen && 'rotate-180'
+            )}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
       )}
 
-      {/* Phone Input */}
+      {/* Dial Code Display (non-editable) */}
+      <span
+        className={cn(
+          'text-stone-500 dark:text-stone-400 select-none whitespace-nowrap',
+          'px-1.5',
+          size === 'small' && 'text-xs',
+          size === 'middle' && 'text-sm',
+          size === 'large' && 'text-base'
+        )}
+      >
+        +{country.dialCode}
+      </span>
+
+      {/* Phone Input (national number only) */}
       <input
         ref={inputRef}
         type="tel"
@@ -408,38 +479,69 @@ export function PhoneInput({
         placeholder={placeholder || 'Enter phone number'}
         disabled={disabled}
         readOnly={readOnly}
+        maxLength={maxLength + 5} // Allow some buffer for formatting characters
         className={cn(
           'flex-1 min-w-0 bg-transparent outline-none',
           'text-stone-900 dark:text-stone-100',
           'placeholder:text-stone-400 dark:placeholder:text-stone-500',
           INPUT_SIZE_CLASSES[size],
-          !showCountrySelector && 'rounded-s-lg',
           'rounded-e-lg'
         )}
         dir="ltr"
+        aria-label="Phone number"
       />
+
+      {/* Country Dropdown Portal */}
+      <DropdownPortal isOpen={isDropdownOpen} onClose={closeDropdown} triggerRef={buttonRef}>
+        {sortedCountries.map((countryData, index) => {
+          const parsed = parseCountry(countryData);
+          const isPreferred = preferredCountries.includes(parsed.iso2);
+          const isLastPreferred =
+            isPreferred &&
+            !preferredCountries.includes(
+              parseCountry(sortedCountries[index + 1] || countryData).iso2
+            );
+
+          return (
+            <React.Fragment key={parsed.iso2}>
+              <button
+                type="button"
+                onClick={() => {
+                  setCountry(parsed.iso2);
+                  setIsDropdownOpen(false);
+                  // Focus input after selection
+                  inputRef.current?.focus();
+                }}
+                className={cn(
+                  'w-full flex items-center gap-2 px-3 py-2 text-start',
+                  'hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors',
+                  country.iso2 === parsed.iso2 && 'bg-amber-50 dark:bg-amber-900/20'
+                )}
+                role="option"
+                aria-selected={country.iso2 === parsed.iso2}
+              >
+                <FlagImage iso2={parsed.iso2} size="20px" />
+                <span className="flex-1 text-sm text-stone-900 dark:text-stone-100 truncate">
+                  {parsed.name}
+                </span>
+                <span className="text-xs text-stone-500 dark:text-stone-400">
+                  +{parsed.dialCode}
+                </span>
+              </button>
+              {isLastPreferred && (
+                <div className="border-b border-stone-200 dark:border-stone-600 my-1" />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </DropdownPortal>
     </div>
   );
 }
 
 // =============================================================================
-// VALIDATION UTILITY
+// DISPLAY UTILITY
 // =============================================================================
-
-/**
- * Validates a phone number in E.164 format
- * Basic validation - checks format and length
- *
- * @param phone - Phone number to validate (e.g., "+966501234567")
- * @returns Whether the phone number is valid
- */
-export function isValidPhone(phone: string | null | undefined): boolean {
-  if (!phone) {
-    return false;
-  }
-  // E.164 format: + followed by 7-15 digits
-  return /^\+\d{7,15}$/.test(phone);
-}
 
 /**
  * Formats a phone number for display
