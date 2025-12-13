@@ -943,4 +943,47 @@
   [dir='rtl'] .phone-input-container {
     direction: ltr;
   }
+
+  /* Country selector Select styles */
+  .phone-input-country-select {
+    min-width: 60px !important;
+  }
+
+  .phone-input-country-select .ant-select-selector {
+    padding: 0 4px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: unset !important;
+  }
+
+  .phone-input-country-select .ant-select-selection-item {
+    padding-inline-end: 16px !important;
+  }
+
+  .phone-input-country-select .ant-select-arrow {
+    inset-inline-end: 4px;
+  }
+
+  /* Country dropdown popup styles */
+  .phone-input-country-popup .ant-select-item-option {
+    padding: 8px 12px;
+  }
+
+  .phone-input-country-popup .ant-select-item-option-selected {
+    background-color: rgba(217, 119, 6, 0.1);
+  }
+
+  .phone-input-country-popup .ant-select-item-option-active {
+    background-color: var(--neutral-100);
+  }
+
+  .dark .phone-input-country-popup .ant-select-item-option-active {
+    background-color: var(--neutral-700);
+  }
+
+  .dark .phone-input-country-popup .ant-select-item-option-selected {
+    background-color: rgba(217, 119, 6, 0.2);
+  }
 }

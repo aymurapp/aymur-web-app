@@ -6,9 +6,10 @@
  * A reusable international phone number input with country selector and validation.
  * Uses react-international-phone for country detection, formatting, and validation.
  * Uses google-libphonenumber for accurate per-country phone validation.
+ * Uses Ant Design Select for the country dropdown.
  *
  * Features:
- * - Country selector with flags (Twemoji)
+ * - Country selector with flags (Twemoji) using antd Select
  * - Separated dial code display (non-editable, shown between flag and input)
  * - Auto-formats phone numbers based on country
  * - Country auto-detection from phone number
@@ -16,7 +17,7 @@
  * - Proper validation via google-libphonenumber
  * - Ant Design styling integration
  * - RTL support
- * - Portal-based dropdown (escapes overflow:hidden containers)
+ * - Search functionality in country dropdown
  *
  * @example
  * // Basic usage
@@ -39,10 +40,10 @@
  * @module components/common/forms/PhoneInput
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
+import { Select } from 'antd';
 import { PhoneNumberUtil } from 'google-libphonenumber';
-import { createPortal } from 'react-dom';
 import {
   defaultCountries,
   FlagImage,
@@ -229,236 +230,36 @@ const INPUT_SIZE_CLASSES = {
   large: 'py-1.5 px-3',
 } as const;
 
-const BUTTON_SIZE_CLASSES = {
-  small: 'py-0 px-1.5',
-  middle: 'py-1 px-2',
-  large: 'py-1.5 px-2',
-} as const;
-
 // =============================================================================
-// COUNTRY DROPDOWN COMPONENT
+// COUNTRY OPTIONS FOR SELECT
 // =============================================================================
 
-interface CountryDropdownProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (iso2: CountryIso2) => void;
-  selectedCountry: CountryIso2;
-  triggerRef: React.RefObject<HTMLButtonElement>;
+interface CountryOption {
+  value: string;
+  label: string;
+  dialCode: string;
+  searchText: string;
 }
 
 /**
- * Sort countries alphabetically by name
+ * Build sorted country options for antd Select
  */
-function getSortedCountries() {
-  return [...defaultCountries].sort((a, b) => {
-    const nameA = parseCountry(a).name;
-    const nameB = parseCountry(b).name;
-    return nameA.localeCompare(nameB);
-  });
+function buildCountryOptions(): CountryOption[] {
+  return [...defaultCountries]
+    .map((c) => {
+      const parsed = parseCountry(c);
+      return {
+        value: parsed.iso2,
+        label: parsed.name,
+        dialCode: parsed.dialCode,
+        // Pre-compute searchable text for performance
+        searchText: `${parsed.name} ${parsed.dialCode} ${parsed.iso2}`.toLowerCase(),
+      };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
 }
 
-const SORTED_COUNTRIES = getSortedCountries();
-
-function CountryDropdown({
-  isOpen,
-  onClose,
-  onSelect,
-  selectedCountry,
-  triggerRef,
-}: CountryDropdownProps): React.JSX.Element | null {
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-  const [searchQuery, setSearchQuery] = useState('');
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const letterRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  // Filter countries based on search
-  const filteredCountries = React.useMemo(() => {
-    if (!searchQuery.trim()) {
-      return SORTED_COUNTRIES;
-    }
-    const query = searchQuery.toLowerCase();
-    return SORTED_COUNTRIES.filter((c) => {
-      const parsed = parseCountry(c);
-      return (
-        parsed.name.toLowerCase().includes(query) ||
-        parsed.dialCode.includes(query) ||
-        parsed.iso2.toLowerCase().includes(query)
-      );
-    });
-  }, [searchQuery]);
-
-  // Group countries by first letter
-  const groupedCountries = React.useMemo(() => {
-    const groups: Record<string, typeof filteredCountries> = {};
-    filteredCountries.forEach((c) => {
-      const parsed = parseCountry(c);
-      const letter = parsed.name.charAt(0).toUpperCase();
-      if (!groups[letter]) {
-        groups[letter] = [];
-      }
-      groups[letter].push(c);
-    });
-    return groups;
-  }, [filteredCountries]);
-
-  // Update position when dropdown opens
-  useEffect(() => {
-    if (!isOpen || !triggerRef.current) {
-      return;
-    }
-
-    const rect = triggerRef.current.getBoundingClientRect();
-    setPosition({
-      top: rect.bottom + 4,
-      left: rect.left,
-    });
-
-    // Focus search input
-    setTimeout(() => searchInputRef.current?.focus(), 50);
-
-    // Reset search when opening
-    setSearchQuery('');
-
-    // Close on OUTSIDE scroll only (not dropdown internal scroll)
-    const handleScroll = (e: Event) => {
-      // Check if scroll is happening inside the dropdown
-      if (dropdownRef.current?.contains(e.target as Node)) {
-        return; // Don't close on internal scroll
-      }
-      onClose();
-    };
-    window.addEventListener('scroll', handleScroll, true);
-    return () => window.removeEventListener('scroll', handleScroll, true);
-  }, [isOpen, triggerRef, onClose]);
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-        return;
-      }
-
-      // Quick letter jump (when not focused on search input)
-      if (
-        document.activeElement !== searchInputRef.current &&
-        e.key.length === 1 &&
-        /[a-zA-Z]/.test(e.key)
-      ) {
-        const letter = e.key.toUpperCase();
-        const letterEl = letterRefs.current[letter];
-        if (letterEl) {
-          letterEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  if (!isOpen || typeof window === 'undefined') {
-    return null;
-  }
-
-  return createPortal(
-    <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-[9998]" onClick={onClose} />
-
-      {/* Dropdown */}
-      <div
-        ref={dropdownRef}
-        className={cn(
-          'fixed z-[9999] flex flex-col',
-          'bg-white dark:bg-stone-800',
-          'border border-stone-200 dark:border-stone-600',
-          'rounded-lg shadow-xl overflow-hidden'
-        )}
-        style={{
-          top: position.top,
-          left: position.left,
-          width: 280,
-          maxHeight: 350,
-        }}
-      >
-        {/* Search input */}
-        <div className="p-2 border-b border-stone-200 dark:border-stone-600">
-          <input
-            ref={searchInputRef}
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search country..."
-            className={cn(
-              'w-full px-3 py-1.5 text-sm',
-              'bg-stone-50 dark:bg-stone-700',
-              'border border-stone-200 dark:border-stone-600 rounded',
-              'text-stone-900 dark:text-stone-100',
-              'placeholder:text-stone-400 dark:placeholder:text-stone-500',
-              'focus:outline-none focus:ring-1 focus:ring-amber-500'
-            )}
-          />
-        </div>
-
-        {/* Country list */}
-        <div className="flex-1 overflow-y-auto">
-          {Object.keys(groupedCountries).length === 0 ? (
-            <div className="p-4 text-center text-sm text-stone-500">No countries found</div>
-          ) : (
-            Object.entries(groupedCountries).map(([letter, countries]) => (
-              <div
-                key={letter}
-                ref={(el) => {
-                  letterRefs.current[letter] = el;
-                }}
-              >
-                {/* Letter header */}
-                <div className="sticky top-0 px-3 py-1 text-xs font-semibold text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-700">
-                  {letter}
-                </div>
-                {/* Countries in this letter group */}
-                {countries.map((countryData) => {
-                  const parsed = parseCountry(countryData);
-                  return (
-                    <button
-                      key={parsed.iso2}
-                      type="button"
-                      onClick={() => {
-                        onSelect(parsed.iso2);
-                        onClose();
-                      }}
-                      className={cn(
-                        'w-full flex items-center gap-2 px-3 py-2 text-start',
-                        'hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors',
-                        selectedCountry === parsed.iso2 && 'bg-amber-50 dark:bg-amber-900/20'
-                      )}
-                    >
-                      <FlagImage iso2={parsed.iso2} size="20px" />
-                      <span className="flex-1 text-sm text-stone-900 dark:text-stone-100 truncate">
-                        {parsed.name}
-                      </span>
-                      <span className="text-xs text-stone-500 dark:text-stone-400">
-                        +{parsed.dialCode}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </>,
-    document.body
-  );
-}
+const COUNTRY_OPTIONS = buildCountryOptions();
 
 // =============================================================================
 // COMPONENT
@@ -481,8 +282,7 @@ export function PhoneInput({
   autoDetectCountry = true,
 }: PhoneInputProps): React.JSX.Element {
   const [isFocused, setIsFocused] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Use the phone input hook with separated dial code
   const { inputValue, country, setCountry, handlePhoneValueChange, inputRef } = usePhoneInput({
@@ -542,11 +342,6 @@ export function PhoneInput({
     onBlur?.();
   }, [onBlur]);
 
-  // Close dropdown
-  const closeDropdown = useCallback(() => {
-    setIsDropdownOpen(false);
-  }, []);
-
   // Get status classes
   const getStatusClasses = (): string => {
     if (status === 'error') {
@@ -558,18 +353,38 @@ export function PhoneInput({
     return '';
   };
 
-  // Handle country selection from dropdown
-  const handleCountrySelect = useCallback(
-    (iso2: CountryIso2) => {
-      setCountry(iso2);
+  // Handle country selection from Select
+  const handleCountryChange = useCallback(
+    (iso2: string) => {
+      setCountry(iso2 as CountryIso2);
       // Focus input after selection
-      inputRef.current?.focus();
+      setTimeout(() => inputRef.current?.focus(), 0);
     },
     [setCountry, inputRef]
   );
 
+  // Filter function for country search
+  const filterCountryOption = useCallback((input: string, option?: CountryOption): boolean => {
+    if (!input || !option) {
+      return true;
+    }
+    return option.searchText.includes(input.toLowerCase());
+  }, []);
+
+  // Memoize the Select size mapping
+  const selectSize = useMemo(() => {
+    if (size === 'small') {
+      return 'small';
+    }
+    if (size === 'large') {
+      return 'large';
+    }
+    return 'middle';
+  }, [size]);
+
   return (
     <div
+      ref={containerRef}
       className={cn(
         // Base container styles
         'phone-input-container flex items-center w-full',
@@ -592,36 +407,50 @@ export function PhoneInput({
         className
       )}
     >
-      {/* Country Selector Button */}
+      {/* Country Selector using antd Select */}
       {showCountrySelector && (
-        <button
-          ref={buttonRef}
-          type="button"
+        <Select<string, CountryOption>
+          value={country.iso2}
+          onChange={handleCountryChange}
           disabled={disabled || disableCountrySelector}
-          onClick={() => !disabled && !disableCountrySelector && setIsDropdownOpen(!isDropdownOpen)}
-          className={cn(
-            'flex items-center gap-1 border-e border-stone-200 dark:border-stone-600',
-            'hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors rounded-s-lg',
-            BUTTON_SIZE_CLASSES[size],
-            (disabled || disableCountrySelector) && 'cursor-not-allowed'
+          showSearch
+          filterOption={filterCountryOption}
+          options={COUNTRY_OPTIONS}
+          size={selectSize}
+          variant="borderless"
+          popupMatchSelectWidth={280}
+          className="phone-input-country-select"
+          popupClassName="phone-input-country-popup"
+          getPopupContainer={() => containerRef.current || document.body}
+          listHeight={300}
+          optionRender={(option) => (
+            <div className="flex items-center gap-2 py-0.5">
+              <FlagImage iso2={option.data.value} size="20px" />
+              <span className="flex-1 truncate">{option.data.label}</span>
+              <span className="text-xs text-gray-400">+{option.data.dialCode}</span>
+            </div>
           )}
-          aria-label="Select country"
-          aria-expanded={isDropdownOpen}
-          aria-haspopup="listbox"
-        >
-          <FlagImage iso2={country.iso2} size="20px" />
-          <svg
-            className={cn(
-              'w-3 h-3 text-stone-400 transition-transform',
-              isDropdownOpen && 'rotate-180'
-            )}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+          labelRender={({ value: val }) => (
+            <div className="flex items-center gap-1">
+              <FlagImage iso2={val as string} size="20px" />
+            </div>
+          )}
+          suffixIcon={
+            <svg
+              className="w-3 h-3 text-stone-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          }
+        />
       )}
 
       {/* Dial Code Display (non-editable) */}
@@ -657,15 +486,6 @@ export function PhoneInput({
         )}
         dir="ltr"
         aria-label="Phone number"
-      />
-
-      {/* Country Dropdown */}
-      <CountryDropdown
-        isOpen={isDropdownOpen}
-        onClose={closeDropdown}
-        onSelect={handleCountrySelect}
-        selectedCountry={country.iso2}
-        triggerRef={buttonRef}
       />
     </div>
   );
