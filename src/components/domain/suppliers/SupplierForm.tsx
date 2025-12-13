@@ -28,17 +28,12 @@
 
 import React, { useCallback, useTransition, useMemo } from 'react';
 
-import {
-  ShopOutlined,
-  UserOutlined,
-  PhoneOutlined,
-  MailOutlined,
-  FileTextOutlined,
-} from '@ant-design/icons';
+import { ShopOutlined, UserOutlined, MailOutlined, FileTextOutlined } from '@ant-design/icons';
 import { Input, Select, message, Divider, Typography, Skeleton } from 'antd';
 import { useTranslations } from 'next-intl';
 
 import { AddressFormSection } from '@/components/common/forms/AddressFormSection';
+import { PhoneInput } from '@/components/common/forms/PhoneInput';
 import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form';
 import {
@@ -247,14 +242,16 @@ export function SupplierForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Phone */}
           <Form.Item<SupplierFormValues> name="phone" label={t('phone')}>
-            <Input
-              size="large"
-              placeholder={t('placeholders.phone')}
-              maxLength={50}
-              dir="ltr"
-              className="text-start"
-              prefix={<PhoneOutlined className="text-stone-400" />}
-            />
+            {({ field }) => (
+              <PhoneInput
+                value={typeof field.value === 'string' ? field.value : ''}
+                onChange={(phone) => field.onChange(phone)}
+                onBlur={field.onBlur}
+                defaultCountry="sa"
+                size="large"
+                placeholder={t('placeholders.phone')}
+              />
+            )}
           </Form.Item>
 
           {/* Email */}

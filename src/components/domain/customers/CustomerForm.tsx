@@ -33,6 +33,7 @@ import { z } from 'zod';
 
 import { EntityImageUpload } from '@/components/common/data/EntityImageUpload';
 import { AddressFormSection } from '@/components/common/forms/AddressFormSection';
+import { PhoneInput } from '@/components/common/forms/PhoneInput';
 import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form';
 import { PERMISSION_KEYS } from '@/lib/constants/permissions';
@@ -330,13 +331,16 @@ export function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProp
 
         {/* Phone */}
         <Form.Item<CustomerFormValues> name="phone" label={t('phone')} required>
-          <Input
-            size="large"
-            placeholder={t('placeholders.phone')}
-            maxLength={20}
-            dir="ltr"
-            className="text-start"
-          />
+          {({ field }) => (
+            <PhoneInput
+              value={typeof field.value === 'string' ? field.value : ''}
+              onChange={(phone) => field.onChange(phone)}
+              onBlur={field.onBlur}
+              defaultCountry="sa"
+              size="large"
+              placeholder={t('placeholders.phone')}
+            />
+          )}
         </Form.Item>
 
         {/* Email */}
