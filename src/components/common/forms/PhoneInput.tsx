@@ -282,7 +282,9 @@ export function PhoneInput({
   autoDetectCountry = true,
 }: PhoneInputProps): React.JSX.Element {
   const [isFocused, setIsFocused] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Use the phone input hook with separated dial code
   const { inputValue, country, setCountry, handlePhoneValueChange, inputRef } = usePhoneInput({
@@ -363,12 +365,24 @@ export function PhoneInput({
     [setCountry, inputRef]
   );
 
-  // Filter function for country search
-  const filterCountryOption = useCallback((input: string, option?: CountryOption): boolean => {
-    if (!input || !option) {
-      return true;
+  // Filter countries based on search
+  const filteredCountryOptions = useMemo(() => {
+    if (!countrySearch.trim()) {
+      return COUNTRY_OPTIONS;
     }
-    return option.searchText.includes(input.toLowerCase());
+    const query = countrySearch.toLowerCase();
+    return COUNTRY_OPTIONS.filter((opt) => opt.searchText.includes(query));
+  }, [countrySearch]);
+
+  // Handle dropdown open/close - reset search when closing
+  const handleDropdownVisibleChange = useCallback((open: boolean) => {
+    if (open) {
+      // Focus search input when dropdown opens
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    } else {
+      // Reset search when dropdown closes
+      setCountrySearch('');
+    }
   }, []);
 
   // Memoize the Select size mapping
@@ -413,16 +427,41 @@ export function PhoneInput({
           value={country.iso2}
           onChange={handleCountryChange}
           disabled={disabled || disableCountrySelector}
-          showSearch
-          filterOption={filterCountryOption}
-          options={COUNTRY_OPTIONS}
+          options={filteredCountryOptions}
           size={selectSize}
           variant="borderless"
           popupMatchSelectWidth={280}
-          className="phone-input-country-select"
+          className="phone-input-country-select flex-shrink-0"
           popupClassName="phone-input-country-popup"
           getPopupContainer={() => containerRef.current || document.body}
-          listHeight={300}
+          listHeight={280}
+          style={{ width: 56 }}
+          onDropdownVisibleChange={handleDropdownVisibleChange}
+          dropdownRender={(menu) => (
+            <div>
+              {/* Search input inside dropdown */}
+              <div className="p-2 border-b border-stone-200 dark:border-stone-600">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={countrySearch}
+                  onChange={(e) => setCountrySearch(e.target.value)}
+                  placeholder="Search country..."
+                  className={cn(
+                    'w-full px-3 py-1.5 text-sm',
+                    'bg-stone-50 dark:bg-stone-700',
+                    'border border-stone-200 dark:border-stone-600 rounded',
+                    'text-stone-900 dark:text-stone-100',
+                    'placeholder:text-stone-400 dark:placeholder:text-stone-500',
+                    'focus:outline-none focus:ring-1 focus:ring-amber-500'
+                  )}
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
+              </div>
+              {/* Country list */}
+              {menu}
+            </div>
+          )}
           optionRender={(option) => (
             <div className="flex items-center gap-2 py-0.5">
               <FlagImage iso2={option.data.value} size="20px" />
@@ -431,7 +470,7 @@ export function PhoneInput({
             </div>
           )}
           labelRender={({ value: val }) => (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center">
               <FlagImage iso2={val as string} size="20px" />
             </div>
           )}
